@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing & Plans | EuroPass</title>
+<meta name="description" content="EuroPass pricing: subscription plans, one-off programs, corporate training, and the student referral program.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {50:'#EAF2FB',100:'#C7D6EC',300:'#8FA6C7',500:'#3E5A8C',600:'#234A85',700:'#1B3A6B',900:'#0B1D3A'},
+            red: {50:'#FBEAEA',300:'#F08585',600:'#D62828',700:'#A61E1E'},
+            amber: {100:'#F6E4C4',600:'#C77D14'},
+            success: {50:'#E9F7EE',600:'#15803D'},
+            warning: {50:'#FDF3E7',600:'#B45309'},
+            danger: {50:'#FDECEC',600:'#DC2626'}
+          },
+          fontFamily: { serif: ['Lora','Georgia','serif'], sans: ['Inter','system-ui','sans-serif'] },
+          borderRadius: { sm:'6px', md:'10px', lg:'16px', xl:'24px' }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b" style="border-color:var(--border-default)">
+    <div class="container-ep flex items-center justify-between h-16">
+      <a href="index.html" class="font-serif font-bold text-xl tracking-tight" style="color:var(--navy-700)">
+        EURO<span style="color:var(--red-600)">PASS</span>
+      </a>
+      <nav class="hidden lg:flex items-center gap-7" aria-label="Primary">
+        <a href="index.html" class="nav-link text-sm">Home</a>
+        <a href="about.html" class="nav-link text-sm">About</a>
+        <a href="courses.html" class="nav-link text-sm">Courses</a>
+        <a href="pricing.html" class="nav-link text-sm font-semibold" aria-current="page" style="color:var(--navy-700)">Pricing</a>
+        <a href="blog.html" class="nav-link text-sm">Blog</a>
+        <a href="contact.html" class="nav-link text-sm">Contact</a>
+      </nav>
+      <div class="hidden lg:flex items-center gap-3">
+        <a href="login.html" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium">
+          <i data-lucide="log-in" class="w-4 h-4" style="color:var(--navy-700)"></i> Portal Login
+        </a>
+        <a href="tel:+212500000000" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium" aria-label="WhatsApp us">
+          <i data-lucide="message-circle" class="w-4 h-4" style="color:var(--success-600)"></i> WhatsApp
+        </a>
+        <a href="bilan.html" class="btn btn-primary btn-sm">Book Free Bilan</a>
+      </div>
+      <button id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" class="lg:hidden p-2 -mr-2" aria-label="Open menu">
+        <i data-lucide="menu" class="w-6 h-6" style="color:var(--navy-700)"></i>
+      </button>
+    </div>
+  </header>
+
+  <div id="nav-drawer" class="fixed inset-0 z-50 translate-x-full transition-transform duration-300 lg:hidden" aria-hidden="true">
+    <div class="absolute inset-0 bg-navy-900/40" onclick="document.getElementById('nav-close').click()"></div>
+    <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
+        <button id="nav-close" aria-label="Close menu" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <a href="index.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Home</a>
+      <a href="about.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">About</a>
+      <a href="courses.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Courses</a>
+      <a href="pricing.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Pricing</a>
+      <a href="blog.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Blog</a>
+      <a href="contact.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Contact</a>
+      <a href="login.html" class="py-3 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><i data-lucide="log-in" class="w-4 h-4"></i> Portal Login</a>
+      <a href="bilan.html" class="btn btn-primary mt-6 w-full">Book Free Bilan</a>
+      <a href="tel:+212500000000" class="btn btn-secondary mt-3 w-full">Call / WhatsApp</a>
+    </div>
+  </div>
+
+<main id="main">
+
+<section class="py-14" style="background:var(--navy-50)">
+  <div class="container-ep text-center">
+    <p class="eyebrow">Pricing</p>
+    <h1 class="font-serif text-4xl font-bold mt-2" style="color:var(--navy-700)">Simple pricing, real outcomes</h1>
+    <div class="inline-flex items-center gap-1 mt-6 p-1 rounded-full bg-white border" style="border-color:var(--border-default)">
+      <button class="px-4 py-2 rounded-full text-sm font-semibold" style="background:var(--navy-700); color:#fff">Monthly Subscription</button>
+      <button class="px-4 py-2 rounded-full text-sm font-semibold" style="color:var(--navy-700)">One-off Program</button>
+    </div>
+  </div>
+</section>
+
+<section class="section !pt-10">
+  <div class="container-ep grid md:grid-cols-3 gap-6">
+    
+    <div class="relative rounded-xl p-6 bg-white border" style="border-color:var(--border-default)">
+      
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Starter</p>
+      <p class="mt-3"><span class="text-3xl font-serif font-bold" style="color:var(--navy-700)">590 MAD</span> <span class="text-sm" style="color:var(--text-secondary)">/month</span></p>
+      <a href="bilan.html" class="btn btn-primary w-full mt-5">Get Started</a>
+      <ul class="mt-6 space-y-3"><li class="flex items-start gap-2 text-sm"><i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:var(--success-600)"></i>1 group session per week</li><li class="flex items-start gap-2 text-sm"><i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:var(--success-600)"></i>Access to student portal</li><li class="flex items-start gap-2 text-sm"><i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:var(--success-600)"></i>Homework &amp; progress tracking</li></ul>
+    </div>
+    
+    <div class="relative rounded-xl p-6 bg-white border-2" style="border-color:var(--red-600)">
+      <span class="badge badge-danger absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</span>
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Standard</p>
+      <p class="mt-3"><span class="text-3xl font-serif font-bold" style="color:var(--navy-700)">890 MAD</span> <span class="text-sm" style="color:var(--text-secondary)">/month</span></p>
+      <a href="bilan.html" class="btn btn-primary w-full mt-5">Get Started</a>
+      <ul class="mt-6 space-y-3"><li class="flex items-start gap-2 text-sm"><i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:var(--success-600)"></i>2 group sessions per week</li><li class="flex items-start gap-2 text-sm"><i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:var(--success-600)"></i>Speaking Club access</li><li class="flex items-start gap-2 text-sm"><i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:var(--success-600)"></i>Certificates on level completion</li><li class="flex items-start gap-2 text-sm"><i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:var(--success-600)"></i>Priority WhatsApp support</li></ul>
+    </div>
+    
+    <div class="relative rounded-xl p-6 bg-white border" style="border-color:var(--border-default)">
+      
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Intensive</p>
+      <p class="mt-3"><span class="text-3xl font-serif font-bold" style="color:var(--navy-700)">1,490 MAD</span> <span class="text-sm" style="color:var(--text-secondary)">/month</span></p>
+      <a href="bilan.html" class="btn btn-primary w-full mt-5">Get Started</a>
+      <ul class="mt-6 space-y-3"><li class="flex items-start gap-2 text-sm"><i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:var(--success-600)"></i>3 sessions/week + 1 private session</li><li class="flex items-start gap-2 text-sm"><i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:var(--success-600)"></i>Full IELTS/TOEFL resources</li><li class="flex items-start gap-2 text-sm"><i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:var(--success-600)"></i>Dedicated progress advisor</li></ul>
+    </div>
+  </div>
+  <p class="text-center text-xs mt-6" style="color:var(--text-secondary)">Referral rewards and seasonal coupons apply automatically at checkout. Cash and installment plans available in person.</p>
+</section>
+
+<section class="section" style="background:var(--bg-subtle)" id="corporate">
+  <div class="container-ep grid lg:grid-cols-2 gap-12 items-center">
+    <div class="photo-placeholder alt aspect-[4/3]"><i data-lucide="building-2" class="w-16 h-16"></i><span class="cap">Corporate Business English cohort</span></div>
+    <div>
+      <p class="eyebrow">For Teams</p>
+      <h2 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">Corporate Training</h2>
+      <p class="mt-3 text-sm" style="color:var(--text-secondary)">One dashboard, one consolidated invoice, and a cohort-level progress report for your whole team — custom discount tiers available.</p>
+      <ul class="mt-5 space-y-2 text-sm">
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4" style="color:var(--success-600)"></i> Bulk employee invitations</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4" style="color:var(--success-600)"></i> Consolidated monthly billing</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4" style="color:var(--success-600)"></i> Aggregate progress reporting</li>
+      </ul>
+      <a href="contact.html" class="btn btn-primary mt-6">Request a Corporate Demo</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="referral">
+  <div class="container-ep grid lg:grid-cols-2 gap-12 items-center">
+    <div>
+      <p class="eyebrow">Bring a Friend</p>
+      <h2 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">Referral Program</h2>
+      <p class="mt-3 text-sm" style="color:var(--text-secondary)">Every student gets a personal referral link. When a friend enrolls, you both get rewarded — tracked automatically from your Student Dashboard.</p>
+      <div class="grid grid-cols-3 gap-4 mt-6">
+        <div class="card p-4 text-center"><i data-lucide="link" class="w-5 h-5 mx-auto mb-2" style="color:var(--navy-700)"></i><p class="text-xs font-semibold">Share your link</p></div>
+        <div class="card p-4 text-center"><i data-lucide="user-plus" class="w-5 h-5 mx-auto mb-2" style="color:var(--navy-700)"></i><p class="text-xs font-semibold">Friend enrolls</p></div>
+        <div class="card p-4 text-center"><i data-lucide="gift" class="w-5 h-5 mx-auto mb-2" style="color:var(--amber-600)"></i><p class="text-xs font-semibold">You both earn a reward</p></div>
+      </div>
+      <a href="bilan.html" class="btn btn-secondary mt-6">Enroll to Get Your Link</a>
+    </div>
+    <div class="photo-placeholder warm aspect-[4/3]"><i data-lucide="gift" class="w-16 h-16"></i><span class="cap">Referral reward — one free month</span></div>
+  </div>
+</section>
+
+</main>
+
+  <footer class="border-t mt-20" style="border-color:var(--border-default); background:var(--bg-subtle)">
+    <div class="container-ep py-14 grid grid-cols-2 md:grid-cols-5 gap-8">
+      <div class="col-span-2">
+        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
+        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">The local reference for learning English — specialized paths for real careers, real families, and real ambitions.</p>
+        <div class="flex gap-3 mt-4">
+          <a href="#" aria-label="Facebook" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="facebook" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="Instagram" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="instagram" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="YouTube" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="youtube" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+        </div>
+      </div>
+      <div>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Explore</p>
+        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="about.html" class="hover:underline">About</a></li>
+          <li><a href="courses.html" class="hover:underline">Courses</a></li>
+          <li><a href="pricing.html" class="hover:underline">Pricing</a></li>
+          <li><a href="courses.html#teachers" class="hover:underline">Teachers</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Learn</p>
+        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="blog.html" class="hover:underline">Blog</a></li>
+          <li><a href="bilan.html" class="hover:underline">Free Bilan d’Anglais</a></li>
+          <li><a href="contact.html" class="hover:underline">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">For Business</p>
+        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="pricing.html#corporate" class="hover:underline">Corporate Training</a></li>
+          <li><a href="pricing.html#referral" class="hover:underline">Referral Program</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container-ep py-6 border-t flex flex-col md:flex-row justify-between gap-3 text-xs" style="border-color:var(--border-default); color:var(--text-secondary)">
+      <p>© 2026 EuroPass Centre de Formation en Anglais. All rights reserved.</p>
+      <div class="flex gap-4">
+        <a href="privacy.html" class="hover:underline">Privacy Policy</a>
+        <a href="terms.html" class="hover:underline">Terms</a>
+      </div>
+    </div>
+  </footer>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
+
+<script src="assets/js/main.js"></script>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

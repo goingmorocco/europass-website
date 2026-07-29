@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Dashboard | EuroPass</title>
+<meta name="description" content="EuroPass teacher dashboard — assign homework, grade submissions, message students.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {50:'#EAF2FB',100:'#C7D6EC',300:'#8FA6C7',500:'#3E5A8C',600:'#234A85',700:'#1B3A6B',900:'#0B1D3A'},
+            red: {50:'#FBEAEA',300:'#F08585',600:'#D62828',700:'#A61E1E'},
+            amber: {100:'#F6E4C4',600:'#C77D14'},
+            success: {50:'#E9F7EE',600:'#15803D'},
+            warning: {50:'#FDF3E7',600:'#B45309'},
+            danger: {50:'#FDECEC',600:'#DC2626'}
+          },
+          fontFamily: { serif: ['Lora','Georgia','serif'], sans: ['Inter','system-ui','sans-serif'] },
+          borderRadius: { sm:'6px', md:'10px', lg:'16px', xl:'24px' }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b" style="border-color:var(--border-default)">
+    <div class="container-ep flex items-center justify-between h-16">
+      <a href="index.html" class="font-serif font-bold text-xl tracking-tight" style="color:var(--navy-700)">
+        EURO<span style="color:var(--red-600)">PASS</span>
+      </a>
+      <nav class="hidden lg:flex items-center gap-7" aria-label="Primary">
+        <a href="index.html" class="nav-link text-sm">Home</a>
+        <a href="about.html" class="nav-link text-sm">About</a>
+        <a href="courses.html" class="nav-link text-sm">Courses</a>
+        <a href="pricing.html" class="nav-link text-sm">Pricing</a>
+        <a href="blog.html" class="nav-link text-sm">Blog</a>
+        <a href="contact.html" class="nav-link text-sm">Contact</a>
+      </nav>
+      <div class="hidden lg:flex items-center gap-3">
+        <a href="login.html" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium">
+          <i data-lucide="log-in" class="w-4 h-4" style="color:var(--navy-700)"></i> Portal Login
+        </a>
+        <a href="tel:+212500000000" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium" aria-label="WhatsApp us">
+          <i data-lucide="message-circle" class="w-4 h-4" style="color:var(--success-600)"></i> WhatsApp
+        </a>
+        <a href="bilan.html" class="btn btn-primary btn-sm">Book Free Bilan</a>
+      </div>
+      <button id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" class="lg:hidden p-2 -mr-2" aria-label="Open menu">
+        <i data-lucide="menu" class="w-6 h-6" style="color:var(--navy-700)"></i>
+      </button>
+    </div>
+  </header>
+
+  <div id="nav-drawer" class="fixed inset-0 z-50 translate-x-full transition-transform duration-300 lg:hidden" aria-hidden="true">
+    <div class="absolute inset-0 bg-navy-900/40" onclick="document.getElementById('nav-close').click()"></div>
+    <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
+        <button id="nav-close" aria-label="Close menu" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <a href="index.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Home</a>
+      <a href="about.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">About</a>
+      <a href="courses.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Courses</a>
+      <a href="pricing.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Pricing</a>
+      <a href="blog.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Blog</a>
+      <a href="contact.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Contact</a>
+      <a href="login.html" class="py-3 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><i data-lucide="log-in" class="w-4 h-4"></i> Portal Login</a>
+      <a href="bilan.html" class="btn btn-primary mt-6 w-full">Book Free Bilan</a>
+      <a href="tel:+212500000000" class="btn btn-secondary mt-3 w-full">Call / WhatsApp</a>
+    </div>
+  </div>
+
+<main id="main">
+
+<div id="teacher-shell" class="flex min-h-[calc(100vh-4rem)]">
+  <aside class="hidden lg:flex flex-col w-64 border-r shrink-0 p-4 gap-1" style="border-color:var(--border-default)">
+    
+    <button data-tab-trigger="overview" onclick="switchTab('teacher-shell','overview')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>Overview
+    </button>
+    <button data-tab-trigger="students" onclick="switchTab('teacher-shell','students')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="users" class="w-4 h-4"></i>My Students
+    </button>
+    <button data-tab-trigger="assign" onclick="switchTab('teacher-shell','assign')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="clipboard-list" class="w-4 h-4"></i>Assign Homework
+    </button>
+    <button data-tab-trigger="grade" onclick="switchTab('teacher-shell','grade')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="check-circle" class="w-4 h-4"></i>Grade Submissions
+    </button>
+    <button data-tab-trigger="messages" onclick="switchTab('teacher-shell','messages')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="messages-square" class="w-4 h-4"></i>Messages
+    </button>
+  </aside>
+  <div class="flex-1 min-w-0">
+    <div class="border-b" style="border-color:var(--border-default)">
+      <div class="container-ep py-4 flex items-center justify-between">
+        <div>
+          <p class="text-xs" style="color:var(--text-secondary)">Welcome back,</p>
+          <p id="portal-user-name" class="font-serif text-lg font-bold" style="color:var(--navy-700)">…</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="index.html" class="hidden md:inline text-xs font-semibold" style="color:var(--navy-700)">View Public Site</a>
+          <div class="relative">
+            <button class="relative p-2 rounded-full" style="background:var(--bg-subtle)" aria-label="Notifications" onclick="document.getElementById('bell-popover').classList.toggle('hidden'); event.stopPropagation();">
+              <i data-lucide="bell" class="w-5 h-5" style="color:var(--navy-700)"></i>
+              <span id="portal-bell-dot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style="background:var(--red-600); display:none"></span>
+            </button>
+            <div id="bell-popover" class="hidden absolute right-0 mt-2 w-80 card z-30 max-h-96 overflow-y-auto">
+              <div id="portal-bell-list"></div>
+            </div>
+          </div>
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:var(--navy-700)"><span id="portal-user-initials"></span></div>
+          <button id="portal-logout" class="text-xs font-semibold" style="color:var(--red-600)">Switch Account</button>
+        </div>
+      </div>
+    </div>
+    <div class="container-ep py-8">
+      
+<div data-tab-panel="overview">
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Overview</h1>
+  <div class="grid sm:grid-cols-3 gap-4 mb-8" id="teacher-kpis"></div>
+  <div class="card p-6">
+    <p class="font-semibold mb-4" style="color:var(--navy-700)">Submissions Needing Grading</p>
+    <div id="teacher-pending" class="space-y-3"></div>
+  </div>
+</div>
+
+<div data-tab-panel="students" class="hidden">
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">My Students</h1>
+  <div id="teacher-students-list" class="card overflow-hidden"></div>
+</div>
+
+<div data-tab-panel="assign" class="hidden">
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card p-6">
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Assign New Homework</p>
+      <form id="hw-form" class="space-y-4">
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="hw-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Instructions</label><textarea id="hw-instructions" required rows="4" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea></div>
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Due date</label><input id="hw-due" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+        <button type="submit" class="btn btn-primary w-full">Assign Homework</button>
+      </form>
+    </div>
+    <div>
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Previously Assigned</p>
+      <div id="teacher-hw-list" class="space-y-3"></div>
+    </div>
+  </div>
+</div>
+
+<div data-tab-panel="grade" class="hidden">
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Grade Submissions</h1>
+  <div id="teacher-grade-list" class="space-y-4"></div>
+</div>
+
+<div data-tab-panel="messages" class="hidden">
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Messages</h1>
+  <div class="grid lg:grid-cols-3 gap-6" style="min-height:28rem">
+    <div class="card p-2 lg:col-span-1" id="teacher-thread-list"></div>
+    <div class="card p-0 lg:col-span-2 flex flex-col">
+      <div id="teacher-chat-header" class="p-4 border-b font-semibold" style="border-color:var(--border-default); color:var(--navy-700)">Select a student</div>
+      <div id="teacher-chat-messages" class="flex-1 p-4 space-y-3 overflow-y-auto" style="max-height:22rem"></div>
+      <form id="teacher-chat-form" class="p-3 border-t flex gap-2" style="border-color:var(--border-default)">
+        <input id="teacher-chat-input" placeholder="Type a message..." class="flex-1 px-4 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <button type="submit" class="btn btn-primary btn-sm">Send</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="grade-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Grade Submission</p>
+      <button onclick="closeModal('grade-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div id="grade-modal-content" class="text-sm mb-4 p-3 rounded-lg" style="background:var(--bg-subtle); color:var(--text-secondary)"></div>
+    <form id="grade-form" class="space-y-4">
+      <input type="hidden" id="grade-sub-id">
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Grade</label><input id="grade-value" required placeholder="e.g. B+ or 8/10" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Feedback</label><textarea id="grade-feedback" required rows="3" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea></div>
+      <button type="submit" class="btn btn-primary w-full">Save Grade &amp; Notify Student</button>
+    </form>
+  </div>
+</div>
+
+    </div>
+  </div>
+</div>
+<script>document.addEventListener('click', (e) => { const pop = document.getElementById('bell-popover'); if (pop && !pop.classList.contains('hidden') && !pop.contains(e.target)) pop.classList.add('hidden'); });</script>
+
+</main>
+
+  <footer class="border-t mt-20" style="border-color:var(--border-default); background:var(--bg-subtle)">
+    <div class="container-ep py-14 grid grid-cols-2 md:grid-cols-5 gap-8">
+      <div class="col-span-2">
+        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
+        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">The local reference for learning English — specialized paths for real careers, real families, and real ambitions.</p>
+        <div class="flex gap-3 mt-4">
+          <a href="#" aria-label="Facebook" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="facebook" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="Instagram" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="instagram" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="YouTube" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="youtube" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+        </div>
+      </div>
+      <div>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Explore</p>
+        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="about.html" class="hover:underline">About</a></li>
+          <li><a href="courses.html" class="hover:underline">Courses</a></li>
+          <li><a href="pricing.html" class="hover:underline">Pricing</a></li>
+          <li><a href="courses.html#teachers" class="hover:underline">Teachers</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Learn</p>
+        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="blog.html" class="hover:underline">Blog</a></li>
+          <li><a href="bilan.html" class="hover:underline">Free Bilan d’Anglais</a></li>
+          <li><a href="contact.html" class="hover:underline">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">For Business</p>
+        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="pricing.html#corporate" class="hover:underline">Corporate Training</a></li>
+          <li><a href="pricing.html#referral" class="hover:underline">Referral Program</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container-ep py-6 border-t flex flex-col md:flex-row justify-between gap-3 text-xs" style="border-color:var(--border-default); color:var(--text-secondary)">
+      <p>© 2026 EuroPass Centre de Formation en Anglais. All rights reserved.</p>
+      <div class="flex gap-4">
+        <a href="privacy.html" class="hover:underline">Privacy Policy</a>
+        <a href="terms.html" class="hover:underline">Terms</a>
+      </div>
+    </div>
+  </footer>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/teacher.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

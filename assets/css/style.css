@@ -1,0 +1,166 @@
+/* ============================================================
+   EuroPass — Design System tokens implemented as CSS variables
+   Source of truth: EuroPass_Design_System_v1.docx
+   ============================================================ */
+:root{
+  /* Navy — trust / education */
+  --navy-900:#0B1D3A; --navy-700:#1B3A6B; --navy-600:#234A85; --navy-500:#3E5A8C;
+  --navy-300:#8FA6C7; --navy-100:#C7D6EC; --navy-50:#EAF2FB;
+  /* Red — energy / action */
+  --red-700:#A61E1E; --red-600:#D62828; --red-300:#F08585; --red-50:#FBEAEA;
+  /* Amber — motivation / achievement */
+  --amber-600:#C77D14; --amber-100:#F6E4C4;
+  /* Semantic */
+  --success-600:#15803D; --success-50:#E9F7EE;
+  --warning-600:#B45309; --warning-50:#FDF3E7;
+  --danger-600:#DC2626;  --danger-50:#FDECEC;
+  --info-600:#1B3A6B;    --info-50:#EAF2FB;
+  /* Neutrals */
+  --bg-page:#FAFBFC; --bg-surface:#FFFFFF; --bg-subtle:#F5F7FA;
+  --border-default:#E3E8EF;
+  --text-primary:#1F2937; --text-secondary:#6B7280; --text-disabled:#B0B7C3; --text-inverse:#FFFFFF;
+  /* Radius */
+  --r-sm:6px; --r-md:10px; --r-lg:16px; --r-xl:24px; --r-full:999px;
+  /* Elevation */
+  --e1:0 1px 2px rgba(16,24,40,.06);
+  --e2:0 4px 8px rgba(16,24,40,.08);
+  --e3:0 8px 24px rgba(16,24,40,.12);
+  --e4:0 16px 48px rgba(16,24,40,.18);
+  /* Motion */
+  --m-fast:120ms; --m-base:200ms; --m-slow:320ms;
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg-page);
+  color:var(--text-primary);
+  font-family:'Inter',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.font-display{ font-family:'Lora', Georgia, serif; }
+
+/* Respect reduced motion globally */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+}
+
+/* Focus states — never suppressed */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [tabindex]:focus-visible{
+  outline:2px solid var(--navy-700);
+  outline-offset:2px;
+  border-radius:var(--r-sm);
+}
+
+/* Skip link */
+.skip-link{
+  position:absolute; left:-999px; top:auto;
+  background:var(--navy-700); color:#fff; padding:.75rem 1.25rem; border-radius:var(--r-md);
+  z-index:100;
+}
+.skip-link:focus{ left:1rem; top:1rem; }
+
+/* Buttons */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+  font-weight:600; font-size:.95rem; padding:.75rem 1.5rem; border-radius:var(--r-md);
+  transition:all var(--m-fast) ease-out; cursor:pointer; border:none; white-space:nowrap;
+}
+.btn-primary{ background:var(--red-600); color:#fff; box-shadow:var(--e1); }
+.btn-primary:hover{ background:var(--red-700); transform:translateY(-1px); box-shadow:var(--e2); }
+.btn-secondary{ background:transparent; color:var(--navy-700); border:1.5px solid var(--navy-700); }
+.btn-secondary:hover{ background:var(--navy-50); }
+.btn-ghost{ background:transparent; color:var(--navy-700); }
+.btn-ghost:hover{ background:var(--navy-50); }
+.btn-on-dark{ background:#fff; color:var(--navy-700); }
+.btn-on-dark:hover{ background:var(--navy-50); }
+.btn-sm{ padding:.5rem 1rem; font-size:.85rem; }
+.btn:disabled{ background:var(--bg-subtle); color:var(--text-disabled); cursor:not-allowed; transform:none; box-shadow:none; }
+
+/* Cards */
+.card{
+  background:var(--bg-surface); border:1px solid var(--border-default); border-radius:var(--r-lg);
+  box-shadow:var(--e1); transition:box-shadow var(--m-fast) ease-out, transform var(--m-fast) ease-out;
+}
+.card-hover:hover{ box-shadow:var(--e2); transform:translateY(-2px); }
+
+/* Eyebrow label */
+.eyebrow{
+  font-size:.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--red-600);
+}
+.eyebrow-navy{ color:var(--navy-500); }
+
+/* Badge */
+.badge{ display:inline-flex; align-items:center; gap:.35rem; font-size:.75rem; font-weight:600; padding:.25rem .625rem; border-radius:var(--r-full); }
+.badge-success{ background:var(--success-50); color:var(--success-600); }
+.badge-warning{ background:var(--warning-50); color:var(--warning-600); }
+.badge-danger{ background:var(--danger-50); color:var(--danger-600); }
+.badge-info{ background:var(--info-50); color:var(--info-600); }
+.badge-amber{ background:var(--amber-100); color:var(--amber-600); }
+
+/* Placeholder "photography" blocks — standing in for real EuroPass photography.
+   Section 6 of the Design System explicitly forbids generic stock photos;
+   these gradient/pattern blocks are honest placeholders until real photo assets exist. */
+.photo-placeholder{
+  position:relative; overflow:hidden; border-radius:var(--r-lg);
+  background:linear-gradient(135deg, var(--navy-700), var(--navy-500));
+  display:flex; align-items:center; justify-content:center; color:#fff;
+}
+.photo-placeholder.alt{ background:linear-gradient(135deg, var(--red-700), var(--red-600)); }
+.photo-placeholder.warm{ background:linear-gradient(135deg, var(--amber-600), #E0A63B); }
+.photo-placeholder::before{
+  content:''; position:absolute; inset:0; opacity:.15;
+  background-image:radial-gradient(circle at 20% 20%, #fff 0, transparent 45%),
+                    radial-gradient(circle at 85% 75%, #fff 0, transparent 40%);
+}
+.photo-placeholder .cap{
+  position:absolute; bottom:0; left:0; right:0; padding:.5rem .75rem;
+  background:rgba(11,29,58,.55); backdrop-filter:blur(2px);
+  font-size:.7rem; color:#fff; opacity:.85;
+}
+
+/* Brand circle motif — marketing pages only, never behind text or in portals */
+.brand-circle{ position:absolute; border-radius:50%; pointer-events:none; z-index:0; }
+
+/* Section rhythm */
+.section{ padding:4rem 0; }
+@media(min-width:1024px){ .section{ padding:6rem 0; } }
+
+/* Nav link underline */
+.nav-link{ position:relative; color:var(--text-primary); font-weight:500; }
+.nav-link:hover{ color:var(--navy-700); }
+
+/* Accordion chevron rotation */
+.accordion-trigger[aria-expanded="true"] .chevron{ transform:rotate(180deg); }
+.chevron{ transition:transform var(--m-base) ease-out; }
+.accordion-panel{ display:grid; grid-template-rows:0fr; transition:grid-template-rows var(--m-base) ease-out; }
+.accordion-panel.open{ grid-template-rows:1fr; }
+.accordion-panel > div{ overflow:hidden; }
+
+/* Progress ring */
+.progress-ring circle{ transition:stroke-dashoffset 900ms ease-out; }
+
+/* Skeleton loading */
+.skeleton{ background:linear-gradient(90deg, var(--bg-subtle) 25%, #ECEFF3 37%, var(--bg-subtle) 63%); background-size:400% 100%; animation:shimmer 1.6s ease-in-out infinite; border-radius:var(--r-md); }
+@keyframes shimmer{ 0%{background-position:100% 0;} 100%{background-position:-100% 0;} }
+
+/* Toast */
+.toast{ box-shadow:var(--e3); border-radius:var(--r-md); }
+
+/* Persona tab */
+.persona-tab{ border-radius:var(--r-full); padding:.5rem 1.1rem; font-size:.85rem; font-weight:600; border:1.5px solid var(--navy-100); color:var(--navy-700); background:transparent; transition:all var(--m-fast) ease-out; }
+.persona-tab[aria-selected="true"]{ background:var(--navy-700); border-color:var(--navy-700); color:#fff; }
+.persona-tab:hover{ border-color:var(--navy-500); }
+
+/* Variant for use on dark (navy) backgrounds, e.g. the homepage hero —
+   the default persona-tab above is tuned for light backgrounds (filter chips)
+   and is invisible against navy; this variant fixes that instead of changing
+   the shared base and breaking the light-background usage. */
+.persona-tab.on-dark{ border-color:var(--navy-300); color:#fff; }
+.persona-tab.on-dark:hover{ border-color:#fff; background:rgba(255,255,255,.1); }
+.persona-tab.on-dark[aria-selected="true"]{ background:#fff; border-color:#fff; color:var(--navy-700); }
+
+/* Utility */
+.container-ep{ max-width:1120px; margin:0 auto; padding:0 1rem; }
+@media(min-width:1024px){ .container-ep{ padding:0 1.5rem; } }

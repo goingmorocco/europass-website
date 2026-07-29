@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business English Course | EuroPass</title>
+<meta name="description" content="Business English coaching for interviews, meetings, and professional communication.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {50:'#EAF2FB',100:'#C7D6EC',300:'#8FA6C7',500:'#3E5A8C',600:'#234A85',700:'#1B3A6B',900:'#0B1D3A'},
+            red: {50:'#FBEAEA',300:'#F08585',600:'#D62828',700:'#A61E1E'},
+            amber: {100:'#F6E4C4',600:'#C77D14'},
+            success: {50:'#E9F7EE',600:'#15803D'},
+            warning: {50:'#FDF3E7',600:'#B45309'},
+            danger: {50:'#FDECEC',600:'#DC2626'}
+          },
+          fontFamily: { serif: ['Lora','Georgia','serif'], sans: ['Inter','system-ui','sans-serif'] },
+          borderRadius: { sm:'6px', md:'10px', lg:'16px', xl:'24px' }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b" style="border-color:var(--border-default)">
+    <div class="container-ep flex items-center justify-between h-16">
+      <a href="index.html" class="font-serif font-bold text-xl tracking-tight" style="color:var(--navy-700)">
+        EURO<span style="color:var(--red-600)">PASS</span>
+      </a>
+      <nav class="hidden lg:flex items-center gap-7" aria-label="Primary">
+        <a href="index.html" class="nav-link text-sm">Home</a>
+        <a href="about.html" class="nav-link text-sm">About</a>
+        <a href="courses.html" class="nav-link text-sm font-semibold" aria-current="page" style="color:var(--navy-700)">Courses</a>
+        <a href="pricing.html" class="nav-link text-sm">Pricing</a>
+        <a href="blog.html" class="nav-link text-sm">Blog</a>
+        <a href="contact.html" class="nav-link text-sm">Contact</a>
+      </nav>
+      <div class="hidden lg:flex items-center gap-3">
+        <a href="login.html" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium">
+          <i data-lucide="log-in" class="w-4 h-4" style="color:var(--navy-700)"></i> Portal Login
+        </a>
+        <a href="tel:+212500000000" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium" aria-label="WhatsApp us">
+          <i data-lucide="message-circle" class="w-4 h-4" style="color:var(--success-600)"></i> WhatsApp
+        </a>
+        <a href="bilan.html" class="btn btn-primary btn-sm">Book Free Bilan</a>
+      </div>
+      <button id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" class="lg:hidden p-2 -mr-2" aria-label="Open menu">
+        <i data-lucide="menu" class="w-6 h-6" style="color:var(--navy-700)"></i>
+      </button>
+    </div>
+  </header>
+
+  <div id="nav-drawer" class="fixed inset-0 z-50 translate-x-full transition-transform duration-300 lg:hidden" aria-hidden="true">
+    <div class="absolute inset-0 bg-navy-900/40" onclick="document.getElementById('nav-close').click()"></div>
+    <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
+        <button id="nav-close" aria-label="Close menu" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <a href="index.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Home</a>
+      <a href="about.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">About</a>
+      <a href="courses.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Courses</a>
+      <a href="pricing.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Pricing</a>
+      <a href="blog.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Blog</a>
+      <a href="contact.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Contact</a>
+      <a href="login.html" class="py-3 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><i data-lucide="log-in" class="w-4 h-4"></i> Portal Login</a>
+      <a href="bilan.html" class="btn btn-primary mt-6 w-full">Book Free Bilan</a>
+      <a href="tel:+212500000000" class="btn btn-secondary mt-3 w-full">Call / WhatsApp</a>
+    </div>
+  </div>
+
+<main id="main">
+
+<div class="container-ep pt-6 text-xs" style="color:var(--text-secondary)">
+  <a href="index.html" class="hover:underline">Home</a> / <a href="courses.html" class="hover:underline">Courses</a> / <span style="color:var(--navy-700)">Business English</span>
+</div>
+
+<section class="py-10 lg:py-14">
+  <div class="container-ep grid lg:grid-cols-2 gap-12 items-center">
+    <div>
+      <span class="eyebrow">For Professionals</span>
+      <h1 class="font-serif text-4xl font-bold mt-2" style="color:var(--navy-700)">Business English</h1>
+      <p class="mt-4 text-lg" style="color:var(--text-secondary)">Walk into your next meeting, interview, or negotiation and communicate like the expert you already are.</p>
+      <div class="flex items-center gap-4 mt-6">
+        <span class="badge badge-info"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 10 weeks · 2x/week</span>
+        <span class="badge badge-success"><i data-lucide="banknote" class="w-3.5 h-3.5"></i> From 890 MAD/mo</span>
+      </div>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="bilan.html" class="btn btn-primary">Book Your Free Bilan</a>
+        <a href="contact.html" class="btn btn-secondary">Talk to an Advisor</a>
+      </div>
+    </div>
+    <div class="photo-placeholder aspect-[4/3]"><i data-lucide="briefcase" class="w-16 h-16"></i><span class="cap">Business English cohort, in session</span></div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--bg-subtle)">
+  <div class="container-ep grid md:grid-cols-3 gap-8">
+    <div><p class="eyebrow">Who it's for</p><p class="mt-2 text-sm" style="color:var(--text-secondary)">Employees, managers, and job seekers whose English level is capping their next career move.</p></div>
+    <div><p class="eyebrow">What changes</p><p class="mt-2 text-sm" style="color:var(--text-secondary)">You’ll run meetings, write professional emails, and interview in English with real confidence.</p></div>
+    <div><p class="eyebrow">How we teach it</p><p class="mt-2 text-sm" style="color:var(--text-secondary)">Small cohorts, role-play-based practice, and feedback from teachers with real corporate experience.</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-ep max-w-3xl">
+    <p class="eyebrow">Curriculum</p>
+    <h2 class="font-serif text-2xl font-bold mt-2 mb-6" style="color:var(--navy-700)">What you’ll cover</h2>
+    <div class="space-y-3">
+      
+<div class="card p-0 overflow-hidden">
+  <button data-accordion-trigger aria-expanded="false" aria-controls="curr0" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+    Module 1 — Professional Introductions <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+  </button>
+  <div id="curr0" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Small talk, self-introductions, and first impressions in a business context.</div></div>
+</div>
+<div class="card p-0 overflow-hidden">
+  <button data-accordion-trigger aria-expanded="false" aria-controls="curr1" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+    Module 2 — Meetings &amp; Presentations <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+  </button>
+  <div id="curr1" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Structuring your point, handling questions, and presenting with confidence.</div></div>
+</div>
+<div class="card p-0 overflow-hidden">
+  <button data-accordion-trigger aria-expanded="false" aria-controls="curr2" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+    Module 3 — Email &amp; Written Communication <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+  </button>
+  <div id="curr2" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Clear, professional writing for everyday business correspondence.</div></div>
+</div>
+<div class="card p-0 overflow-hidden">
+  <button data-accordion-trigger aria-expanded="false" aria-controls="curr3" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+    Module 4 — Interviews &amp; Negotiation <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+  </button>
+  <div id="curr3" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Practicing real interview and negotiation scenarios with feedback.</div></div>
+</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--bg-subtle)">
+  <div class="container-ep">
+    <p class="eyebrow text-center">Your Teacher</p>
+    <div class="card p-6 max-w-md mx-auto mt-6 text-center">
+      <div class="photo-placeholder w-20 h-20 rounded-full mx-auto mb-4"><i data-lucide="user" class="w-7 h-7"></i></div>
+      <p class="font-semibold" style="color:var(--navy-700)">Sara El Amrani</p>
+      <p class="text-xs mt-1" style="color:var(--text-secondary)">CELTA Certified · 8 years teaching corporate English</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-ep max-w-3xl">
+    <p class="eyebrow text-center">FAQ</p>
+    <h2 class="font-serif text-2xl font-bold text-center mt-2 mb-8" style="color:var(--navy-700)">Business English — common questions</h2>
+    <div class="space-y-3">
+      <div class="card p-0 overflow-hidden">
+        <button data-accordion-trigger aria-expanded="false" aria-controls="cfaq1" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+          What level do I need to start? <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+        </button>
+        <div id="cfaq1" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Any level from A2 upward — your free Bilan d’Anglais places you into the right cohort.</div></div>
+      </div>
+      <div class="card p-0 overflow-hidden">
+        <button data-accordion-trigger aria-expanded="false" aria-controls="cfaq2" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+          Can my employer pay for this? <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+        </button>
+        <div id="cfaq2" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Yes — see our <a href="pricing.html#corporate" class="underline" style="color:var(--navy-700)">Corporate Training</a> option for consolidated invoicing.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--bg-subtle)">
+  <div class="container-ep">
+    <p class="eyebrow text-center mb-8">Related Courses</p>
+    <div class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+      <a href="courses.html" class="card card-hover p-6 flex items-center gap-4">
+        <div class="w-11 h-11 rounded-lg flex items-center justify-center shrink-0" style="background:var(--navy-50)"><i data-lucide="messages-square" style="color:var(--navy-700)"></i></div>
+        <div><p class="font-semibold" style="color:var(--navy-700)">Communication English</p><p class="text-xs" style="color:var(--text-secondary)">Speaking Club sessions</p></div>
+      </a>
+      <a href="courses.html" class="card card-hover p-6 flex items-center gap-4">
+        <div class="w-11 h-11 rounded-lg flex items-center justify-center shrink-0" style="background:var(--navy-50)"><i data-lucide="plane" style="color:var(--navy-700)"></i></div>
+        <div><p class="font-semibold" style="color:var(--navy-700)">IELTS / TOEFL Prep</p><p class="text-xs" style="color:var(--text-secondary)">Exam-focused coaching</p></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="relative overflow-hidden" style="background:var(--navy-700)">
+  <div class="container-ep py-14 text-center relative z-10">
+    <h2 class="font-serif text-2xl lg:text-3xl font-bold text-white">Find out your level, free, in 10 minutes</h2>
+    <div class="mt-6"><a href="bilan.html" class="btn btn-primary">Book Your Free Bilan</a></div>
+  </div>
+</section>
+
+</main>
+
+  <footer class="border-t mt-20" style="border-color:var(--border-default); background:var(--bg-subtle)">
+    <div class="container-ep py-14 grid grid-cols-2 md:grid-cols-5 gap-8">
+      <div class="col-span-2">
+        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
+        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">The local reference for learning English — specialized paths for real careers, real families, and real ambitions.</p>
+        <div class="flex gap-3 mt-4">
+          <a href="#" aria-label="Facebook" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="facebook" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="Instagram" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="instagram" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="YouTube" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="youtube" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+        </div>
+      </div>
+      <div>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Explore</p>
+        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="about.html" class="hover:underline">About</a></li>
+          <li><a href="courses.html" class="hover:underline">Courses</a></li>
+          <li><a href="pricing.html" class="hover:underline">Pricing</a></li>
+          <li><a href="courses.html#teachers" class="hover:underline">Teachers</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Learn</p>
+        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="blog.html" class="hover:underline">Blog</a></li>
+          <li><a href="bilan.html" class="hover:underline">Free Bilan d’Anglais</a></li>
+          <li><a href="contact.html" class="hover:underline">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">For Business</p>
+        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="pricing.html#corporate" class="hover:underline">Corporate Training</a></li>
+          <li><a href="pricing.html#referral" class="hover:underline">Referral Program</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container-ep py-6 border-t flex flex-col md:flex-row justify-between gap-3 text-xs" style="border-color:var(--border-default); color:var(--text-secondary)">
+      <p>© 2026 EuroPass Centre de Formation en Anglais. All rights reserved.</p>
+      <div class="flex gap-4">
+        <a href="privacy.html" class="hover:underline">Privacy Policy</a>
+        <a href="terms.html" class="hover:underline">Terms</a>
+      </div>
+    </div>
+  </footer>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
+
+<script src="assets/js/main.js"></script>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
