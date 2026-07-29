@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "EuroPass Language School"
+version = "1.0.0"
+id = "artifacts/europass"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25733
+
+[services.development]
+run = "pnpm --filter @workspace/europass run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/europass", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/europass/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25733"
+BASE_PATH = "/"

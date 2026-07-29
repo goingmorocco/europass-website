@@ -1,0 +1,1 @@
+- [Drizzle date serialization](drizzle-date-serialize.md) — Drizzle returns Date objects; Zod schemas from OpenAPI codegen expect strings. Always serialize before parsing.

@@ -1,0 +1,275 @@
+Build a Modern Website for EuroPass
+
+You are an expert full-stack developer, UI/UX designer, SEO specialist, and performance engineer.
+
+Build a complete production-ready website for EuroPass, a language school and professional training center in Khemisset, Morocco.
+
+Main Goals
+
+The website should:
+
+- Generate local leads.
+- Rank highly on Google and AI search engines.
+- Be extremely fast (90+ Lighthouse scores).
+- Look modern and premium.
+- Be easy for non-technical staff to manage.
+- Be fully responsive.
+- Support English, French, Arabic, and later German.
+
+---
+
+Brand
+
+School Name: EuroPass
+
+Location: Khemisset, Morocco
+
+Mission:
+Help students gain language skills and access study, work, and career opportunities abroad, especially Germany's Ausbildung program.
+
+---
+
+Courses
+
+Include dedicated pages for:
+
+- German
+- English
+- French
+- Spanish
+- Other languages
+- Nursing preparation
+- Professional training
+- Ausbildung preparation
+- Exam preparation
+
+Each course page must contain:
+
+- Overview
+- Benefits
+- Curriculum
+- Duration
+- Levels
+- FAQs
+- CTA
+
+---
+
+Homepage Structure
+
+1. Hero section
+2. Trust indicators
+3. Why choose EuroPass
+4. Courses
+5. Ausbildung section
+6. Student success stories
+7. Our teachers
+8. Learning process
+9. Latest news/blog
+10. FAQ
+11. Contact section
+12. Google Map
+13. Footer
+
+---
+
+Booking System
+
+Students should be able to:
+
+- Book a free consultation
+- Request information
+- Enroll in a course
+- Choose preferred schedule
+- Submit contact forms
+
+Store submissions in a database.
+
+---
+
+Student Portal
+
+Create a secure login area where students can:
+
+- Access learning materials
+- Download PDFs
+- Watch videos
+- Join their class
+- View announcements
+
+Teachers should be able to upload files and organize content by class.
+
+---
+
+Admin Dashboard
+
+Include an admin dashboard where staff can:
+
+- Manage courses
+- Manage teachers
+- Manage blog posts
+- Manage FAQs
+- View inquiries
+- Manage enrollments
+- Upload learning materials
+- Update homepage content
+
+No coding should be required.
+
+---
+
+Blog
+
+Create a modern SEO blog with:
+
+- Categories
+- Tags
+- Search
+- Featured images
+- Author
+- Related posts
+- Reading time
+- Social sharing
+
+---
+
+SEO Requirements
+
+Implement best SEO practices:
+
+- Semantic HTML
+- Structured data (Schema.org)
+- Local Business schema
+- Course schema
+- FAQ schema
+- Breadcrumb schema
+- Organization schema
+- Meta titles
+- Meta descriptions
+- Open Graph tags
+- Twitter Cards
+- Canonical URLs
+- XML sitemap
+- robots.txt
+- Clean URLs
+- Automatic image optimization
+- Lazy loading
+- Internal linking
+- Accessible design
+
+The site should be optimized for both Google Search and AI search engines.
+
+---
+
+Performance
+
+Target:
+
+- Lighthouse 95+
+- Core Web Vitals optimized
+- Fast loading
+- Optimized fonts
+- Responsive images
+- Code splitting
+- Minimal JavaScript
+
+---
+
+Design Style
+
+Modern educational website with:
+
+- Clean layout
+- Large typography
+- Rounded cards
+- Smooth animations
+- Professional color palette
+- High-quality icons
+- Beautiful illustrations
+- Lots of white space
+
+The design should feel comparable to top international language schools.
+
+---
+
+Pages
+
+Create:
+
+- Home
+- About
+- Courses
+- Individual course pages
+- Ausbildung
+- Teachers
+- Student Success
+- Blog
+- Blog article
+- FAQ
+- Contact
+- Student Portal
+- Login
+- Privacy Policy
+- Terms
+
+---
+
+Contact
+
+Include:
+
+- WhatsApp button
+- Phone
+- Email
+- Google Maps
+- Contact form
+
+---
+
+CMS
+
+Build the website so content can be managed through a simple admin dashboard instead of editing code.
+
+---
+
+Technical Stack
+
+Use modern technologies such as:
+
+- React
+- Next.js
+- TypeScript
+- Tailwind CSS
+- PostgreSQL
+- Prisma ORM
+
+Use server-side rendering where appropriate.
+
+---
+
+Accessibility
+
+Follow WCAG guidelines with:
+
+- Proper contrast
+- Keyboard navigation
+- ARIA labels
+- Screen reader support
+
+---
+
+Deliverables
+
+Generate:
+
+- Complete source code
+- Responsive design
+- Database schema
+- Authentication
+- Admin dashboard
+- Student portal
+- SEO implementation
+- Sample content
+- Professional UI components
+
+The final website should look polished, modern, trustworthy, and ready for deployment without requiring major redesign.
