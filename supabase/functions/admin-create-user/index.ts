@@ -57,9 +57,22 @@ Deno.serve(async (req) => {
     const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
     const { data: created, error: createErr } = await adminClient.auth.admin.createUser({
       email, password, email_confirm: true,
-      user_metadata: { full_name, role, course_id: course_id || null, title: title || null },
+      user_metadata: { full_name, course_id: course_id || null, title: title || null },
     });
     if (createErr) throw createErr;
+
+    // handle_new_user() always inserts new profiles as role='student' —
+    // deliberately, so client-supplied signup metadata can never grant a
+    // role. Promoting to 'teacher' happens here instead: a direct table
+    // update using the service role key, which only this trusted,
+    // admin-verified server-side code path can do.
+    if (role === 'teacher') {
+      const { error: promoteErr } = await adminClient
+        .from('profiles')
+        .update({ role: 'teacher', course_id: course_id || null, title: title || null })
+        .eq('id', created.user.id);
+      if (promoteErr) throw promoteErr;
+    }
 
     return new Response(JSON.stringify({ user: created.user }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },

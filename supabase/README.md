@@ -1,5 +1,35 @@
 # EuroPass — Supabase Backend Setup
 
+> **Already deployed this before? Apply this patch first.**
+> Self-service Sign Up was added, and it exposed a real bug in the original
+> `handle_new_user` trigger: it trusted a `role` field from client-supplied
+> signup metadata, which meant anyone could self-signup as `admin` by editing
+> a value in their browser's dev tools before submitting. If your project is
+> already live, go to SQL Editor and run **just this**, right now:
+> ```sql
+> create or replace function public.handle_new_user()
+> returns trigger
+> language plpgsql
+> security definer set search_path = public
+> as $$
+> begin
+>   insert into public.profiles (id, full_name, role, course_id, title)
+>   values (
+>     new.id,
+>     coalesce(new.raw_user_meta_data->>'full_name', 'New User'),
+>     'student',
+>     nullif(new.raw_user_meta_data->>'course_id', '')::uuid,
+>     new.raw_user_meta_data->>'title'
+>   );
+>   return new;
+> end;
+> $$;
+> ```
+> Then redeploy the Edge Function (step 3 below) — it now promotes a new
+> teacher account with a trusted follow-up update instead of relying on
+> signup metadata. New projects following the steps below already get the
+> fixed version in `002_functions_and_triggers.sql`, nothing extra needed.
+
 This turns the front-end prototype into a real, multi-user backend: real logins,
 a real Postgres database, real row-level security, and live realtime updates
 across different browsers/devices — not just tabs in the same browser.

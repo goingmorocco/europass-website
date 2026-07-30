@@ -5,9 +5,13 @@
 -- ============================================================
 
 -- Runs after every new auth.users row (real signup, or admin-created via
--- the Edge Function). Reads role/course_id/full_name/title from the
--- user's metadata, which both the signup form and the admin-create-user
--- Edge Function are responsible for setting.
+-- the Edge Function). Reads full_name/course_id/title from the user's
+-- metadata, but role is ALWAYS forced to 'student' here — this trigger is
+-- also what fires for public self-signup (assets/js/data.js's EP.signup(),
+-- using the anon key), and metadata is client-supplied, so trusting a
+-- "role" field from it would let anyone self-signup as admin. Promoting a
+-- user to 'teacher' happens as a separate, trusted, server-side step in
+-- the admin-create-user Edge Function (see below) — never at signup time.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -18,7 +22,7 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', 'New User'),
-    coalesce((new.raw_user_meta_data->>'role')::user_role, 'student'),
+    'student',
     nullif(new.raw_user_meta_data->>'course_id', '')::uuid,
     new.raw_user_meta_data->>'title'
   );

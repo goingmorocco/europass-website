@@ -32,6 +32,10 @@ credentials) or a real account you create.
   URL; a teacher can only grade their own students' work.
 - **Admin can create real logins** for teachers/students, via a secure Edge
   Function (the only place the sensitive service-role key is ever used).
+- **Students can also self-register** at `signup.html` — real Supabase Auth
+  signup, no admin needed. Always creates a `student` account (enforced
+  server-side by the database trigger, not just hidden in the UI — see the
+  patch note above). They can optionally pick a course during signup.
 - Blog posts published from the Admin dashboard go live on the public
   `blog.html` for anyone, including logged-out visitors (with RLS explicitly
   allowing public read of *published* posts only — drafts stay private).
@@ -44,6 +48,11 @@ Same as before: `index.html`, `about.html`, `courses.html`,
 `terms.html`.
 
 ## What's still simplified (see `supabase/README.md` for the full list)
+- **Self-signup grants course access immediately, with no payment gate.**
+  Picking a course at signup gives instant access to that course's homework
+  — fine for a demo, not fine for a real paid launch. This goes away
+  naturally once the Payments piece is built (a course should only attach to
+  a profile after payment/admin confirmation, not at signup).
 - One Supabase backend instead of the Software Architecture Document's
   Supabase + Directus split — simpler to run solo; upgrade path is documented.
 - Single role per user (no multi-role accounts yet).

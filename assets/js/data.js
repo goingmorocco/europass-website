@@ -59,6 +59,23 @@ const EP = (() => {
     return getSession();
   }
 
+  // Public self-signup — always creates a 'student' account (enforced by the
+  // handle_new_user trigger server-side, not by anything in this file; see
+  // supabase/migrations/002_functions_and_triggers.sql). courseId is optional —
+  // NOTE: in a real paid product this should NOT grant immediate access to a
+  // course's content; it should be confirmed by an admin (or a payment) before
+  // course_id is set. This MVP sets it immediately for demo purposes since
+  // payments aren't built yet — see supabase/README.md.
+  async function signup({ email, password, fullName, courseId }) {
+    const client = await db();
+    const { data, error } = await client.auth.signUp({
+      email, password,
+      options: { data: { full_name: fullName, course_id: courseId || null } },
+    });
+    if (error) throw error;
+    return { hasSession: !!data.session, user: data.user };
+  }
+
   async function logout() {
     const client = await db();
     await client.auth.signOut();
@@ -229,7 +246,7 @@ const EP = (() => {
 
   return {
     KEYS, timeAgo,
-    getSession, requireRole, login, logout,
+    getSession, requireRole, login, signup, logout,
     users, courses, addUser, removeUser, studentsOf, userById,
     posts, postById, savePost, deletePost,
     homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
