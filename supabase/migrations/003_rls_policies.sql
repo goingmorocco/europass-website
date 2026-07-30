@@ -3,6 +3,9 @@
 -- Row Level Security. This is what actually enforces "a student can only
 -- see their own grades," "a teacher can only grade their own students,"
 -- etc. — the browser's anon key alone grants nothing without these.
+-- Safe to re-run any number of times: every policy is dropped first
+-- (DROP POLICY IF EXISTS, which is safe/idempotent) then recreated,
+-- since Postgres has no CREATE OR REPLACE POLICY.
 -- ============================================================
 
 alter table public.profiles enable row level security;
@@ -19,12 +22,15 @@ alter table public.posts enable row level security;
 -- rosters, chat headers, "who sent this notification", etc.) but can only
 -- ever UPDATE their own row — and even then, role/course_id changes are
 -- blocked by the trg_prevent_role_escalation trigger unless you're admin.
+drop policy if exists "profiles_select_authenticated" on public.profiles;
 create policy "profiles_select_authenticated" on public.profiles
   for select using (auth.role() = 'authenticated');
 
+drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own" on public.profiles
   for update using (id = auth.uid());
 
+drop policy if exists "profiles_update_admin" on public.profiles;
 create policy "profiles_update_admin" on public.profiles
   for update using (public.current_role() = 'admin');
 
@@ -35,9 +41,11 @@ create policy "profiles_update_admin" on public.profiles
 -- of deleting anything — see profiles_update_admin above.
 
 -- ---------- COURSES ----------
+drop policy if exists "courses_select_authenticated" on public.courses;
 create policy "courses_select_authenticated" on public.courses
   for select using (auth.role() = 'authenticated');
 
+drop policy if exists "courses_admin_write" on public.courses;
 create policy "courses_admin_write" on public.courses
   for all using (public.current_role() = 'admin')
   with check (public.current_role() = 'admin');
@@ -45,6 +53,7 @@ create policy "courses_admin_write" on public.courses
 -- ---------- HOMEWORK ----------
 -- Visible to: the teacher who created it, any student enrolled in that
 -- course, and admins.
+drop policy if exists "homework_select" on public.homework;
 create policy "homework_select" on public.homework
   for select using (
     public.current_role() = 'admin'
@@ -52,12 +61,15 @@ create policy "homework_select" on public.homework
     or course_id = public.current_course_id()
   );
 
+drop policy if exists "homework_insert_teacher" on public.homework;
 create policy "homework_insert_teacher" on public.homework
   for insert with check (teacher_id = auth.uid() and public.current_role() = 'teacher');
 
+drop policy if exists "homework_update_teacher" on public.homework;
 create policy "homework_update_teacher" on public.homework
   for update using (teacher_id = auth.uid());
 
+drop policy if exists "homework_delete_teacher" on public.homework;
 create policy "homework_delete_teacher" on public.homework
   for delete using (teacher_id = auth.uid());
 
@@ -66,6 +78,7 @@ create policy "homework_delete_teacher" on public.homework
 -- for homework THEY assigned (not another teacher's course). Students can
 -- create/edit their own submission while it's still 'submitted' (not yet
 -- graded); only the owning teacher can move it to 'graded'.
+drop policy if exists "submissions_select" on public.submissions;
 create policy "submissions_select" on public.submissions
   for select using (
     student_id = auth.uid()
@@ -76,12 +89,15 @@ create policy "submissions_select" on public.submissions
     )
   );
 
+drop policy if exists "submissions_insert_student" on public.submissions;
 create policy "submissions_insert_student" on public.submissions
   for insert with check (student_id = auth.uid());
 
+drop policy if exists "submissions_update_student_own" on public.submissions;
 create policy "submissions_update_student_own" on public.submissions
   for update using (student_id = auth.uid() and status = 'submitted');
 
+drop policy if exists "submissions_update_teacher_grade" on public.submissions;
 create policy "submissions_update_teacher_grade" on public.submissions
   for update using (
     exists (
@@ -91,6 +107,7 @@ create policy "submissions_update_teacher_grade" on public.submissions
   );
 
 -- ---------- NOTIFICATIONS ----------
+drop policy if exists "notifications_select" on public.notifications;
 create policy "notifications_select" on public.notifications
   for select using (
     audience_type = 'all'
@@ -102,6 +119,7 @@ create policy "notifications_select" on public.notifications
     or public.current_role() = 'admin'
   );
 
+drop policy if exists "notifications_insert" on public.notifications;
 create policy "notifications_insert" on public.notifications
   for insert with check (
     from_id = auth.uid()
@@ -111,29 +129,36 @@ create policy "notifications_insert" on public.notifications
     )
   );
 
+drop policy if exists "notification_reads_select_own" on public.notification_reads;
 create policy "notification_reads_select_own" on public.notification_reads
   for select using (user_id = auth.uid());
 
+drop policy if exists "notification_reads_insert_own" on public.notification_reads;
 create policy "notification_reads_insert_own" on public.notification_reads
   for insert with check (user_id = auth.uid());
 
 -- ---------- MESSAGES ----------
 -- Only the two participants in a conversation can read or write it.
+drop policy if exists "messages_select_own_thread" on public.messages;
 create policy "messages_select_own_thread" on public.messages
   for select using (from_id = auth.uid() or to_id = auth.uid());
 
+drop policy if exists "messages_insert_own" on public.messages;
 create policy "messages_insert_own" on public.messages
   for insert with check (from_id = auth.uid());
 
 -- ---------- BLOG POSTS ----------
 -- Published posts are public (no auth required — the marketing blog needs
 -- to be readable by anonymous visitors). Drafts are admin-only.
+drop policy if exists "posts_select_published" on public.posts;
 create policy "posts_select_published" on public.posts
   for select using (status = 'published');
 
+drop policy if exists "posts_select_admin_all" on public.posts;
 create policy "posts_select_admin_all" on public.posts
   for select using (public.current_role() = 'admin');
 
+drop policy if exists "posts_admin_write" on public.posts;
 create policy "posts_admin_write" on public.posts
   for all using (public.current_role() = 'admin')
   with check (public.current_role() = 'admin');

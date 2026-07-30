@@ -1,5 +1,7 @@
 -- ============================================================
 -- EuroPass — 002_functions_and_triggers.sql
+-- Safe to re-run any number of times: functions use CREATE OR REPLACE,
+-- and triggers use CREATE OR REPLACE TRIGGER (Postgres 14+, which Supabase runs).
 -- Auto-create a profile row whenever someone signs up, plus helper
 -- functions the RLS policies (003) depend on.
 -- ============================================================
@@ -30,7 +32,7 @@ begin
 end;
 $$;
 
-create trigger on_auth_user_created
+create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
@@ -68,7 +70,7 @@ begin
 end;
 $$;
 
-create trigger trg_prevent_role_escalation
+create or replace trigger trg_prevent_role_escalation
   before update on public.profiles
   for each row execute function public.prevent_role_escalation();
 
@@ -87,6 +89,6 @@ begin
 end;
 $$;
 
-create trigger trg_set_published_at
+create or replace trigger trg_set_published_at
   before insert or update on public.posts
   for each row execute function public.set_published_at();
