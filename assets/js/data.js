@@ -68,9 +68,17 @@ const EP = (() => {
   // payments aren't built yet — see supabase/README.md.
   async function signup({ email, password, fullName, courseId }) {
     const client = await db();
+    // Resolve relative to wherever this page is actually hosted (GitHub Pages
+    // subpath, custom domain, localhost while testing — whatever it is right
+    // now) so the confirmation email doesn't send people to the Supabase
+    // project's default Site URL (which defaults to localhost:3000 and is
+    // easy to forget to change). This still requires the resulting URL to be
+    // present in Dashboard → Authentication → URL Configuration → Redirect
+    // URLs, or Supabase will reject it and fall back to the Site URL anyway.
+    const emailRedirectTo = new URL('login.html', window.location.href).href;
     const { data, error } = await client.auth.signUp({
       email, password,
-      options: { data: { full_name: fullName, course_id: courseId || null } },
+      options: { data: { full_name: fullName, course_id: courseId || null }, emailRedirectTo },
     });
     if (error) throw error;
     return { hasSession: !!data.session, user: data.user };
