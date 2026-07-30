@@ -12,8 +12,8 @@
    NEVER put the service_role key anywhere in this file or any browser code.
    ============================================================ */
 
-const SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR-ANON-PUBLIC-KEY';
+const SUPABASE_URL = 'https://https://pqwjtgqkkpcgadlqroid.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxd2p0Z3Fra3BjZ2FkbHFyb2lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNzQ5MDcsImV4cCI6MjEwMDg1MDkwN30.Xkqu820L1mlDY8tJsFBP-8OhyVMFiNPPoDmYrUCHh00';
 
 const EP = (() => {
   let sb = null;
