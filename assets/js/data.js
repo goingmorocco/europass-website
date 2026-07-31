@@ -26,6 +26,8 @@ const EP = (() => {
     profiles: 'profiles', courses: 'courses', posts: 'posts',
     homework: 'homework', submissions: 'submissions',
     notifications: 'notifications', notification_reads: 'notification_reads', messages: 'messages',
+    groups: 'groups', group_posts: 'group_posts', group_post_likes: 'group_post_likes',
+    group_post_comments: 'group_post_comments', group_messages: 'group_messages',
   };
 
   function timeAgo(iso) {
@@ -271,6 +273,87 @@ const EP = (() => {
     if (error) throw error;
   }
 
+  // ---- Community Groups (feed + chat, one group per program) ----
+  async function myGroup() {
+    const client = await db();
+    const { data, error } = await client.from('groups').select('*').limit(1).single();
+    if (error) return null; // no group visible (e.g. user has no course yet)
+    return data;
+  }
+  async function allGroups() {
+    const client = await db();
+    const { data, error } = await client.from('groups').select('*').order('program');
+    if (error) throw error;
+    return data;
+  }
+
+  async function groupPosts(groupId) {
+    const client = await db();
+    const [{ data: posts, error: e1 }, { data: likes, error: e2 }, { data: comments, error: e3 }] = await Promise.all([
+      client.from('group_posts').select('*').eq('group_id', groupId).order('created_at', { ascending: false }),
+      client.from('group_post_likes').select('*'),
+      client.from('group_post_comments').select('*').order('created_at', { ascending: true }),
+    ]);
+    if (e1) throw e1; if (e2) throw e2; if (e3) throw e3;
+    return posts.map(p => ({
+      id: p.id, groupId: p.group_id, authorId: p.author_id, body: p.body, imageUrl: p.image_url, createdAt: p.created_at,
+      likes: likes.filter(l => l.post_id === p.id).map(l => l.user_id),
+      comments: comments.filter(c => c.post_id === p.id).map(c => ({ id: c.id, authorId: c.author_id, body: c.body, createdAt: c.created_at })),
+    }));
+  }
+
+  const MAX_IMAGE_BYTES = 1048576; // 1MB, matches the storage bucket's own limit
+  async function uploadGroupImage(groupId, file) {
+    if (!file.type.startsWith('image/')) throw new Error('Only image files are allowed.');
+    if (file.size > MAX_IMAGE_BYTES) throw new Error('Image must be under 1MB.');
+    const client = await db();
+    const path = `${groupId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name}`.replace(/\s+/g, '_');
+    const { error } = await client.storage.from('group-images').upload(path, file, { contentType: file.type });
+    if (error) throw error;
+    const { data } = client.storage.from('group-images').getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  async function createGroupPost({ groupId, authorId, body, imageFile }) {
+    const client = await db();
+    let imageUrl = null;
+    if (imageFile) imageUrl = await uploadGroupImage(groupId, imageFile);
+    const { error } = await client.from('group_posts').insert({ group_id: groupId, author_id: authorId, body: body || null, image_url: imageUrl });
+    if (error) throw error;
+  }
+  async function deleteGroupPost(postId) {
+    const client = await db();
+    const { error } = await client.from('group_posts').delete().eq('id', postId);
+    if (error) throw error;
+  }
+  async function toggleLike(postId, userId, currentlyLiked) {
+    const client = await db();
+    if (currentlyLiked) {
+      const { error } = await client.from('group_post_likes').delete().eq('post_id', postId).eq('user_id', userId);
+      if (error) throw error;
+    } else {
+      const { error } = await client.from('group_post_likes').insert({ post_id: postId, user_id: userId });
+      if (error) throw error;
+    }
+  }
+  async function addComment(postId, authorId, body) {
+    const client = await db();
+    const { error } = await client.from('group_post_comments').insert({ post_id: postId, author_id: authorId, body });
+    if (error) throw error;
+  }
+
+  async function groupMessages(groupId) {
+    const client = await db();
+    const { data, error } = await client.from('group_messages').select('*').eq('group_id', groupId).order('created_at', { ascending: true });
+    if (error) throw error;
+    return data.map(m => ({ id: m.id, fromId: m.from_id, body: m.body, createdAt: m.created_at }));
+  }
+  async function sendGroupMessage(groupId, fromId, body) {
+    const client = await db();
+    const { error } = await client.from('group_messages').insert({ group_id: groupId, from_id: fromId, body });
+    if (error) throw error;
+  }
+
   // ---- Realtime (replaces the old cross-tab localStorage 'storage' event) ----
   const channels = [];
   async function onChange(tableNames, callback) {
@@ -291,5 +374,6 @@ const EP = (() => {
     homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,
+    myGroup, allGroups, groupPosts, createGroupPost, deleteGroupPost, toggleLike, addComment, groupMessages, sendGroupMessage,
   };
 })();

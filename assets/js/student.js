@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const user = await EP.requireRole('student');
   if (!user) return;
   initPortalChrome(user);
+  initCommunity(user, 'student-shell');
   wireTabs('student-shell', 'overview');
 
   const [courseList, allUsers] = await Promise.all([EP.courses(), EP.users()]);

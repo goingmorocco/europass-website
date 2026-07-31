@@ -173,4 +173,39 @@ document.addEventListener('DOMContentLoaded', async () => {
       showToast('User added — check the browser console/Edge Function logs for their login email.');
     } catch (err) { showToast(err.message, 'danger'); }
   });
+
+  // ---- Groups moderation ----
+  let activeGroupId = null;
+  async function renderGroupTabs() {
+    const groups = await EP.allGroups();
+    if (!activeGroupId && groups.length) activeGroupId = groups[0].id;
+    document.getElementById('admin-group-tabs').innerHTML = groups.map(g => `
+      <button onclick="selectAdminGroup('${g.id}')" class="persona-tab" ${g.id === activeGroupId ? 'aria-selected="true"' : 'aria-selected="false"'}>
+        <span class="mr-1">${g.icon}</span> ${escapeHtml(g.name)}
+      </button>`).join('');
+    await renderGroupPosts();
+  }
+  async function renderGroupPosts() {
+    if (!activeGroupId) return;
+    const posts = await EP.groupPosts(activeGroupId);
+    const roster = await EP.users();
+    const byId = Object.fromEntries(roster.map(u => [u.id, u.name]));
+    document.getElementById('admin-group-posts').innerHTML = posts.map(p => `
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-2">
+          <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(byId[p.authorId] || 'Someone')} <span class="font-normal text-xs" style="color:var(--text-disabled)">${EP.timeAgo(p.createdAt)}</span></p>
+          <button onclick="adminDeleteGroupPost('${p.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Delete</button>
+        </div>
+        ${p.body ? `<p class="text-sm mb-2">${escapeHtml(p.body)}</p>` : ''}
+        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="" class="rounded-lg max-h-64 object-cover">` : ''}
+        <p class="text-xs mt-2" style="color:var(--text-secondary)">${p.likes.length} likes \u00b7 ${p.comments.length} comments</p>
+      </div>`).join('') || `<p style="color:var(--text-secondary)">No posts in this group yet.</p>`;
+  }
+  window.selectAdminGroup = (id) => { activeGroupId = id; renderGroupTabs(); };
+  window.adminDeleteGroupPost = async (postId) => {
+    if (!confirm('Delete this post?')) return;
+    try { await EP.deleteGroupPost(postId); await renderGroupPosts(); } catch (err) { showToast(err.message, 'danger'); }
+  };
+  await renderGroupTabs();
+  EP.onChange([EP.KEYS.group_posts], renderGroupPosts);
 });

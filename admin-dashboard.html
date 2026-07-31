@@ -116,6 +116,9 @@
     <button data-tab-trigger="users" onclick="switchTab('admin-shell','users')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="users" class="w-4 h-4"></i>Users
     </button>
+    <button data-tab-trigger="groups" onclick="switchTab('admin-shell','groups')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="users-round" class="w-4 h-4"></i>Groups
+    </button>
     <button data-tab-trigger="settings" onclick="switchTab('admin-shell','settings')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="settings" class="w-4 h-4"></i>Settings
     </button>
@@ -264,6 +267,12 @@
       <button type="submit" class="btn btn-primary w-full">Add User</button>
     </form>
   </div>
+</div>
+
+<div data-tab-panel="groups" class="hidden">
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Community Groups</h1>
+  <div class="flex flex-wrap gap-2 mb-6" id="admin-group-tabs"></div>
+  <div id="admin-group-posts" class="space-y-4"></div>
 </div>
 
 <div data-tab-panel="settings" class="hidden max-w-lg">

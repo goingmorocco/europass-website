@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const user = await EP.requireRole('teacher');
   if (!user) return;
   initPortalChrome(user);
+  initCommunity(user, 'teacher-shell');
   wireTabs('teacher-shell', 'overview');
 
   const myCourseId = user.courseId;
