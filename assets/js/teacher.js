@@ -18,15 +18,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function renderKPIs() {
     const [hw, pending] = await Promise.all([myHomework(), pendingSubs()]);
     document.getElementById('teacher-kpis').innerHTML = [
-      ['users', myStudents.length, 'Students'],
-      ['clipboard-list', hw.length, 'Homework Assigned'],
-      ['check-circle', pending.length, 'Pending Grading'],
-    ].map(([icon, val, label]) => `
-      <div class="card p-5">
+      ['users', myStudents.length, 'Students', 'students'],
+      ['clipboard-list', hw.length, 'Homework Assigned', 'assign'],
+      ['check-circle', pending.length, 'Pending Grading', 'grade'],
+    ].map(([icon, val, label, tab]) => `
+      <button onclick="switchTab('teacher-shell','${tab}')" class="card card-hover p-5 text-left w-full">
         <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:var(--navy-50)"><i data-lucide="${icon}" class="w-4 h-4" style="color:var(--navy-700)"></i></div>
         <p class="text-2xl font-serif font-bold" style="color:var(--navy-700)">${val}</p>
         <p class="text-xs mt-1" style="color:var(--text-secondary)">${label}</p>
-      </div>`).join('');
+      </button>`).join('');
   }
 
   async function renderPending() {

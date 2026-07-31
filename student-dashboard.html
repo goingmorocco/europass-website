@@ -128,7 +128,6 @@
           <p id="portal-user-name" class="font-serif text-lg font-bold" style="color:var(--navy-700)">…</p>
         </div>
         <div class="flex items-center gap-3">
-          <a href="index.html" class="hidden md:inline text-xs font-semibold" style="color:var(--navy-700)">View Public Site</a>
           <div class="relative">
             <button class="relative p-2 rounded-full" style="background:var(--bg-subtle)" aria-label="Notifications" onclick="document.getElementById('bell-popover').classList.toggle('hidden'); event.stopPropagation();">
               <i data-lucide="bell" class="w-5 h-5" style="color:var(--navy-700)"></i>
@@ -138,8 +137,15 @@
               <div id="portal-bell-list"></div>
             </div>
           </div>
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:var(--navy-700)"><span id="portal-user-initials"></span></div>
-          <button id="portal-logout" class="text-xs font-semibold" style="color:var(--red-600)">Switch Account</button>
+          <div class="relative">
+            <button class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:var(--navy-700)" aria-label="Account menu" onclick="document.getElementById('avatar-popover').classList.toggle('hidden'); event.stopPropagation();">
+              <span id="portal-user-initials"></span>
+            </button>
+            <div id="avatar-popover" class="hidden absolute right-0 mt-2 w-44 card z-30 p-1.5">
+              <button id="avatar-settings-btn" class="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--navy-700)"><i data-lucide="settings" class="w-4 h-4"></i> Settings</button>
+              <button id="portal-logout" class="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--danger-600)"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -245,7 +251,19 @@
     </div>
   </div>
 </div>
-<script>document.addEventListener('click', (e) => { const pop = document.getElementById('bell-popover'); if (pop && !pop.classList.contains('hidden') && !pop.contains(e.target)) pop.classList.add('hidden'); });</script>
+<script>
+document.addEventListener('click', (e) => {
+  const bell = document.getElementById('bell-popover');
+  if (bell && !bell.classList.contains('hidden') && !bell.contains(e.target)) bell.classList.add('hidden');
+  const avatar = document.getElementById('avatar-popover');
+  if (avatar && !avatar.classList.contains('hidden') && !avatar.contains(e.target)) avatar.classList.add('hidden');
+});
+document.getElementById('avatar-settings-btn').addEventListener('click', () => {
+  document.getElementById('avatar-popover').classList.add('hidden');
+  const settingsTrigger = document.querySelector('[data-tab-trigger="settings"]');
+  if (settingsTrigger) settingsTrigger.click();
+});
+</script>
 
 </main>
 

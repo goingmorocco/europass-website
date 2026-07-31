@@ -33,6 +33,14 @@ async function createDemoUser({ email, full_name, role, course_id, title }) {
     user_metadata: { full_name, role, course_id, title },
   });
   if (error) throw error;
+  // handle_new_user() always inserts new profiles as role='student' (a
+  // deliberate security fix — see migrations/002 — so client-supplied
+  // metadata can never grant a role). Promote here instead, using the
+  // service role key, same pattern as the admin-create-user Edge Function.
+  if (role !== 'student') {
+    const { error: promoteErr } = await sb.from('profiles').update({ role, course_id, title }).eq('id', data.user.id);
+    if (promoteErr) throw promoteErr;
+  }
   console.log(`Created ${role}: ${full_name} <${email}>`);
   return data.user.id;
 }

@@ -122,6 +122,23 @@ const EP = (() => {
     if (error) throw error;
   }
 
+  // Sends a password-reset email; the link in that email lands the user on
+  // reset-password.html with a recovery session already active.
+  async function resetPasswordForEmail(email) {
+    const client = await db();
+    const redirectTo = new URL('reset-password.html', window.location.href).href;
+    const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) throw error;
+  }
+
+  // Thin wrapper so pages can react to auth events (specifically
+  // PASSWORD_RECOVERY, used by reset-password.html) without needing direct
+  // access to the private Supabase client instance.
+  async function onAuthEvent(callback) {
+    const client = await db();
+    client.auth.onAuthStateChange((event, session) => callback(event, session));
+  }
+
   // Creates a real login via the admin-create-user Edge Function (needs the
   // service role key server-side — see supabase/functions/admin-create-user).
   async function addUser({ name, role, courseId }) {
@@ -269,7 +286,7 @@ const EP = (() => {
   return {
     KEYS, timeAgo,
     getSession, requireRole, login, signup, logout,
-    users, courses, addUser, removeUser, studentsOf, userById, updateProfile, updatePassword,
+    users, courses, addUser, removeUser, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
     posts, postById, savePost, deletePost,
     homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
     notificationsFor, sendNotification, markRead,

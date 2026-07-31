@@ -9,19 +9,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       EP.users(), EP.posts(), EP.homework(), EP.notificationsFor(user),
     ]);
     const stats = [
-      ['users', allUsers.length, 'Total Users', 'navy-700'],
-      ['newspaper', allPosts.filter(p => p.status === 'published').length, 'Published Posts', 'red-600'],
-      ['clipboard-list', allHomework.length, 'Homework Assigned', 'navy-700'],
-      ['bell', allNotifs.length, 'Notifications Sent', 'amber-600'],
+      ['users', allUsers.length, 'Total Users', 'navy-700', 'users'],
+      ['newspaper', allPosts.filter(p => p.status === 'published').length, 'Published Posts', 'red-600', 'blog'],
+      ['clipboard-list', allHomework.length, 'Homework Assigned', 'navy-700', null],
+      ['bell', allNotifs.length, 'Notifications Sent', 'amber-600', 'notifications'],
     ];
-    document.getElementById('admin-kpis').innerHTML = stats.map(([icon, val, label, color]) => `
-      <div class="card p-5">
+    document.getElementById('admin-kpis').innerHTML = stats.map(([icon, val, label, color, tab]) => {
+      const tag = tab ? 'button' : 'div';
+      const attrs = tab ? `onclick="switchTab('admin-shell','${tab}')"` : '';
+      return `
+      <${tag} ${attrs} class="card ${tab ? 'card-hover' : ''} p-5 text-left w-full">
         <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:var(--${color === 'navy-700' ? 'navy-50' : color === 'red-600' ? 'red-50' : 'amber-100'})">
           <i data-lucide="${icon}" class="w-4 h-4" style="color:var(--${color})"></i>
         </div>
         <p class="text-2xl font-serif font-bold" style="color:var(--navy-700)">${val}</p>
         <p class="text-xs mt-1" style="color:var(--text-secondary)">${label}</p>
-      </div>`).join('');
+      </${tag}>`;
+    }).join('');
     return { allPosts, allNotifs };
   }
 

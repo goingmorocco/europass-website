@@ -42,13 +42,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.getElementById('student-hw-due').innerHTML = due.map(h => {
       const sub = mySubs.find(x => x.homeworkId === h.id);
-      return `<div class="flex items-center justify-between"><span>${escapeHtml(h.title)}</span><span class="badge ${sub ? 'badge-warning' : 'badge-danger'}">${sub ? 'Submitted' : 'Due ' + h.dueDate}</span></div>`;
+      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-left hover:opacity-70 transition"><span>${escapeHtml(h.title)}</span><span class="badge ${sub ? 'badge-warning' : 'badge-danger'}">${sub ? 'Submitted' : 'Due ' + h.dueDate}</span></button>`;
     }).join('') || `<p style="color:var(--text-secondary)">You\u2019re all caught up!</p>`;
 
     const graded = mySubs.filter(s => s.status === 'graded');
     document.getElementById('student-recent-grades').innerHTML = graded.map(s => {
       const h = hw.find(x => x.id === s.homeworkId);
-      return `<div class="flex items-center justify-between"><span>${escapeHtml(h?.title)}</span><span class="badge badge-success">${escapeHtml(s.grade)}</span></div>`;
+      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-left hover:opacity-70 transition"><span>${escapeHtml(h?.title)}</span><span class="badge badge-success">${escapeHtml(s.grade)}</span></button>`;
     }).join('') || `<p style="color:var(--text-secondary)">No grades yet.</p>`;
   }
 
