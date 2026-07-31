@@ -168,4 +168,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     try { await EP.sendMessage(user.id, activeThreadStudentId, input.value.trim()); input.value = ''; await renderChat(); }
     catch (err) { showToast(err.message, 'danger'); }
   });
+
+  document.getElementById('announce-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await EP.sendNotification({
+        fromId: user.id, audience: 'course', audienceId: myCourseId,
+        title: document.getElementById('announce-title').value,
+        body: document.getElementById('announce-body').value,
+      });
+      e.target.reset();
+      showToast('Sent to your whole class');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
 });

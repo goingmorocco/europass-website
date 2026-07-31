@@ -126,6 +126,7 @@ create policy "notifications_insert" on public.notifications
     and (
       public.current_role() = 'admin'
       or (public.current_role() = 'teacher' and audience_type = 'user')
+      or (public.current_role() = 'teacher' and audience_type = 'course' and audience_id = public.current_course_id())
     )
   );
 
