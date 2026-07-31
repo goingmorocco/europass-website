@@ -187,25 +187,57 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   async function renderGroupPosts() {
     if (!activeGroupId) return;
-    const posts = await EP.groupPosts(activeGroupId);
-    const roster = await EP.users();
+    const [posts, roster, reportsByPost] = await Promise.all([
+      EP.groupPosts(activeGroupId), EP.users(), EP.reportsForGroup(activeGroupId),
+    ]);
     const byId = Object.fromEntries(roster.map(u => [u.id, u.name]));
-    document.getElementById('admin-group-posts').innerHTML = posts.map(p => `
-      <div class="card p-5">
+    document.getElementById('admin-group-posts').innerHTML = posts.map(p => {
+      const reports = reportsByPost[p.id] || [];
+      return `
+      <div class="card p-5" style="${reports.length ? 'border-color:var(--danger-600); border-width:1.5px' : ''}">
         <div class="flex items-center justify-between mb-2">
           <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(byId[p.authorId] || 'Someone')} <span class="font-normal text-xs" style="color:var(--text-disabled)">${EP.timeAgo(p.createdAt)}</span></p>
-          <button onclick="adminDeleteGroupPost('${p.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Delete</button>
+          <div class="flex items-center gap-3">
+            ${reports.length ? `<span class="badge badge-danger">\u{1F6A9} ${reports.length} report${reports.length > 1 ? 's' : ''}</span>` : ''}
+            <button onclick="adminDeleteGroupPost('${p.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Delete Post</button>
+          </div>
         </div>
         ${p.body ? `<p class="text-sm mb-2">${escapeHtml(p.body)}</p>` : ''}
-        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="" class="rounded-lg max-h-64 object-cover">` : ''}
-        <p class="text-xs mt-2" style="color:var(--text-secondary)">${p.likes.length} likes \u00b7 ${p.comments.length} comments</p>
-      </div>`).join('') || `<p style="color:var(--text-secondary)">No posts in this group yet.</p>`;
+        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="" class="rounded-lg max-h-64 object-cover mb-2">` : ''}
+        <p class="text-xs mb-2" style="color:var(--text-secondary)">${p.likes.length} likes \u00b7 ${p.comments.length} comments</p>
+
+        ${reports.length ? `
+        <div class="mt-2 mb-3 p-3 rounded-lg space-y-1" style="background:var(--danger-50)">
+          ${reports.map(r => `
+            <div class="flex items-center justify-between text-xs">
+              <span style="color:var(--danger-600)">${escapeHtml(byId[r.reporterId] || 'Someone')}${r.reason ? ': ' + escapeHtml(r.reason) : ' (no reason given)'}</span>
+              <button onclick="adminDismissReport('${r.id}')" class="font-semibold shrink-0 ml-2" style="color:var(--text-secondary)">Dismiss</button>
+            </div>`).join('')}
+        </div>` : ''}
+
+        ${p.comments.length ? `
+        <div class="mt-2 pt-2 border-t space-y-1.5" style="border-color:var(--border-default)">
+          ${p.comments.map(c => `
+            <div class="flex items-center justify-between text-xs">
+              <span><span class="font-semibold" style="color:var(--navy-700)">${escapeHtml(byId[c.authorId] || 'Someone')}</span> <span style="color:var(--text-secondary)">${escapeHtml(c.body)}</span></span>
+              <button onclick="adminDeleteComment('${c.id}')" class="font-semibold shrink-0 ml-2" style="color:var(--danger-600)">Delete</button>
+            </div>`).join('')}
+        </div>` : ''}
+      </div>`;
+    }).join('') || `<p style="color:var(--text-secondary)">No posts in this group yet.</p>`;
   }
   window.selectAdminGroup = (id) => { activeGroupId = id; renderGroupTabs(); };
   window.adminDeleteGroupPost = async (postId) => {
     if (!confirm('Delete this post?')) return;
     try { await EP.deleteGroupPost(postId); await renderGroupPosts(); } catch (err) { showToast(err.message, 'danger'); }
   };
+  window.adminDeleteComment = async (commentId) => {
+    if (!confirm('Delete this comment?')) return;
+    try { await EP.deleteComment(commentId); await renderGroupPosts(); } catch (err) { showToast(err.message, 'danger'); }
+  };
+  window.adminDismissReport = async (reportId) => {
+    try { await EP.dismissReport(reportId); await renderGroupPosts(); showToast('Report dismissed'); } catch (err) { showToast(err.message, 'danger'); }
+  };
   await renderGroupTabs();
-  EP.onChange([EP.KEYS.group_posts], renderGroupPosts);
+  EP.onChange([EP.KEYS.group_posts, EP.KEYS.group_post_comments, EP.KEYS.group_post_reports], renderGroupPosts);
 });

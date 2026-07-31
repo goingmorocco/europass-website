@@ -27,7 +27,7 @@ const EP = (() => {
     homework: 'homework', submissions: 'submissions',
     notifications: 'notifications', notification_reads: 'notification_reads', messages: 'messages',
     groups: 'groups', group_posts: 'group_posts', group_post_likes: 'group_post_likes',
-    group_post_comments: 'group_post_comments', group_messages: 'group_messages',
+    group_post_comments: 'group_post_comments', group_messages: 'group_messages', group_post_reports: 'group_post_reports',
   };
 
   function timeAgo(iso) {
@@ -354,6 +354,39 @@ const EP = (() => {
     if (error) throw error;
   }
 
+  async function deleteComment(commentId) {
+    const client = await db();
+    const { error } = await client.from('group_post_comments').delete().eq('id', commentId);
+    if (error) throw error;
+  }
+
+  async function reportPost(postId, reporterId, reason) {
+    const client = await db();
+    const { error } = await client.from('group_post_reports').upsert(
+      { post_id: postId, reporter_id: reporterId, reason: reason || null },
+      { onConflict: 'post_id,reporter_id' }
+    );
+    if (error) throw error;
+  }
+  // Admin-only: all reports for posts in a given group, grouped by post id.
+  async function reportsForGroup(groupId) {
+    const client = await db();
+    const { data: posts, error: e1 } = await client.from('group_posts').select('id').eq('group_id', groupId);
+    if (e1) throw e1;
+    const postIds = posts.map(p => p.id);
+    if (!postIds.length) return {};
+    const { data: reports, error: e2 } = await client.from('group_post_reports').select('*').in('post_id', postIds);
+    if (e2) throw e2;
+    const byPost = {};
+    reports.forEach(r => { (byPost[r.post_id] ||= []).push({ id: r.id, reporterId: r.reporter_id, reason: r.reason, createdAt: r.created_at }); });
+    return byPost;
+  }
+  async function dismissReport(reportId) {
+    const client = await db();
+    const { error } = await client.from('group_post_reports').delete().eq('id', reportId);
+    if (error) throw error;
+  }
+
   // ---- Realtime (replaces the old cross-tab localStorage 'storage' event) ----
   const channels = [];
   async function onChange(tableNames, callback) {
@@ -374,6 +407,7 @@ const EP = (() => {
     homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,
-    myGroup, allGroups, groupPosts, createGroupPost, deleteGroupPost, toggleLike, addComment, groupMessages, sendGroupMessage,
+    myGroup, allGroups, groupPosts, createGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
+    groupMessages, sendGroupMessage, reportPost, reportsForGroup, dismissReport,
   };
 })();

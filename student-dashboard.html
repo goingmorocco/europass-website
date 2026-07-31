@@ -255,6 +255,21 @@
   </div>
 </div>
 
+<div id="report-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-sm p-6">
+    <div class="flex items-center justify-between mb-4">
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Report Post</p>
+      <button onclick="document.getElementById('report-modal').classList.add('hidden')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <p class="text-xs mb-3" style="color:var(--text-secondary)">Let an admin know what's wrong — they'll review it.</p>
+    <form id="report-form" class="space-y-3">
+      <input type="hidden" id="report-post-id">
+      <textarea id="report-reason" rows="3" placeholder="Reason (optional)" class="w-full px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
+      <button type="submit" class="btn btn-primary w-full btn-sm">Submit Report</button>
+    </form>
+  </div>
+</div>
+
 <div data-tab-panel="settings" class="hidden max-w-lg">
   <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Account Settings</h1>
 

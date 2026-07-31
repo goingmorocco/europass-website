@@ -46,7 +46,11 @@ async function initCommunity(user, containerId) {
         <div class="flex items-center gap-3 mb-3">
           <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style="background:var(--navy-700)">${initials(p._authorName)}</div>
           <div><p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(p._authorName || 'Someone')}</p><p class="text-xs" style="color:var(--text-disabled)">${EP.timeAgo(p.createdAt)}</p></div>
-          ${p.authorId === user.id ? `<button onclick="communityDeletePost('${p.id}')" class="ml-auto text-xs" style="color:var(--danger-600)">Delete</button>` : ''}
+          <div class="ml-auto flex items-center gap-3">
+            ${p.authorId === user.id
+              ? `<button onclick="communityDeletePost('${p.id}')" class="text-xs" style="color:var(--danger-600)">Delete</button>`
+              : `<button onclick="communityReportPost('${p.id}')" class="text-xs flex items-center gap-1" style="color:var(--text-disabled)"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Report</button>`}
+          </div>
         </div>
         ${p.body ? `<p class="text-sm mb-3" style="color:var(--text-primary)">${escapeHtml(p.body)}</p>` : ''}
         ${p.imageUrl ? `<img src="${p.imageUrl}" alt="" class="rounded-lg w-full max-h-96 object-cover mb-3">` : ''}
@@ -95,6 +99,24 @@ async function initCommunity(user, containerId) {
     if (!confirm('Delete this post?')) return;
     try { await EP.deleteGroupPost(postId); await renderFeed(); } catch (err) { showToast(err.message, 'danger'); }
   };
+
+  window.communityReportPost = (postId) => {
+    document.getElementById('report-post-id').value = postId;
+    document.getElementById('report-reason').value = '';
+    document.getElementById('report-modal').classList.remove('hidden');
+  };
+  const reportForm = document.getElementById('report-form');
+  if (reportForm && !reportForm.dataset.wired) {
+    reportForm.dataset.wired = '1'; // community.js runs on both Student and Teacher pages but the modal markup exists once per page
+    reportForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await EP.reportPost(document.getElementById('report-post-id').value, user.id, document.getElementById('report-reason').value.trim());
+        document.getElementById('report-modal').classList.add('hidden');
+        showToast('Report submitted \u2014 thanks for flagging it');
+      } catch (err) { showToast(err.message, 'danger'); }
+    });
+  }
 
   const imageInput = document.getElementById('community-image-input');
   const imagePreviewName = document.getElementById('community-image-name');
