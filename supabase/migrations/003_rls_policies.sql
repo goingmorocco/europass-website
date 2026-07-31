@@ -41,9 +41,9 @@ create policy "profiles_update_admin" on public.profiles
 -- of deleting anything — see profiles_update_admin above.
 
 -- ---------- COURSES ----------
-drop policy if exists "courses_select_authenticated" on public.courses;
-create policy "courses_select_authenticated" on public.courses
-  for select using (auth.role() = 'authenticated');
+drop policy if exists "courses_select_public" on public.courses;
+create policy "courses_select_public" on public.courses
+  for select using (true);
 
 drop policy if exists "courses_admin_write" on public.courses;
 create policy "courses_admin_write" on public.courses

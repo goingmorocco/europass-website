@@ -18,6 +18,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>`;
   }
 
+  async function renderProgress() {
+    const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
+    const mySubs = allSubs.filter(s => s.studentId === user.id);
+    const total = hw.length;
+    const completed = mySubs.filter(s => hw.some(h => h.id === s.homeworkId)).length; // submitted or graded — both count as "done" by the student
+    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    const circumference = 326.7; // matches the SVG's stroke-dasharray
+    const ring = document.getElementById('student-progress-ring-fg');
+    if (ring) ring.style.strokeDashoffset = String(circumference - (circumference * percent) / 100);
+
+    document.getElementById('student-progress-title').textContent = total > 0 ? `${percent}%` : 'No homework yet';
+    document.getElementById('student-progress-sub').textContent = total > 0 ? `${completed} of ${total} homework completed` : 'Your teacher hasn\u2019t assigned any yet';
+  }
+
   async function renderOverviewLists() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
     const mySubs = allSubs.filter(s => s.studentId === user.id);
@@ -93,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function renderAll() {
     renderCourseInfo();
-    await Promise.all([renderOverviewLists(), renderHwList(), renderNotifications(), renderChat()]);
+    await Promise.all([renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat()]);
     lucide.createIcons();
   }
   await renderAll();

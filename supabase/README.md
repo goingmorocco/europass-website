@@ -30,6 +30,13 @@
 > signup metadata. New projects following the steps below already get the
 > fixed version in `002_functions_and_triggers.sql`, nothing extra needed.
 
+**All four migration files are now safe to re-run, any number of times, in
+any combination.** Every `create table`, `create type`, `create trigger`,
+`create policy`, and the realtime publication step now check whether the
+thing already exists before creating it (or use `create or replace` /
+`drop ... if exists` first). If you're ever unsure whether a migration
+applied cleanly, just run it again — worst case, nothing happens.
+
 This turns the front-end prototype into a real, multi-user backend: real logins,
 a real Postgres database, real row-level security, and live realtime updates
 across different browsers/devices — not just tabs in the same browser.

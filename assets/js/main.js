@@ -29,34 +29,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Persona hero switcher
-  const personaContent = {
-    professional: {
-      eyebrow: 'FOR PROFESSIONALS',
-      headline: 'Don\u2019t let your English hold your career back.',
-      sub: 'Business English coaching built around real interviews, real meetings, and real promotions \u2014 not generic grammar drills.',
-      cta: 'Book Your Free Bilan',
+  // Program hero switcher
+  const programContent = {
+    german: {
+      eyebrow: 'GERMAN PROGRAM',
+      headline: 'Learn German. Train as a Nurse. Build Your Life in Germany.',
+      sub: 'From your first German word to a signed Ausbildung contract — language training and job placement, built as one path.',
+      cta: 'Explore German Program', href: 'program-german.html',
     },
-    parent: {
-      eyebrow: 'FOR PARENTS',
-      headline: 'Give your child a head start that lasts a lifetime.',
-      sub: 'It\u2019s never too early \u2014 or too late \u2014 to open the door to a better future for your child.',
-      cta: 'Book a Free Assessment for Your Child',
+    french: {
+      eyebrow: 'FRENCH PROGRAM',
+      headline: 'French that actually gets you speaking.',
+      sub: 'DELF-aligned training for study, work, and everyday life — from your first bonjour to real fluency.',
+      cta: 'Explore French Program', href: 'program-french.html',
     },
-    communicator: {
-      eyebrow: 'FOR EVERYDAY SPEAKERS',
-      headline: 'You understand English. Now let\u2019s get you speaking it.',
-      sub: 'Join a Speaking Club built for people who know the words but freeze when it\u2019s time to talk.',
-      cta: 'Join a Free Trial Session',
+    english: {
+      eyebrow: 'ENGLISH PROGRAM',
+      headline: 'Four English paths. One goal: real results.',
+      sub: 'Business English, Kids English, Communication English, or IELTS/TOEFL — pick the path that matches your goal.',
+      cta: 'Explore English Programs', href: 'courses.html',
     },
-    future: {
-      eyebrow: 'FOR YOUR NEXT CHAPTER',
-      headline: 'Your future abroad starts with your next English lesson.',
-      sub: 'IELTS, TOEFL, and practical English for study, travel, and immigration \u2014 built around your target score and your timeline.',
-      cta: 'Book Your Free Bilan',
+    nursing: {
+      eyebrow: 'NURSING & AUSBILDUNG',
+      headline: 'German for healthcare. A real job at the end of it.',
+      sub: 'Language training plus placement support — this track ends with a signed Ausbildung contract with a German employer.',
+      cta: 'Explore Nursing & Ausbildung', href: 'program-nursing-ausbildung.html',
     },
   };
-  const tabs = document.querySelectorAll('.persona-tab');
+  const tabs = document.querySelectorAll('.flag-tab[data-program]');
   const heroEyebrow = document.getElementById('hero-eyebrow');
   const heroHeadline = document.getElementById('hero-headline');
   const heroSub = document.getElementById('hero-sub');
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tab.addEventListener('click', () => {
         tabs.forEach((t) => t.setAttribute('aria-selected', 'false'));
         tab.setAttribute('aria-selected', 'true');
-        const data = personaContent[tab.dataset.persona];
+        const data = programContent[tab.dataset.program];
         if (!data) return;
         heroHeadline.style.opacity = 0;
         heroSub.style.opacity = 0;
@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
           heroHeadline.textContent = data.headline;
           heroSub.textContent = data.sub;
           heroCta.textContent = data.cta;
+          heroCta.href = data.href;
           heroHeadline.style.opacity = 1;
           heroSub.style.opacity = 1;
         }, 120);

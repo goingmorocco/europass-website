@@ -7,7 +7,7 @@
 <meta name="description" content="Sign up for a EuroPass student account.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -17,11 +17,12 @@
             navy: {50:'#EAF2FB',100:'#C7D6EC',300:'#8FA6C7',500:'#3E5A8C',600:'#234A85',700:'#1B3A6B',900:'#0B1D3A'},
             red: {50:'#FBEAEA',300:'#F08585',600:'#D62828',700:'#A61E1E'},
             amber: {100:'#F6E4C4',600:'#C77D14'},
+            teal: {50:'#EFFCFA',500:'#14B8A6',600:'#0D9488'},
             success: {50:'#E9F7EE',600:'#15803D'},
             warning: {50:'#FDF3E7',600:'#B45309'},
             danger: {50:'#FDECEC',600:'#DC2626'}
           },
-          fontFamily: { serif: ['Lora','Georgia','serif'], sans: ['Inter','system-ui','sans-serif'] },
+          fontFamily: { serif: ['Baloo 2','Lora','Georgia','serif'], sans: ['Inter','system-ui','sans-serif'] },
           borderRadius: { sm:'6px', md:'10px', lg:'16px', xl:'24px' }
         }
       }
@@ -41,9 +42,22 @@
       </a>
       <nav class="hidden lg:flex items-center gap-7" aria-label="Primary">
         <a href="index.html" class="nav-link text-sm">Home</a>
+        
+      <div class="relative group hidden lg:block">
+        <button class="nav-link text-sm inline-flex items-center gap-1">
+          Programs <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+        </button>
+        <div class="absolute left-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-30">
+          <div class="card p-2 w-64">
+            <a href="program-german.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><span class="text-lg">🇩🇪</span> German</a>
+            <a href="program-french.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><span class="text-lg">🇫🇷</span> French</a>
+            <a href="courses.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><span class="text-lg">🇬🇧</span> English</a>
+            <a href="program-nursing-ausbildung.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><span class="text-lg">🩺</span> Nursing &amp; Ausbildung</a>
+          </div>
+        </div>
+      </div>
+        <a href="test-level.html" class="nav-link text-sm">Test Your Level</a>
         <a href="about.html" class="nav-link text-sm">About</a>
-        <a href="courses.html" class="nav-link text-sm">Courses</a>
-        <a href="pricing.html" class="nav-link text-sm">Pricing</a>
         <a href="blog.html" class="nav-link text-sm">Blog</a>
         <a href="contact.html" class="nav-link text-sm">Contact</a>
       </nav>
@@ -54,7 +68,7 @@
         <a href="tel:+212500000000" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium" aria-label="WhatsApp us">
           <i data-lucide="message-circle" class="w-4 h-4" style="color:var(--success-600)"></i> WhatsApp
         </a>
-        <a href="bilan.html" class="btn btn-primary btn-sm">Book Free Bilan</a>
+        <a href="test-level.html" class="btn btn-teal btn-sm">Test Your Level</a>
       </div>
       <button id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" class="lg:hidden p-2 -mr-2" aria-label="Open menu">
         <i data-lucide="menu" class="w-6 h-6" style="color:var(--navy-700)"></i>
@@ -64,19 +78,23 @@
 
   <div id="nav-drawer" class="fixed inset-0 z-50 translate-x-full transition-transform duration-300 lg:hidden" aria-hidden="true">
     <div class="absolute inset-0 bg-navy-900/40" onclick="document.getElementById('nav-close').click()"></div>
-    <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl">
+    <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl overflow-y-auto">
       <div class="flex items-center justify-between mb-6">
         <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
         <button id="nav-close" aria-label="Close menu" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <a href="index.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Home</a>
+      <p class="text-xs font-semibold uppercase tracking-wide pt-3" style="color:var(--text-secondary)">Programs</p>
+      <a href="program-german.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><span class="text-lg">🇩🇪</span> German</a>
+      <a href="program-french.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><span class="text-lg">🇫🇷</span> French</a>
+      <a href="courses.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><span class="text-lg">🇬🇧</span> English</a>
+      <a href="program-nursing-ausbildung.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><span class="text-lg">🩺</span> Nursing &amp; Ausbildung</a>
+      <a href="test-level.html" class="py-3 border-b nav-link mt-2" style="border-color:var(--border-default); color:var(--teal-600)">Test Your Level</a>
       <a href="about.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">About</a>
-      <a href="courses.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Courses</a>
-      <a href="pricing.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Pricing</a>
       <a href="blog.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Blog</a>
       <a href="contact.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Contact</a>
       <a href="login.html" class="py-3 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><i data-lucide="log-in" class="w-4 h-4"></i> Portal Login</a>
-      <a href="bilan.html" class="btn btn-primary mt-6 w-full">Book Free Bilan</a>
+      <a href="test-level.html" class="btn btn-teal mt-6 w-full">Test Your Level</a>
       <a href="tel:+212500000000" class="btn btn-secondary mt-3 w-full">Call / WhatsApp</a>
     </div>
   </div>
@@ -87,7 +105,7 @@
   <div class="text-center mb-8">
     <p class="eyebrow">Create Your Account</p>
     <h1 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">Join EuroPass</h1>
-    <p class="mt-3 text-sm" style="color:var(--text-secondary)">Already taken the Free Bilan d’Anglais? Great — create your account and your advisor will confirm your course. Prefer to talk first? <a href="contact.html" class="underline font-semibold" style="color:var(--navy-700)">Contact us</a> or <a href="bilan.html" class="underline font-semibold" style="color:var(--navy-700)">take the free Bilan</a> instead.</p>
+    <p class="mt-3 text-sm" style="color:var(--text-secondary)">Already taken a level test? Great — create your account and your advisor will confirm your program. Prefer to talk first? <a href="contact.html" class="underline font-semibold" style="color:var(--navy-700)">Contact us</a> or <a href="test-level.html" class="underline font-semibold" style="color:var(--navy-700)">test your level</a> instead.</p>
   </div>
 
   <form id="signup-form" class="card p-6 space-y-4">
@@ -131,7 +149,7 @@
     <div class="container-ep py-14 grid grid-cols-2 md:grid-cols-5 gap-8">
       <div class="col-span-2">
         <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
-        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">The local reference for learning English — specialized paths for real careers, real families, and real ambitions.</p>
+        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">German, French &amp; English language training, plus nursing Ausbildung placement — real paths to real opportunities.</p>
         <div class="flex gap-3 mt-4">
           <a href="#" aria-label="Facebook" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="facebook" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
           <a href="#" aria-label="Instagram" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="instagram" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
@@ -139,32 +157,34 @@
         </div>
       </div>
       <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Explore</p>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Programs</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
-          <li><a href="about.html" class="hover:underline">About</a></li>
-          <li><a href="courses.html" class="hover:underline">Courses</a></li>
-          <li><a href="pricing.html" class="hover:underline">Pricing</a></li>
-          <li><a href="courses.html#teachers" class="hover:underline">Teachers</a></li>
+          <li><a href="program-german.html" class="hover:underline">German</a></li>
+          <li><a href="program-french.html" class="hover:underline">French</a></li>
+          <li><a href="courses.html" class="hover:underline">English</a></li>
+          <li><a href="program-nursing-ausbildung.html" class="hover:underline">Nursing &amp; Ausbildung</a></li>
         </ul>
       </div>
       <div>
         <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Learn</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="test-level.html" class="hover:underline">Test Your Level</a></li>
           <li><a href="blog.html" class="hover:underline">Blog</a></li>
-          <li><a href="bilan.html" class="hover:underline">Free Bilan d’Anglais</a></li>
+          <li><a href="about.html" class="hover:underline">About</a></li>
           <li><a href="contact.html" class="hover:underline">FAQ</a></li>
         </ul>
       </div>
       <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">For Business</p>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Account</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="login.html" class="hover:underline">Portal Login</a></li>
+          <li><a href="signup.html" class="hover:underline">Create Account</a></li>
           <li><a href="pricing.html#corporate" class="hover:underline">Corporate Training</a></li>
-          <li><a href="pricing.html#referral" class="hover:underline">Referral Program</a></li>
         </ul>
       </div>
     </div>
     <div class="container-ep py-6 border-t flex flex-col md:flex-row justify-between gap-3 text-xs" style="border-color:var(--border-default); color:var(--text-secondary)">
-      <p>© 2026 EuroPass Centre de Formation en Anglais. All rights reserved.</p>
+      <p>© 2026 EuroPass Language &amp; Career Institute. All rights reserved.</p>
       <div class="flex gap-4">
         <a href="privacy.html" class="hover:underline">Privacy Policy</a>
         <a href="terms.html" class="hover:underline">Terms</a>

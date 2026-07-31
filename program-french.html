@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student Dashboard | EuroPass</title>
-<meta name="description" content="EuroPass student dashboard — homework, grades, messages, and notifications.">
+<title>French Program | EuroPass</title>
+<meta name="description" content="DELF-aligned French language training for study, work, and everyday life.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -44,7 +44,7 @@
         <a href="index.html" class="nav-link text-sm">Home</a>
         
       <div class="relative group hidden lg:block">
-        <button class="nav-link text-sm inline-flex items-center gap-1">
+        <button class="nav-link text-sm inline-flex items-center gap-1 font-semibold" style="color:var(--navy-700)">
           Programs <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
         </button>
         <div class="absolute left-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-30">
@@ -101,111 +101,110 @@
 
 <main id="main">
 
-<div id="student-shell" class="flex min-h-[calc(100vh-4rem)]">
-  <aside class="hidden lg:flex flex-col w-64 border-r shrink-0 p-4 gap-1" style="border-color:var(--border-default)">
-    
-    <button data-tab-trigger="overview" onclick="switchTab('student-shell','overview')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>Overview
-    </button>
-    <button data-tab-trigger="homework" onclick="switchTab('student-shell','homework')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="clipboard-list" class="w-4 h-4"></i>My Homework
-    </button>
-    <button data-tab-trigger="messages" onclick="switchTab('student-shell','messages')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="messages-square" class="w-4 h-4"></i>Messages
-    </button>
-    <button data-tab-trigger="notifications" onclick="switchTab('student-shell','notifications')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="bell" class="w-4 h-4"></i>Notifications
-    </button>
-  </aside>
-  <div class="flex-1 min-w-0">
-    <div class="border-b" style="border-color:var(--border-default)">
-      <div class="container-ep py-4 flex items-center justify-between">
-        <div>
-          <p class="text-xs" style="color:var(--text-secondary)">Welcome back,</p>
-          <p id="portal-user-name" class="font-serif text-lg font-bold" style="color:var(--navy-700)">…</p>
-        </div>
-        <div class="flex items-center gap-3">
-          <a href="index.html" class="hidden md:inline text-xs font-semibold" style="color:var(--navy-700)">View Public Site</a>
-          <div class="relative">
-            <button class="relative p-2 rounded-full" style="background:var(--bg-subtle)" aria-label="Notifications" onclick="document.getElementById('bell-popover').classList.toggle('hidden'); event.stopPropagation();">
-              <i data-lucide="bell" class="w-5 h-5" style="color:var(--navy-700)"></i>
-              <span id="portal-bell-dot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style="background:var(--red-600); display:none"></span>
-            </button>
-            <div id="bell-popover" class="hidden absolute right-0 mt-2 w-80 card z-30 max-h-96 overflow-y-auto">
-              <div id="portal-bell-list"></div>
-            </div>
-          </div>
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:var(--navy-700)"><span id="portal-user-initials"></span></div>
-          <button id="portal-logout" class="text-xs font-semibold" style="color:var(--red-600)">Switch Account</button>
-        </div>
+<div class="container-ep pt-6 text-xs" style="color:var(--text-secondary)">
+  <a href="index.html" class="hover:underline">Home</a> / <span style="color:var(--navy-700)">French Program</span>
+</div>
+
+<section class="py-10 lg:py-14">
+  <div class="container-ep grid lg:grid-cols-2 gap-12 items-center">
+    <div>
+      <span class="text-3xl">🇫🇷</span>
+      <span class="eyebrow ml-2">For Study, Work & Everyday Life</span>
+      <h1 class="font-serif text-4xl font-bold mt-2" style="color:var(--navy-700)">French Program</h1>
+      <p class="mt-4 text-lg" style="color:var(--text-secondary)">French that actually gets you speaking — built around DELF levels, not just grammar drills.</p>
+      <div class="flex flex-wrap items-center gap-2 mt-6"><span class="badge badge-teal">A1</span><span class="badge badge-teal">A2</span><span class="badge badge-teal">B1</span><span class="badge badge-teal">B2</span></div>
+      <div class="flex items-center gap-4 mt-4">
+        <span class="badge badge-info"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 10 weeks per level</span>
+        <span class="badge badge-success"><i data-lucide="banknote" class="w-3.5 h-3.5"></i> From 650 MAD/mo</span>
+      </div>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="test-level.html?lang=fr" class="btn btn-teal">Test My French Level</a>
+        <a href="contact.html" class="btn btn-secondary">Talk to an Advisor</a>
       </div>
     </div>
-    <div class="container-ep py-8">
-      
-<div data-tab-panel="overview">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Overview</h1>
-  <div class="grid md:grid-cols-3 gap-6 mb-6">
-    <div class="card p-6 flex flex-col items-center justify-center text-center">
-      <svg class="progress-ring w-28 h-28" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--navy-50)" stroke-width="12"></circle>
-        <circle id="student-progress-ring-fg" cx="60" cy="60" r="52" fill="none" stroke="var(--red-600)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"></circle>
-      </svg>
-      <p id="student-progress-title" class="font-serif text-lg font-bold mt-2" style="color:var(--navy-700)">—</p>
-      <p id="student-progress-sub" class="text-xs" style="color:var(--text-secondary)">Loading…</p>
+    <div class="photo-placeholder alt aspect-[4/3]"><i data-lucide="croissant" class="w-16 h-16"></i><span class="cap">French conversation class</span></div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--bg-subtle)">
+  <div class="container-ep grid md:grid-cols-3 gap-8">
+    <div><p class="eyebrow">Who it's for</p><p class="mt-2 text-sm" style="color:var(--text-secondary)">Students, professionals, and anyone preparing for study or work in a French-speaking environment.</p></div>
+    <div><p class="eyebrow">What changes</p><p class="mt-2 text-sm" style="color:var(--text-secondary)">You’ll move from hesitant phrases to natural conversation, with real confidence in reading, writing, and speaking.</p></div>
+    <div><p class="eyebrow">How we teach it</p><p class="mt-2 text-sm" style="color:var(--text-secondary)">DELF-aligned curriculum, conversation-first practice, and teachers with real examiner experience.</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container-ep max-w-3xl">
+    <p class="eyebrow">Curriculum</p>
+    <h2 class="font-serif text-2xl font-bold mt-2 mb-6" style="color:var(--navy-700)">What you’ll cover</h2>
+    <div class="space-y-3">
+    <div class="card p-0 overflow-hidden">
+      <button data-accordion-trigger aria-expanded="false" aria-controls="currfr0" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+        A1 — Foundations <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+      </button>
+      <div id="currfr0" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Greetings, basic questions, simple present tense, everyday vocabulary.</div></div>
     </div>
-    <div class="card p-6 md:col-span-2">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">My Course</p>
-      <div id="student-course-info"></div>
+    <div class="card p-0 overflow-hidden">
+      <button data-accordion-trigger aria-expanded="false" aria-controls="currfr1" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+        A2 — Everyday French <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+      </button>
+      <div id="currfr1" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Past tense, making plans, shopping and travel situations.</div></div>
     </div>
-  </div>
-  <div class="grid md:grid-cols-2 gap-6">
-    <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">Homework Due</p><div id="student-hw-due" class="space-y-2 text-sm"></div></div>
-    <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">Recent Grades</p><div id="student-recent-grades" class="space-y-2 text-sm"></div></div>
-  </div>
-</div>
-
-<div data-tab-panel="homework" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">My Homework</h1>
-  <div id="student-hw-list" class="space-y-4"></div>
-</div>
-
-<div data-tab-panel="messages" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Messages</h1>
-  <div class="card p-0 flex flex-col max-w-2xl" style="min-height:26rem">
-    <div id="student-chat-header" class="p-4 border-b font-semibold" style="border-color:var(--border-default); color:var(--navy-700)">My Teacher</div>
-    <div id="student-chat-messages" class="flex-1 p-4 space-y-3 overflow-y-auto" style="max-height:20rem"></div>
-    <form id="student-chat-form" class="p-3 border-t flex gap-2" style="border-color:var(--border-default)">
-      <input id="student-chat-input" placeholder="Type a message..." class="flex-1 px-4 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <button type="submit" class="btn btn-primary btn-sm">Send</button>
-    </form>
-  </div>
-</div>
-
-<div data-tab-panel="notifications" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Notifications</h1>
-  <div id="student-notif-list" class="space-y-3 max-w-2xl"></div>
-</div>
-
-<div id="submit-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-lg p-6">
-    <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Submit Homework</p>
-      <button onclick="closeModal('submit-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div class="card p-0 overflow-hidden">
+      <button data-accordion-trigger aria-expanded="false" aria-controls="currfr2" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+        B1 — Independent Use <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+      </button>
+      <div id="currfr2" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Expressing opinions, understanding the news, workplace French.</div></div>
     </div>
-    <div id="submit-modal-title" class="text-sm font-semibold mb-1" style="color:var(--navy-700)"></div>
-    <div id="submit-modal-instructions" class="text-sm mb-4" style="color:var(--text-secondary)"></div>
-    <form id="submit-form" class="space-y-4">
-      <input type="hidden" id="submit-hw-id">
-      <textarea id="submit-content" required rows="6" placeholder="Write or paste your answer here..." class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
-      <button type="submit" class="btn btn-primary w-full">Submit Homework</button>
-    </form>
+    <div class="card p-0 overflow-hidden">
+      <button data-accordion-trigger aria-expanded="false" aria-controls="currfr3" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+        B2 — Fluency Building <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+      </button>
+      <div id="currfr3" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Nuanced expression, formal writing, DELF B2 exam preparation.</div></div>
+    </div></div>
   </div>
-</div>
+</section>
 
+
+
+<section class="section" style="background:var(--bg-subtle)">
+  <div class="container-ep">
+    <p class="eyebrow text-center">Your Teacher</p>
+    <div class="card p-6 max-w-md mx-auto mt-6 text-center">
+      <div class="photo-placeholder w-20 h-20 rounded-full mx-auto mb-4"><i data-lucide="user" class="w-7 h-7"></i></div>
+      <p class="font-semibold" style="color:var(--navy-700)">Camille Fontaine</p>
+      <p class="text-xs mt-1" style="color:var(--text-secondary)">DELF Examiner · French Program</p>
     </div>
   </div>
-</div>
-<script>document.addEventListener('click', (e) => { const pop = document.getElementById('bell-popover'); if (pop && !pop.classList.contains('hidden') && !pop.contains(e.target)) pop.classList.add('hidden'); });</script>
+</section>
+
+<section class="section">
+  <div class="container-ep max-w-3xl">
+    <p class="eyebrow text-center">FAQ</p>
+    <h2 class="font-serif text-2xl font-bold text-center mt-2 mb-8" style="color:var(--navy-700)">French Program — common questions</h2>
+    <div class="space-y-3">
+      <div class="card p-0 overflow-hidden">
+        <button data-accordion-trigger aria-expanded="false" aria-controls="frfaq0" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+          Do you prepare specifically for the DELF exam? <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+        </button>
+        <div id="frfaq0" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Yes — our B1 and B2 levels include dedicated DELF exam preparation and practice tests.</div></div>
+      </div>
+      <div class="card p-0 overflow-hidden">
+        <button data-accordion-trigger aria-expanded="false" aria-controls="frfaq1" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
+          What if I only know a few words of French? <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
+        </button>
+        <div id="frfaq1" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">That’s exactly what A1 is for — the free level test confirms your starting point either way.</div></div>
+      </div></div>
+  </div>
+</section>
+
+<section class="relative overflow-hidden" style="background:var(--navy-700)">
+  <div class="container-ep py-14 text-center relative z-10">
+    <h2 class="font-serif text-2xl lg:text-3xl font-bold text-white">Find your starting level, free, in 5 minutes</h2>
+    <div class="mt-6"><a href="test-level.html?lang=fr" class="btn btn-teal">Test My French Level</a></div>
+  </div>
+</section>
 
 </main>
 
@@ -258,7 +257,7 @@
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
 
 <script src="assets/js/main.js"></script>
-<script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/student.js"></script>
+
 <script>lucide.createIcons();</script>
 </body>
 </html>

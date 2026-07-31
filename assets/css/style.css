@@ -10,6 +10,8 @@
   --red-700:#A61E1E; --red-600:#D62828; --red-300:#F08585; --red-50:#FBEAEA;
   /* Amber — motivation / achievement */
   --amber-600:#C77D14; --amber-100:#F6E4C4;
+  /* Teal — modern accent, used for the multi-program/level-test redesign */
+  --teal-600:#0D9488; --teal-500:#14B8A6; --teal-50:#EFFCFA;
   /* Semantic */
   --success-600:#15803D; --success-50:#E9F7EE;
   --warning-600:#B45309; --warning-50:#FDF3E7;
@@ -38,7 +40,7 @@ body{
   font-family:'Inter',system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;
 }
-h1,h2,h3,h4,.font-display{ font-family:'Lora', Georgia, serif; }
+h1,h2,h3,h4,.font-display{ font-family:'Baloo 2', 'Lora', Georgia, serif; }
 
 /* Respect reduced motion globally */
 @media (prefers-reduced-motion: reduce){
@@ -76,6 +78,22 @@ textarea:focus-visible, [tabindex]:focus-visible{
 .btn-on-dark{ background:#fff; color:var(--navy-700); }
 .btn-on-dark:hover{ background:var(--navy-50); }
 .btn-sm{ padding:.5rem 1rem; font-size:.85rem; }
+.btn-teal{ background:var(--teal-600); color:#fff; box-shadow:var(--e1); }
+.btn-teal:hover{ background:#0B7A6F; transform:translateY(-1px); box-shadow:var(--e2); }
+.badge-teal{ background:var(--teal-50); color:var(--teal-600); }
+
+/* Flag-tab language/program switcher (modern redesign) */
+.flag-tab{
+  display:inline-flex; align-items:center; gap:.5rem; padding:.65rem 1.1rem; border-radius:var(--r-full);
+  font-weight:600; font-size:.9rem; color:var(--text-secondary); border:1.5px solid transparent;
+  background:var(--bg-surface); border-color:var(--border-default); transition:all var(--m-fast) ease-out;
+}
+.flag-tab[aria-selected="true"]{ color:var(--navy-700); border-color:var(--teal-500); background:var(--teal-50); }
+.flag-tab:hover{ border-color:var(--teal-500); }
+
+/* Program/course meta row (lessons, students, price — reference-style cards) */
+.meta-row{ display:flex; align-items:center; gap:1.1rem; font-size:.78rem; font-weight:600; color:var(--text-secondary); }
+.meta-row .meta-item{ display:flex; align-items:center; gap:.3rem; }
 .btn:disabled{ background:var(--bg-subtle); color:var(--text-disabled); cursor:not-allowed; transform:none; box-shadow:none; }
 
 /* Cards */

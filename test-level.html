@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student Dashboard | EuroPass</title>
-<meta name="description" content="EuroPass student dashboard — homework, grades, messages, and notifications.">
+<title>Test Your Level — German, French & English | EuroPass</title>
+<meta name="description" content="Free self-test in German, French, or English. Get your estimated level and a program recommendation in under 5 minutes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -56,7 +56,7 @@
           </div>
         </div>
       </div>
-        <a href="test-level.html" class="nav-link text-sm">Test Your Level</a>
+        <a href="test-level.html" class="nav-link text-sm font-semibold" aria-current="page" style="color:var(--navy-700)">Test Your Level</a>
         <a href="about.html" class="nav-link text-sm">About</a>
         <a href="blog.html" class="nav-link text-sm">Blog</a>
         <a href="contact.html" class="nav-link text-sm">Contact</a>
@@ -101,111 +101,59 @@
 
 <main id="main">
 
-<div id="student-shell" class="flex min-h-[calc(100vh-4rem)]">
-  <aside class="hidden lg:flex flex-col w-64 border-r shrink-0 p-4 gap-1" style="border-color:var(--border-default)">
-    
-    <button data-tab-trigger="overview" onclick="switchTab('student-shell','overview')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>Overview
-    </button>
-    <button data-tab-trigger="homework" onclick="switchTab('student-shell','homework')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="clipboard-list" class="w-4 h-4"></i>My Homework
-    </button>
-    <button data-tab-trigger="messages" onclick="switchTab('student-shell','messages')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="messages-square" class="w-4 h-4"></i>Messages
-    </button>
-    <button data-tab-trigger="notifications" onclick="switchTab('student-shell','notifications')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="bell" class="w-4 h-4"></i>Notifications
-    </button>
-  </aside>
-  <div class="flex-1 min-w-0">
-    <div class="border-b" style="border-color:var(--border-default)">
-      <div class="container-ep py-4 flex items-center justify-between">
-        <div>
-          <p class="text-xs" style="color:var(--text-secondary)">Welcome back,</p>
-          <p id="portal-user-name" class="font-serif text-lg font-bold" style="color:var(--navy-700)">…</p>
-        </div>
-        <div class="flex items-center gap-3">
-          <a href="index.html" class="hidden md:inline text-xs font-semibold" style="color:var(--navy-700)">View Public Site</a>
-          <div class="relative">
-            <button class="relative p-2 rounded-full" style="background:var(--bg-subtle)" aria-label="Notifications" onclick="document.getElementById('bell-popover').classList.toggle('hidden'); event.stopPropagation();">
-              <i data-lucide="bell" class="w-5 h-5" style="color:var(--navy-700)"></i>
-              <span id="portal-bell-dot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style="background:var(--red-600); display:none"></span>
-            </button>
-            <div id="bell-popover" class="hidden absolute right-0 mt-2 w-80 card z-30 max-h-96 overflow-y-auto">
-              <div id="portal-bell-list"></div>
-            </div>
-          </div>
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:var(--navy-700)"><span id="portal-user-initials"></span></div>
-          <button id="portal-logout" class="text-xs font-semibold" style="color:var(--red-600)">Switch Account</button>
-        </div>
+<section class="section !pt-10 !pb-20">
+  <div class="container-ep max-w-2xl">
+    <div class="text-center mb-8">
+      <p class="eyebrow" style="color:var(--teal-600)">Free Self-Test</p>
+      <h1 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">Test Your Level</h1>
+      <p class="mt-2 text-sm" style="color:var(--text-secondary)">Pick a language, answer a few quick questions, get an estimated level — free, no obligation.</p>
+    </div>
+
+    <div class="flex flex-wrap gap-2 justify-center mb-8" role="tablist" aria-label="Choose a language to test">
+      <button class="flag-tab" data-lang="de" role="tab" aria-selected="true"><span class="text-lg">🇩🇪</span> German</button>
+      <button class="flag-tab" data-lang="fr" role="tab" aria-selected="false"><span class="text-lg">🇫🇷</span> French</button>
+      <button class="flag-tab" data-lang="en" role="tab" aria-selected="false"><span class="text-lg">🇬🇧</span> English</button>
+    </div>
+
+    <div class="w-full h-2 rounded-full mb-8" style="background:var(--teal-50)">
+      <div id="quiz-progress" class="h-2 rounded-full transition-all duration-300" style="background:var(--teal-600); width:0%"></div>
+    </div>
+
+    <!-- Step: intro -->
+    <div id="step-intro" class="text-center">
+      <div class="text-5xl mb-4" id="test-intro-flag">🇩🇪</div>
+      <h2 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Ready to test your <span id="test-intro-lang">German</span>?</h2>
+      <p class="mt-2 text-sm max-w-md mx-auto" style="color:var(--text-secondary)">6 quick questions, about 3 minutes. Answer honestly — there’s no wrong starting point, just the right class for where you are today.</p>
+      <button id="start-quiz-btn" class="btn btn-teal mt-6">Start the Test</button>
+    </div>
+
+    <!-- Step: quiz -->
+    <div id="step-quiz" class="hidden">
+      <p id="quiz-progress-label" class="text-xs mb-4" style="color:var(--text-secondary)">Question 1</p>
+      <div id="quiz-question" class="card p-6"></div>
+      <div class="flex justify-between mt-6">
+        <button id="quiz-back" class="btn btn-secondary">Back</button>
+        <button id="quiz-next" disabled class="btn btn-teal">Next</button>
       </div>
     </div>
-    <div class="container-ep py-8">
-      
-<div data-tab-panel="overview">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Overview</h1>
-  <div class="grid md:grid-cols-3 gap-6 mb-6">
-    <div class="card p-6 flex flex-col items-center justify-center text-center">
-      <svg class="progress-ring w-28 h-28" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--navy-50)" stroke-width="12"></circle>
-        <circle id="student-progress-ring-fg" cx="60" cy="60" r="52" fill="none" stroke="var(--red-600)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"></circle>
-      </svg>
-      <p id="student-progress-title" class="font-serif text-lg font-bold mt-2" style="color:var(--navy-700)">—</p>
-      <p id="student-progress-sub" class="text-xs" style="color:var(--text-secondary)">Loading…</p>
-    </div>
-    <div class="card p-6 md:col-span-2">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">My Course</p>
-      <div id="student-course-info"></div>
-    </div>
-  </div>
-  <div class="grid md:grid-cols-2 gap-6">
-    <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">Homework Due</p><div id="student-hw-due" class="space-y-2 text-sm"></div></div>
-    <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">Recent Grades</p><div id="student-recent-grades" class="space-y-2 text-sm"></div></div>
-  </div>
-</div>
 
-<div data-tab-panel="homework" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">My Homework</h1>
-  <div id="student-hw-list" class="space-y-4"></div>
-</div>
-
-<div data-tab-panel="messages" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Messages</h1>
-  <div class="card p-0 flex flex-col max-w-2xl" style="min-height:26rem">
-    <div id="student-chat-header" class="p-4 border-b font-semibold" style="border-color:var(--border-default); color:var(--navy-700)">My Teacher</div>
-    <div id="student-chat-messages" class="flex-1 p-4 space-y-3 overflow-y-auto" style="max-height:20rem"></div>
-    <form id="student-chat-form" class="p-3 border-t flex gap-2" style="border-color:var(--border-default)">
-      <input id="student-chat-input" placeholder="Type a message..." class="flex-1 px-4 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <button type="submit" class="btn btn-primary btn-sm">Send</button>
-    </form>
-  </div>
-</div>
-
-<div data-tab-panel="notifications" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Notifications</h1>
-  <div id="student-notif-list" class="space-y-3 max-w-2xl"></div>
-</div>
-
-<div id="submit-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-lg p-6">
-    <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Submit Homework</p>
-      <button onclick="closeModal('submit-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div id="submit-modal-title" class="text-sm font-semibold mb-1" style="color:var(--navy-700)"></div>
-    <div id="submit-modal-instructions" class="text-sm mb-4" style="color:var(--text-secondary)"></div>
-    <form id="submit-form" class="space-y-4">
-      <input type="hidden" id="submit-hw-id">
-      <textarea id="submit-content" required rows="6" placeholder="Write or paste your answer here..." class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
-      <button type="submit" class="btn btn-primary w-full">Submit Homework</button>
-    </form>
-  </div>
-</div>
-
+    <!-- Step: results -->
+    <div id="step-results" class="hidden text-center">
+      <div class="text-5xl mb-4" id="result-flag">🇩🇪</div>
+      <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5" style="background:var(--teal-50)">
+        <span id="result-level" class="font-serif text-2xl font-bold" style="color:var(--teal-600)">B1</span>
+      </div>
+      <p class="eyebrow">Your Estimated Level</p>
+      <h2 id="result-label" class="font-serif text-2xl font-bold mt-2" style="color:var(--navy-700)">Intermediate German</h2>
+      <p class="mt-3 max-w-md mx-auto text-sm" style="color:var(--text-secondary)">This is a quick self-check, not a certified exam — your program advisor will confirm your exact level in your first session.</p>
+      <div class="mt-8 flex flex-wrap gap-3 justify-center">
+        <a id="result-program-link" href="program-german.html" class="btn btn-teal">Explore the German Program</a>
+        <a href="contact.html" class="btn btn-secondary">Talk to an Advisor</a>
+      </div>
+      <button id="retake-btn" class="text-sm font-semibold mt-6 underline" style="color:var(--text-secondary)">Test a different language</button>
     </div>
   </div>
-</div>
-<script>document.addEventListener('click', (e) => { const pop = document.getElementById('bell-popover'); if (pop && !pop.classList.contains('hidden') && !pop.contains(e.target)) pop.classList.add('hidden'); });</script>
+</section>
 
 </main>
 
@@ -258,7 +206,7 @@
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
 
 <script src="assets/js/main.js"></script>
-<script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/student.js"></script>
+<script src="assets/js/test-level.js"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>

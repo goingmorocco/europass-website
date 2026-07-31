@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Learn English That Actually Changes Your Life | EuroPass</title>
-<meta name="description" content="EuroPass — specialized English learning paths for professionals, parents, communicators, and future-builders. Book your free Bilan d’Anglais today.">
+<title>EuroPass — German, French & English Language Training + Nursing Ausbildung Placement | EuroPass</title>
+<meta name="description" content="EuroPass — language training in German, French, and English, plus a full Nursing & Ausbildung placement track into German employer contracts. Test your level free.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -17,11 +17,12 @@
             navy: {50:'#EAF2FB',100:'#C7D6EC',300:'#8FA6C7',500:'#3E5A8C',600:'#234A85',700:'#1B3A6B',900:'#0B1D3A'},
             red: {50:'#FBEAEA',300:'#F08585',600:'#D62828',700:'#A61E1E'},
             amber: {100:'#F6E4C4',600:'#C77D14'},
+            teal: {50:'#EFFCFA',500:'#14B8A6',600:'#0D9488'},
             success: {50:'#E9F7EE',600:'#15803D'},
             warning: {50:'#FDF3E7',600:'#B45309'},
             danger: {50:'#FDECEC',600:'#DC2626'}
           },
-          fontFamily: { serif: ['Lora','Georgia','serif'], sans: ['Inter','system-ui','sans-serif'] },
+          fontFamily: { serif: ['Baloo 2','Lora','Georgia','serif'], sans: ['Inter','system-ui','sans-serif'] },
           borderRadius: { sm:'6px', md:'10px', lg:'16px', xl:'24px' }
         }
       }
@@ -41,9 +42,22 @@
       </a>
       <nav class="hidden lg:flex items-center gap-7" aria-label="Primary">
         <a href="index.html" class="nav-link text-sm font-semibold" aria-current="page" style="color:var(--navy-700)">Home</a>
+        
+      <div class="relative group hidden lg:block">
+        <button class="nav-link text-sm inline-flex items-center gap-1">
+          Programs <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+        </button>
+        <div class="absolute left-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-30">
+          <div class="card p-2 w-64">
+            <a href="program-german.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><span class="text-lg">🇩🇪</span> German</a>
+            <a href="program-french.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><span class="text-lg">🇫🇷</span> French</a>
+            <a href="courses.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><span class="text-lg">🇬🇧</span> English</a>
+            <a href="program-nursing-ausbildung.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><span class="text-lg">🩺</span> Nursing &amp; Ausbildung</a>
+          </div>
+        </div>
+      </div>
+        <a href="test-level.html" class="nav-link text-sm">Test Your Level</a>
         <a href="about.html" class="nav-link text-sm">About</a>
-        <a href="courses.html" class="nav-link text-sm">Courses</a>
-        <a href="pricing.html" class="nav-link text-sm">Pricing</a>
         <a href="blog.html" class="nav-link text-sm">Blog</a>
         <a href="contact.html" class="nav-link text-sm">Contact</a>
       </nav>
@@ -54,7 +68,7 @@
         <a href="tel:+212500000000" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium" aria-label="WhatsApp us">
           <i data-lucide="message-circle" class="w-4 h-4" style="color:var(--success-600)"></i> WhatsApp
         </a>
-        <a href="bilan.html" class="btn btn-primary btn-sm">Book Free Bilan</a>
+        <a href="test-level.html" class="btn btn-teal btn-sm">Test Your Level</a>
       </div>
       <button id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" class="lg:hidden p-2 -mr-2" aria-label="Open menu">
         <i data-lucide="menu" class="w-6 h-6" style="color:var(--navy-700)"></i>
@@ -64,55 +78,60 @@
 
   <div id="nav-drawer" class="fixed inset-0 z-50 translate-x-full transition-transform duration-300 lg:hidden" aria-hidden="true">
     <div class="absolute inset-0 bg-navy-900/40" onclick="document.getElementById('nav-close').click()"></div>
-    <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl">
+    <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl overflow-y-auto">
       <div class="flex items-center justify-between mb-6">
         <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
         <button id="nav-close" aria-label="Close menu" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <a href="index.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Home</a>
+      <p class="text-xs font-semibold uppercase tracking-wide pt-3" style="color:var(--text-secondary)">Programs</p>
+      <a href="program-german.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><span class="text-lg">🇩🇪</span> German</a>
+      <a href="program-french.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><span class="text-lg">🇫🇷</span> French</a>
+      <a href="courses.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><span class="text-lg">🇬🇧</span> English</a>
+      <a href="program-nursing-ausbildung.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><span class="text-lg">🩺</span> Nursing &amp; Ausbildung</a>
+      <a href="test-level.html" class="py-3 border-b nav-link mt-2" style="border-color:var(--border-default); color:var(--teal-600)">Test Your Level</a>
       <a href="about.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">About</a>
-      <a href="courses.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Courses</a>
-      <a href="pricing.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Pricing</a>
       <a href="blog.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Blog</a>
       <a href="contact.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Contact</a>
       <a href="login.html" class="py-3 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><i data-lucide="log-in" class="w-4 h-4"></i> Portal Login</a>
-      <a href="bilan.html" class="btn btn-primary mt-6 w-full">Book Free Bilan</a>
+      <a href="test-level.html" class="btn btn-teal mt-6 w-full">Test Your Level</a>
       <a href="tel:+212500000000" class="btn btn-secondary mt-3 w-full">Call / WhatsApp</a>
     </div>
   </div>
 
 <main id="main">
 
-<!-- HERO with persona switcher (signature interactive element) -->
+<!-- HERO with program switcher (signature interactive element) -->
 <section class="relative overflow-hidden" style="background:var(--navy-700)">
   <div class="brand-circle" style="width:520px;height:520px; background:var(--navy-900); opacity:.5; top:-220px; right:-140px;"></div>
-  <div class="brand-circle" style="width:320px;height:320px; background:var(--red-600); opacity:.12; bottom:-140px; right:120px;"></div>
+  <div class="brand-circle" style="width:320px;height:320px; background:var(--teal-600); opacity:.14; bottom:-140px; right:120px;"></div>
   <div class="container-ep relative z-10 py-16 lg:py-24">
     <div class="grid lg:grid-cols-2 gap-12 items-center">
       <div>
-        <div class="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="Choose what brings you here">
-          <button class="persona-tab on-dark" data-persona="professional" role="tab" aria-selected="true">I want a better career</button>
-          <button class="persona-tab on-dark" data-persona="parent" role="tab" aria-selected="false">I want to help my child</button>
-          <button class="persona-tab on-dark" data-persona="communicator" role="tab" aria-selected="false">I want to finally speak</button>
-          <button class="persona-tab on-dark" data-persona="future" role="tab" aria-selected="false">I want to study abroad</button>
+        
+        <div class="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="Choose a program">
+          <button class="flag-tab" data-program="german" role="tab" aria-selected="true"><span class="text-lg">🇩🇪</span> German</button>
+          <button class="flag-tab" data-program="french" role="tab" aria-selected="false"><span class="text-lg">🇫🇷</span> French</button>
+          <button class="flag-tab" data-program="english" role="tab" aria-selected="false"><span class="text-lg">🇬🇧</span> English</button>
+          <button class="flag-tab" data-program="nursing" role="tab" aria-selected="false"><span class="text-lg">🩺</span> Nursing &amp; Ausbildung</button>
         </div>
-        <p id="hero-eyebrow" class="eyebrow mb-3" style="color:var(--red-300)">FOR PROFESSIONALS</p>
-        <h1 id="hero-headline" class="font-serif text-4xl lg:text-5xl font-bold text-white leading-tight transition-opacity duration-200">Don’t let your English hold your career back.</h1>
-        <p id="hero-sub" class="mt-5 text-lg leading-relaxed transition-opacity duration-200" style="color:var(--navy-100)">Business English coaching built around real interviews, real meetings, and real promotions — not generic grammar drills.</p>
+        <p id="hero-eyebrow" class="eyebrow mb-3" style="color:var(--teal-500)">GERMAN PROGRAM</p>
+        <h1 id="hero-headline" class="font-serif text-4xl lg:text-5xl font-bold text-white leading-tight transition-opacity duration-200">Learn German. Train as a Nurse. Build Your Life in Germany.</h1>
+        <p id="hero-sub" class="mt-5 text-lg leading-relaxed transition-opacity duration-200" style="color:var(--navy-100)">From your first German word to a signed Ausbildung contract — language training and job placement, built as one path.</p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <a id="hero-cta" href="bilan.html" class="btn btn-primary">Book Your Free Bilan</a>
-          <a href="tel:+212500000000" class="btn btn-on-dark"><i data-lucide="message-circle" class="w-4 h-4 mr-1"></i> Chat on WhatsApp</a>
+          <a id="hero-cta" href="program-german.html" class="btn btn-teal">Explore German Program</a>
+          <a href="test-level.html" class="btn btn-on-dark">Test My Level — Free</a>
         </div>
-        <p class="mt-6 text-xs" style="color:var(--navy-300)">No credit card required · Results in 10 minutes · Free CEFR level report</p>
+        <p class="mt-6 text-xs" style="color:var(--navy-300)">4 programs · German · French · English · Nursing &amp; Ausbildung</p>
       </div>
       <div class="relative hidden lg:block">
         <div class="photo-placeholder aspect-[4/3] elevation-3" style="box-shadow:var(--e3)">
           <i data-lucide="graduation-cap" class="w-16 h-16 opacity-90"></i>
-          <span class="cap">Real EuroPass students, Business English cohort — Rabat</span>
+          <span class="cap">Real EuroPass students — German &amp; Nursing cohort</span>
         </div>
-        <div class="absolute -bottom-6 -left-6 card p-4 w-48 hidden xl:block">
-          <p class="text-3xl font-serif font-bold" style="color:var(--navy-700)">2,400+</p>
-          <p class="text-xs" style="color:var(--text-secondary)">students taught since launch</p>
+        <div class="absolute -bottom-6 -left-6 card p-4 w-52 hidden xl:block">
+          <p class="text-3xl font-serif font-bold" style="color:var(--navy-700)">140+</p>
+          <p class="text-xs" style="color:var(--text-secondary)">students placed into German Ausbildung contracts</p>
         </div>
       </div>
     </div>
@@ -122,45 +141,74 @@
 <!-- TRUST STRIP -->
 <section class="border-b" style="border-color:var(--border-default)">
   <div class="container-ep py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-    <div><p class="text-2xl font-serif font-bold" style="color:var(--navy-700)">2,400+</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Students taught</p></div>
-    <div><p class="text-2xl font-serif font-bold" style="color:var(--navy-700)">94%</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Placement test completion</p></div>
+    <div><p class="text-2xl font-serif font-bold" style="color:var(--navy-700)">3,100+</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Students taught</p></div>
+    <div><p class="text-2xl font-serif font-bold" style="color:var(--navy-700)">140+</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Ausbildung placements</p></div>
     <div><p class="text-2xl font-serif font-bold" style="color:var(--navy-700)">4.9/5</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Average student rating</p></div>
-    <div><p class="text-2xl font-serif font-bold" style="color:var(--navy-700)">12</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Corporate partners</p></div>
+    <div><p class="text-2xl font-serif font-bold" style="color:var(--navy-700)">4</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Programs, one campus</p></div>
   </div>
 </section>
 
-<!-- SERVICES -->
+<!-- PROGRAMS -->
 <section class="section">
   <div class="container-ep">
-    <p class="eyebrow text-center">Four Paths, One Goal</p>
-    <h2 class="font-serif text-3xl font-bold text-center mt-2" style="color:var(--navy-700)">A learning path built around your objective</h2>
-    <p class="text-center mt-3 max-w-xl mx-auto" style="color:var(--text-secondary)">We don’t sell English classes. We sell the outcome you’re actually after.</p>
+    <p class="eyebrow text-center">Four Programs, One Campus</p>
+    <h2 class="font-serif text-3xl font-bold text-center mt-2" style="color:var(--navy-700)">Choose your path</h2>
+    <p class="text-center mt-3 max-w-xl mx-auto" style="color:var(--text-secondary)">Language training for real goals — and for German &amp; Nursing, a direct line into an Ausbildung contract.</p>
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-      <a href="course-business-english.html" class="card card-hover p-6 block">
-        <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-4" style="background:var(--navy-50)"><i data-lucide="briefcase" style="color:var(--navy-700)"></i></div>
-        <h3 class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Business English</h3>
-        <p class="text-sm mt-2" style="color:var(--text-secondary)">Interviews, meetings, and emails — communicate with confidence at work.</p>
-        <span class="text-sm font-semibold mt-4 inline-flex items-center gap-1" style="color:var(--red-600)">Explore <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+      <a href="program-german.html" class="card card-hover overflow-hidden block">
+        <div class="photo-placeholder aspect-[16/11] rounded-none"><i data-lucide="landmark" class="w-10 h-10"></i></div>
+        <div class="p-5">
+          <span class="text-2xl">🇩🇪</span>
+          <h3 class="font-serif font-semibold text-lg mt-2" style="color:var(--navy-700)">German</h3>
+          <p class="text-sm mt-1" style="color:var(--text-secondary)">A1 to B2, built for Ausbildung and everyday life in Germany.</p>
+          <div class="meta-row mt-4"><span class="meta-item"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 12 wks</span><span class="meta-item"><i data-lucide="users" class="w-3.5 h-3.5"></i> 480 students</span></div>
+        </div>
       </a>
-      <a href="course-kids-english.html" class="card card-hover p-6 block">
-        <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-4" style="background:var(--navy-50)"><i data-lucide="baby" style="color:var(--navy-700)"></i></div>
-        <h3 class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Kids English</h3>
-        <p class="text-sm mt-2" style="color:var(--text-secondary)">A head start that lasts a lifetime — in a class kids actually look forward to.</p>
-        <span class="text-sm font-semibold mt-4 inline-flex items-center gap-1" style="color:var(--red-600)">Explore <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+      <a href="program-french.html" class="card card-hover overflow-hidden block">
+        <div class="photo-placeholder alt aspect-[16/11] rounded-none"><i data-lucide="croissant" class="w-10 h-10"></i></div>
+        <div class="p-5">
+          <span class="text-2xl">🇫🇷</span>
+          <h3 class="font-serif font-semibold text-lg mt-2" style="color:var(--navy-700)">French</h3>
+          <p class="text-sm mt-1" style="color:var(--text-secondary)">DELF-aligned French for study, work, and daily life.</p>
+          <div class="meta-row mt-4"><span class="meta-item"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 10 wks</span><span class="meta-item"><i data-lucide="users" class="w-3.5 h-3.5"></i> 610 students</span></div>
+        </div>
       </a>
-      <a href="course-communication-english.html" class="card card-hover p-6 block">
-        <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-4" style="background:var(--navy-50)"><i data-lucide="messages-square" style="color:var(--navy-700)"></i></div>
-        <h3 class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Communication English</h3>
-        <p class="text-sm mt-2" style="color:var(--text-secondary)">You understand English — our Speaking Club gets you actually talking.</p>
-        <span class="text-sm font-semibold mt-4 inline-flex items-center gap-1" style="color:var(--red-600)">Explore <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+      <a href="courses.html" class="card card-hover overflow-hidden block">
+        <div class="photo-placeholder warm aspect-[16/11] rounded-none"><i data-lucide="briefcase" class="w-10 h-10"></i></div>
+        <div class="p-5">
+          <span class="text-2xl">🇬🇧</span>
+          <h3 class="font-serif font-semibold text-lg mt-2" style="color:var(--navy-700)">English</h3>
+          <p class="text-sm mt-1" style="color:var(--text-secondary)">Business, Kids, Communication, and IELTS/TOEFL tracks.</p>
+          <div class="meta-row mt-4"><span class="meta-item"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 8–12 wks</span><span class="meta-item"><i data-lucide="users" class="w-3.5 h-3.5"></i> 2,400 students</span></div>
+        </div>
       </a>
-      <a href="course-ielts-toefl.html" class="card card-hover p-6 block">
-        <div class="w-11 h-11 rounded-lg flex items-center justify-center mb-4" style="background:var(--navy-50)"><i data-lucide="plane" style="color:var(--navy-700)"></i></div>
-        <h3 class="font-serif font-semibold text-lg" style="color:var(--navy-700)">IELTS / TOEFL / Travel</h3>
-        <p class="text-sm mt-2" style="color:var(--text-secondary)">Hit your target score for study, travel, or immigration abroad.</p>
-        <span class="text-sm font-semibold mt-4 inline-flex items-center gap-1" style="color:var(--red-600)">Explore <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+      <a href="program-nursing-ausbildung.html" class="card card-hover overflow-hidden block" style="border-color:var(--teal-500); border-width:1.5px">
+        <div class="photo-placeholder aspect-[16/11] rounded-none"><i data-lucide="heart-pulse" class="w-10 h-10"></i></div>
+        <div class="p-5">
+          <span class="badge badge-teal mb-1">Job placement included</span>
+          <h3 class="font-serif font-semibold text-lg mt-2" style="color:var(--navy-700)">Nursing &amp; Ausbildung</h3>
+          <p class="text-sm mt-1" style="color:var(--text-secondary)">German for healthcare + a real contract with a German employer.</p>
+          <div class="meta-row mt-4"><span class="meta-item"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 6–12 mo</span><span class="meta-item"><i data-lucide="users" class="w-3.5 h-3.5"></i> 140 placed</span></div>
+        </div>
       </a>
     </div>
+  </div>
+</section>
+
+<!-- TEST YOUR LEVEL CTA -->
+<section class="section" style="background:var(--teal-50)">
+  <div class="container-ep grid lg:grid-cols-2 gap-12 items-center">
+    <div>
+      <p class="eyebrow" style="color:var(--teal-600)">Not Sure Where to Start?</p>
+      <h2 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">Test yourself, free, in any of our 3 languages</h2>
+      <p class="mt-3 text-sm" style="color:var(--text-secondary)">A quick, honest self-check in German, French, or English — get an estimated level and a program recommendation. No pressure, no obligation.</p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href="test-level.html?lang=de" class="btn btn-teal"><span class="mr-1">🇩🇪</span> Test German</a>
+        <a href="test-level.html?lang=fr" class="btn btn-secondary"><span class="mr-1">🇫🇷</span> Test French</a>
+        <a href="test-level.html?lang=en" class="btn btn-secondary"><span class="mr-1">🇬🇧</span> Test English</a>
+      </div>
+    </div>
+    <div class="photo-placeholder warm aspect-[4/3]"><i data-lucide="clipboard-check" class="w-16 h-16"></i><span class="cap">5-minute self-test, any language</span></div>
   </div>
 </section>
 
@@ -169,25 +217,25 @@
   <div class="container-ep grid lg:grid-cols-2 gap-12 items-center">
     <div>
       <p class="eyebrow">Why EuroPass</p>
-      <h2 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">An academy built around outcomes, not curricula</h2>
+      <h2 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">More than a language school</h2>
       <div class="mt-8 space-y-6">
         <div class="flex gap-4">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:var(--red-50)"><i data-lucide="target" class="w-5 h-5" style="color:var(--red-600)"></i></div>
-          <div><p class="font-semibold" style="color:var(--navy-700)">Specialized learning paths</p><p class="text-sm mt-1" style="color:var(--text-secondary)">Every program is built around a real objective, not a one-size-fits-all textbook.</p></div>
+          <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:var(--teal-50)"><i data-lucide="heart-pulse" class="w-5 h-5" style="color:var(--teal-600)"></i></div>
+          <div><p class="font-semibold" style="color:var(--navy-700)">Job placement, not just classes</p><p class="text-sm mt-1" style="color:var(--text-secondary)">Our Nursing &amp; Ausbildung track ends with a real employer contract in Germany — not just a certificate.</p></div>
         </div>
         <div class="flex gap-4">
           <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:var(--red-50)"><i data-lucide="user-check" class="w-5 h-5" style="color:var(--red-600)"></i></div>
-          <div><p class="font-semibold" style="color:var(--navy-700)">Free personalized diagnostic</p><p class="text-sm mt-1" style="color:var(--text-secondary)">The Bilan d’Anglais maps your CEFR level and recommends the right program — before you pay anything.</p></div>
+          <div><p class="font-semibold" style="color:var(--navy-700)">Free self-test in every language</p><p class="text-sm mt-1" style="color:var(--text-secondary)">Test yourself in German, French, or English and get matched to the right level — before you commit to anything.</p></div>
         </div>
         <div class="flex gap-4">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:var(--red-50)"><i data-lucide="laptop" class="w-5 h-5" style="color:var(--red-600)"></i></div>
-          <div><p class="font-semibold" style="color:var(--navy-700)">In-person + digital</p><p class="text-sm mt-1" style="color:var(--text-secondary)">Classroom energy when you want it, a full student portal when you need flexibility.</p></div>
+          <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:var(--navy-50)"><i data-lucide="laptop" class="w-5 h-5" style="color:var(--navy-700)"></i></div>
+          <div><p class="font-semibold" style="color:var(--navy-700)">In-person + digital portal</p><p class="text-sm mt-1" style="color:var(--text-secondary)">Classroom energy when you want it, a full student portal for homework and progress when you need flexibility.</p></div>
         </div>
       </div>
     </div>
     <div class="photo-placeholder alt aspect-square">
       <i data-lucide="users" class="w-16 h-16 opacity-90"></i>
-      <span class="cap">Speaking Club session — real students, real conversation</span>
+      <span class="cap">German class in session</span>
     </div>
   </div>
 </section>
@@ -200,18 +248,18 @@
     <div class="grid md:grid-cols-3 gap-6 mt-10">
       <div class="card p-6">
         <div class="flex gap-1 mb-3" style="color:var(--amber-600)">★★★★★</div>
-        <p class="text-sm" style="color:var(--text-primary)">“I went from freezing in English meetings to leading them. The Business English path was built for my actual job, not a textbook.”</p>
-        <p class="text-sm font-semibold mt-4" style="color:var(--navy-700)">Yassine B. — Business English</p>
+        <p class="text-sm" style="color:var(--text-primary)">“I started at A1 with zero German. 10 months later I had a signed Ausbildung contract with a hospital in Munich.”</p>
+        <p class="text-sm font-semibold mt-4" style="color:var(--navy-700)">Hind K. — Nursing &amp; Ausbildung</p>
       </div>
       <div class="card p-6">
         <div class="flex gap-1 mb-3" style="color:var(--amber-600)">★★★★★</div>
-        <p class="text-sm" style="color:var(--text-primary)">“My daughter asks to go to her English class. That alone told me we made the right choice.”</p>
-        <p class="text-sm font-semibold mt-4" style="color:var(--navy-700)">Amina T. — Parent, Kids English</p>
+        <p class="text-sm" style="color:var(--text-primary)">“The free level test told me exactly where to start in French — no guessing, no wasted weeks in the wrong class.”</p>
+        <p class="text-sm font-semibold mt-4" style="color:var(--navy-700)">Yassine B. — French Program</p>
       </div>
       <div class="card p-6">
         <div class="flex gap-1 mb-3" style="color:var(--amber-600)">★★★★★</div>
         <p class="text-sm" style="color:var(--text-primary)">“Scored a 7.5 on IELTS after 10 weeks. The teachers actually knew the exam inside out.”</p>
-        <p class="text-sm font-semibold mt-4" style="color:var(--navy-700)">Karim L. — IELTS Prep</p>
+        <p class="text-sm font-semibold mt-4" style="color:var(--navy-700)">Karim L. — English, IELTS Prep</p>
       </div>
     </div>
   </div>
@@ -223,11 +271,21 @@
     <div class="flex items-end justify-between mb-8">
       <div>
         <p class="eyebrow">Meet the Team</p>
-        <h2 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">Teachers who’ve done the job you’re training for</h2>
+        <h2 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">Teachers across all four programs</h2>
       </div>
       <a href="courses.html" class="btn btn-secondary hidden md:inline-flex">All Teachers</a>
     </div>
-    <div class="grid md:grid-cols-3 gap-6">
+    <div class="grid md:grid-cols-4 gap-6">
+      <div class="card p-5 text-center">
+        <div class="photo-placeholder warm w-24 h-24 rounded-full mx-auto mb-4"><i data-lucide="user" class="w-8 h-8"></i></div>
+        <p class="font-semibold" style="color:var(--navy-700)">Klaus Weber</p>
+        <p class="text-xs mt-1" style="color:var(--text-secondary)">Goethe-Certified · German &amp; Ausbildung Prep</p>
+      </div>
+      <div class="card p-5 text-center">
+        <div class="photo-placeholder warm w-24 h-24 rounded-full mx-auto mb-4"><i data-lucide="user" class="w-8 h-8"></i></div>
+        <p class="font-semibold" style="color:var(--navy-700)">Camille Fontaine</p>
+        <p class="text-xs mt-1" style="color:var(--text-secondary)">DELF Examiner · French</p>
+      </div>
       <div class="card p-5 text-center">
         <div class="photo-placeholder warm w-24 h-24 rounded-full mx-auto mb-4"><i data-lucide="user" class="w-8 h-8"></i></div>
         <p class="font-semibold" style="color:var(--navy-700)">Sara El Amrani</p>
@@ -235,13 +293,8 @@
       </div>
       <div class="card p-5 text-center">
         <div class="photo-placeholder warm w-24 h-24 rounded-full mx-auto mb-4"><i data-lucide="user" class="w-8 h-8"></i></div>
-        <p class="font-semibold" style="color:var(--navy-700)">Marc Dubois</p>
-        <p class="text-xs mt-1" style="color:var(--text-secondary)">IELTS Examiner (former) · Exam Prep</p>
-      </div>
-      <div class="card p-5 text-center">
-        <div class="photo-placeholder warm w-24 h-24 rounded-full mx-auto mb-4"><i data-lucide="user" class="w-8 h-8"></i></div>
-        <p class="font-semibold" style="color:var(--navy-700)">Layla Idrissi</p>
-        <p class="text-xs mt-1" style="color:var(--text-secondary)">Child Education Specialist · Kids English</p>
+        <p class="font-semibold" style="color:var(--navy-700)">Dr. Amina Rachidi</p>
+        <p class="text-xs mt-1" style="color:var(--text-secondary)">Ausbildung Placement Advisor</p>
       </div>
     </div>
   </div>
@@ -256,16 +309,16 @@
     </div>
     <div class="grid md:grid-cols-3 gap-6">
       <a href="blog-post.html" class="card card-hover overflow-hidden block">
-        <div class="photo-placeholder aspect-[16/10] rounded-none"><i data-lucide="book-open" class="w-10 h-10"></i></div>
-        <div class="p-5"><span class="badge badge-info mb-2">Career</span><p class="font-serif font-semibold" style="color:var(--navy-700)">5 English phrases that make you sound instantly more senior</p><p class="text-xs mt-2" style="color:var(--text-secondary)">6 min read · Business English</p></div>
+        <div class="photo-placeholder aspect-[16/10] rounded-none"><i data-lucide="heart-pulse" class="w-10 h-10"></i></div>
+        <div class="p-5"><span class="badge badge-teal mb-2">Ausbildung</span><p class="font-serif font-semibold" style="color:var(--navy-700)">What a nursing Ausbildung contract actually looks like</p><p class="text-xs mt-2" style="color:var(--text-secondary)">7 min read · Nursing &amp; Ausbildung</p></div>
       </a>
       <a href="blog-post.html" class="card card-hover overflow-hidden block">
-        <div class="photo-placeholder alt aspect-[16/10] rounded-none"><i data-lucide="heart" class="w-10 h-10"></i></div>
-        <div class="p-5"><span class="badge badge-danger mb-2">Parenting</span><p class="font-serif font-semibold" style="color:var(--navy-700)">Why age 6–10 is the best window to start English</p><p class="text-xs mt-2" style="color:var(--text-secondary)">4 min read · Kids English</p></div>
+        <div class="photo-placeholder alt aspect-[16/10] rounded-none"><i data-lucide="landmark" class="w-10 h-10"></i></div>
+        <div class="p-5"><span class="badge badge-info mb-2">German</span><p class="font-serif font-semibold" style="color:var(--navy-700)">A1 to B2: how long does German actually take?</p><p class="text-xs mt-2" style="color:var(--text-secondary)">5 min read · German Program</p></div>
       </a>
       <a href="blog-post.html" class="card card-hover overflow-hidden block">
         <div class="photo-placeholder warm aspect-[16/10] rounded-none"><i data-lucide="plane" class="w-10 h-10"></i></div>
-        <div class="p-5"><span class="badge badge-amber mb-2">IELTS</span><p class="font-serif font-semibold" style="color:var(--navy-700)">IELTS Writing Task 2: the 4-paragraph structure that works</p><p class="text-xs mt-2" style="color:var(--text-secondary)">8 min read · IELTS / TOEFL</p></div>
+        <div class="p-5"><span class="badge badge-amber mb-2">IELTS</span><p class="font-serif font-semibold" style="color:var(--navy-700)">IELTS Writing Task 2: the 4-paragraph structure that works</p><p class="text-xs mt-2" style="color:var(--text-secondary)">8 min read · English, IELTS/TOEFL</p></div>
       </a>
     </div>
   </div>
@@ -280,24 +333,24 @@
       
 <div class="card p-0 overflow-hidden">
   <button data-accordion-trigger aria-expanded="true" aria-controls="faq1" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
-    Is the Bilan d’Anglais really free?
+    Do I need to already speak some German to start the Ausbildung track?
     <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
   </button>
-  <div id="faq1" class="accordion-panel open"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Yes — the assessment, your CEFR level report, and your personalized program recommendation are completely free, with no obligation to enroll.</div></div>
+  <div id="faq1" class="accordion-panel open"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">No — most students start at A1 with zero German. The program is built to take you from zero to the B1/B2 level German employers require, with job placement support built in.</div></div>
 </div>
 <div class="card p-0 overflow-hidden">
   <button data-accordion-trigger aria-expanded="false" aria-controls="faq2" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
-    Can I switch programs after I start?
+    Is the level test really free, and do I have to enroll afterward?
     <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
   </button>
-  <div id="faq2" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Absolutely. Many students move between Communication English and Business English as their goals evolve — just talk to your advisor.</div></div>
+  <div id="faq2" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Completely free, no obligation. You get an estimated level and a program recommendation — what you do with it is up to you.</div></div>
 </div>
 <div class="card p-0 overflow-hidden">
   <button data-accordion-trigger aria-expanded="false" aria-controls="faq3" class="accordion-trigger w-full flex items-center justify-between p-5 text-left font-semibold" style="color:var(--navy-700)">
-    Do you offer corporate training for teams?
+    Can I switch between programs, like from French to German?
     <i data-lucide="chevron-down" class="chevron w-5 h-5 shrink-0"></i>
   </button>
-  <div id="faq3" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Yes — see our <a href="pricing.html#corporate" class="underline" style="color:var(--navy-700)">Corporate Training</a> page for bulk enrollment and consolidated invoicing.</div></div>
+  <div id="faq3" class="accordion-panel"><div class="px-5 pb-5 text-sm" style="color:var(--text-secondary)">Yes — talk to your advisor any time. Many students start with English or French and move into the German/Ausbildung track once they decide on that path.</div></div>
 </div>
 
     </div>
@@ -306,12 +359,12 @@
 
 <!-- FINAL CTA -->
 <section class="relative overflow-hidden" style="background:var(--navy-700)">
-  <div class="brand-circle" style="width:400px;height:400px;background:var(--red-600);opacity:.12; bottom:-160px; left:-100px;"></div>
+  <div class="brand-circle" style="width:400px;height:400px;background:var(--teal-600);opacity:.14; bottom:-160px; left:-100px;"></div>
   <div class="container-ep relative z-10 py-16 text-center">
-    <h2 class="font-serif text-3xl lg:text-4xl font-bold text-white">Ready to find out your level?</h2>
-    <p class="mt-3 max-w-lg mx-auto" style="color:var(--navy-100)">Take the free 10-minute Bilan d’Anglais and get your CEFR level, a personalized roadmap, and a program recommendation — no obligation.</p>
+    <h2 class="font-serif text-3xl lg:text-4xl font-bold text-white">Ready to find your program?</h2>
+    <p class="mt-3 max-w-lg mx-auto" style="color:var(--navy-100)">Take the free 5-minute level test in German, French, or English and get a personalized program recommendation — no obligation.</p>
     <div class="mt-8 flex flex-wrap gap-3 justify-center">
-      <a href="bilan.html" class="btn btn-primary">Book Your Free Bilan</a>
+      <a href="test-level.html" class="btn btn-teal">Test Your Level — Free</a>
       <a href="tel:+212500000000" class="btn btn-on-dark">Call / WhatsApp Us</a>
     </div>
   </div>
@@ -323,7 +376,7 @@
     <div class="container-ep py-14 grid grid-cols-2 md:grid-cols-5 gap-8">
       <div class="col-span-2">
         <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
-        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">The local reference for learning English — specialized paths for real careers, real families, and real ambitions.</p>
+        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">German, French &amp; English language training, plus nursing Ausbildung placement — real paths to real opportunities.</p>
         <div class="flex gap-3 mt-4">
           <a href="#" aria-label="Facebook" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="facebook" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
           <a href="#" aria-label="Instagram" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="instagram" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
@@ -331,32 +384,34 @@
         </div>
       </div>
       <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Explore</p>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Programs</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
-          <li><a href="about.html" class="hover:underline">About</a></li>
-          <li><a href="courses.html" class="hover:underline">Courses</a></li>
-          <li><a href="pricing.html" class="hover:underline">Pricing</a></li>
-          <li><a href="courses.html#teachers" class="hover:underline">Teachers</a></li>
+          <li><a href="program-german.html" class="hover:underline">German</a></li>
+          <li><a href="program-french.html" class="hover:underline">French</a></li>
+          <li><a href="courses.html" class="hover:underline">English</a></li>
+          <li><a href="program-nursing-ausbildung.html" class="hover:underline">Nursing &amp; Ausbildung</a></li>
         </ul>
       </div>
       <div>
         <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Learn</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="test-level.html" class="hover:underline">Test Your Level</a></li>
           <li><a href="blog.html" class="hover:underline">Blog</a></li>
-          <li><a href="bilan.html" class="hover:underline">Free Bilan d’Anglais</a></li>
+          <li><a href="about.html" class="hover:underline">About</a></li>
           <li><a href="contact.html" class="hover:underline">FAQ</a></li>
         </ul>
       </div>
       <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">For Business</p>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Account</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+          <li><a href="login.html" class="hover:underline">Portal Login</a></li>
+          <li><a href="signup.html" class="hover:underline">Create Account</a></li>
           <li><a href="pricing.html#corporate" class="hover:underline">Corporate Training</a></li>
-          <li><a href="pricing.html#referral" class="hover:underline">Referral Program</a></li>
         </ul>
       </div>
     </div>
     <div class="container-ep py-6 border-t flex flex-col md:flex-row justify-between gap-3 text-xs" style="border-color:var(--border-default); color:var(--text-secondary)">
-      <p>© 2026 EuroPass Centre de Formation en Anglais. All rights reserved.</p>
+      <p>© 2026 EuroPass Language &amp; Career Institute. All rights reserved.</p>
       <div class="flex gap-4">
         <a href="privacy.html" class="hover:underline">Privacy Policy</a>
         <a href="terms.html" class="hover:underline">Terms</a>

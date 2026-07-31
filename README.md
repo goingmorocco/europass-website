@@ -1,5 +1,13 @@
 # EuroPass — Website + Real Supabase Backend
 
+> **Major update**: EuroPass is now a multi-program institute — German, French,
+> and English language training, plus a Nursing & Ausbildung placement track
+> (German language + job placement into German employer contracts). The
+> public site was redesigned around this (new homepage, new nav, a unified
+> multi-language "Test Your Level" self-test, and dedicated program pages).
+> See "New pages in this update" below for exactly what's new and what's
+> still on the punch list.
+
 The public marketing site plus fully working Admin, Teacher, and Student portals —
 now backed by a real Supabase project (Postgres + Auth + Realtime), not a
 localStorage mock. Set up once (see `supabase/README.md`), and this is a real,
@@ -46,6 +54,22 @@ Same as before: `index.html`, `about.html`, `courses.html`,
 `bilan.html`, `contact.html`, `login.html`, `admin-dashboard.html`,
 `teacher-dashboard.html`, `student-dashboard.html`, `404.html`, `privacy.html`,
 `terms.html`.
+
+## New pages in this update
+- **index.html** — redesigned homepage: program switcher (German/French/English/Nursing), a dedicated "Test Your Level" CTA section, updated programs grid, teachers, testimonials, FAQ.
+- **test-level.html** — the new unified self-test. Pick German, French, or English (tabs, or `?lang=de|fr|en` in the URL), answer 6 questions, get an estimated CEFR level and a link to the matching program. Replaces the old English-only `bilan.html`, which now redirects here.
+- **program-german.html**, **program-french.html** — full program pages (curriculum, teacher, FAQ, related programs), built from a shared template so adding more languages later is cheap.
+- **program-nursing-ausbildung.html** — bespoke structure for the placement track: a 4-step "how it works" process (language training → healthcare prep → employer matching → contract/relocation), since this isn't just a language course.
+- Nav and footer updated site-wide (Programs dropdown, Test Your Level, new footer columns) — since these are shared functions, every existing page picked up the new navigation automatically.
+- New display font (Baloo 2, bold/rounded) for headings site-wide, plus a teal accent color, to match the more modern visual direction — while keeping the Navy/Red brand core from the Design System document, not replacing it.
+
+## What's explicitly NOT done yet (next round)
+- **Real photography.** Every image is still the labeled placeholder system — I attempted a stock photo search per your note that you'd handle licensing, but it surfaced other businesses' marketing pages (a nursing recruitment agency, study-abroad consultancies) rather than actual stock photography, and this environment can't verify a hotlinked URL will even render. Safer to have you source specific photos from Unsplash/Pexels and drop them in — I can wire them into the exact right spots once you have them.
+- **English course pages** (`course-business-english.html` etc.) still use the older visual pass — they inherited the new fonts/nav automatically, but haven't been rewritten for the new multi-program framing the way the homepage and new program pages have.
+- **Pricing page** still reflects only the old English-course pricing structure, not German/French/Nursing pricing.
+- **Blog** still has only English-track example content.
+- **Supabase `courses` table** still only has the two demo courses from the original seed script — doesn't yet reflect German/French/Nursing as real enrollable courses in the backend (so the Student/Teacher/Admin portals don't know about the new programs yet, only the public marketing site does).
+- **Admin/Teacher/Student dashboards** are unchanged — still built around the English-course data model.
 
 ## What's still simplified (see `supabase/README.md` for the full list)
 - **Self-signup grants course access immediately, with no payment gate.**
