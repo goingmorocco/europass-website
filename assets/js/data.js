@@ -108,6 +108,20 @@ const EP = (() => {
   async function userById(id) { return (await users()).find(u => u.id === id); }
   async function studentsOf(courseId) { return (await users()).filter(u => u.role === 'student' && u.courseId === courseId); }
 
+  // Self-service profile editing — any signed-in user can update their own name/password.
+  async function updateProfile({ fullName }) {
+    const client = await db();
+    const { data: { user } } = await client.auth.getUser();
+    if (!user) throw new Error('Not signed in');
+    const { error } = await client.from('profiles').update({ full_name: fullName }).eq('id', user.id);
+    if (error) throw error;
+  }
+  async function updatePassword(newPassword) {
+    const client = await db();
+    const { error } = await client.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  }
+
   // Creates a real login via the admin-create-user Edge Function (needs the
   // service role key server-side — see supabase/functions/admin-create-user).
   async function addUser({ name, role, courseId }) {
@@ -255,7 +269,7 @@ const EP = (() => {
   return {
     KEYS, timeAgo,
     getSession, requireRole, login, signup, logout,
-    users, courses, addUser, removeUser, studentsOf, userById,
+    users, courses, addUser, removeUser, studentsOf, userById, updateProfile, updatePassword,
     posts, postById, savePost, deletePost,
     homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
     notificationsFor, sendNotification, markRead,

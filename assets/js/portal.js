@@ -12,6 +12,50 @@ function initPortalChrome(user) {
 
   refreshBell(user);
   EP.onChange([EP.KEYS.notifications, EP.KEYS.notification_reads], () => refreshBell(user));
+
+  wireAccountSettings(user);
+}
+
+function wireAccountSettings(user) {
+  const emailEl = document.getElementById('settings-email');
+  const nameInput = document.getElementById('settings-name');
+  if (emailEl) emailEl.textContent = user.email || '';
+  if (nameInput) nameInput.value = user.name || '';
+
+  const profileForm = document.getElementById('settings-profile-form');
+  if (profileForm) {
+    profileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const newName = nameInput.value.trim();
+        await EP.updateProfile({ fullName: newName });
+        const nameEl = document.getElementById('portal-user-name');
+        const initialsEl = document.getElementById('portal-user-initials');
+        if (nameEl) nameEl.textContent = newName;
+        if (initialsEl) initialsEl.textContent = newName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        showToast('Profile updated');
+      } catch (err) { showToast(err.message || 'Could not update profile', 'danger'); }
+    });
+  }
+
+  const passwordForm = document.getElementById('settings-password-form');
+  if (passwordForm) {
+    passwordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pw = document.getElementById('settings-new-password').value;
+      const confirm = document.getElementById('settings-confirm-password').value;
+      if (pw !== confirm) { showToast('Passwords don\u2019t match', 'danger'); return; }
+      if (pw.length < 8) { showToast('Password must be at least 8 characters', 'danger'); return; }
+      try {
+        await EP.updatePassword(pw);
+        passwordForm.reset();
+        showToast('Password updated');
+      } catch (err) { showToast(err.message || 'Could not update password', 'danger'); }
+    });
+  }
+
+  const settingsLogout = document.getElementById('settings-logout');
+  if (settingsLogout) settingsLogout.addEventListener('click', async () => { await EP.logout(); window.location.href = 'login.html'; });
 }
 
 async function refreshBell(user) {

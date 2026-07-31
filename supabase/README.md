@@ -94,6 +94,28 @@ the Edge Function (where Supabase injects it automatically). Never put it in
 After seeding, every demo account logs in with password `EuroPass2026!`
 (see the seed script output for the exact list of emails).
 
+## 4b. Seed the new German / French / Nursing & Ausbildung programs (optional)
+This is a separate, additive script — it only adds the 3 new teachers, 3 new
+courses, and 3 new students for the new programs; it doesn't touch or
+duplicate anything from step 4. Safe to run once, any time after step 4.
+
+```
+cd supabase/seed
+SUPABASE_URL=https://YOUR-PROJECT-REF.supabase.co \
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key \
+node seed-new-programs.js
+```
+
+New accounts (same password, `EuroPass2026!`): `klaus@europass.demo`
+(German teacher), `camille@europass.demo` (French teacher),
+`amina.rachidi@europass.demo` (Nursing & Ausbildung), plus one student per
+course (`fatima@europass.demo`, `nadia@europass.demo`, `omar.s@europass.demo`).
+
+No schema changes were needed for this — the `courses` table was already
+generic (just a name + a teacher), and every dashboard already scopes itself
+by the logged-in user's `course_id` rather than hardcoding "English." Adding
+a real program to the backend is just adding rows, not writing new code.
+
 ## 5. Point the website at your project
 Open `assets/js/data.js` and replace the two placeholder values near the top:
 

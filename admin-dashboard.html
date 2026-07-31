@@ -116,6 +116,9 @@
     <button data-tab-trigger="users" onclick="switchTab('admin-shell','users')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="users" class="w-4 h-4"></i>Users
     </button>
+    <button data-tab-trigger="settings" onclick="switchTab('admin-shell','settings')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="settings" class="w-4 h-4"></i>Settings
+    </button>
   </aside>
   <div class="flex-1 min-w-0">
     <div class="border-b" style="border-color:var(--border-default)">
@@ -254,6 +257,43 @@
       </div>
       <button type="submit" class="btn btn-primary w-full">Add User</button>
     </form>
+  </div>
+</div>
+
+<div data-tab-panel="settings" class="hidden max-w-lg">
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Account Settings</h1>
+
+  <div class="card p-6 mb-6">
+    <p class="font-semibold mb-1" style="color:var(--navy-700)">Profile</p>
+    <p class="text-xs mb-4" style="color:var(--text-secondary)">Signed in as <span id="settings-email" class="font-medium"></span></p>
+    <form id="settings-profile-form" class="space-y-4">
+      <div>
+        <label for="settings-name" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Full Name</label>
+        <input id="settings-name" required type="text" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+      </div>
+      <button type="submit" class="btn btn-primary">Save Profile</button>
+    </form>
+  </div>
+
+  <div class="card p-6 mb-6">
+    <p class="font-semibold mb-4" style="color:var(--navy-700)">Change Password</p>
+    <form id="settings-password-form" class="space-y-4">
+      <div>
+        <label for="settings-new-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">New Password</label>
+        <input id="settings-new-password" required type="password" minlength="8" autocomplete="new-password" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+      </div>
+      <div>
+        <label for="settings-confirm-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Confirm New Password</label>
+        <input id="settings-confirm-password" required type="password" autocomplete="new-password" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+      </div>
+      <button type="submit" class="btn btn-secondary">Update Password</button>
+    </form>
+  </div>
+
+  <div class="card p-6">
+    <p class="font-semibold mb-1" style="color:var(--navy-700)">Log Out</p>
+    <p class="text-xs mb-4" style="color:var(--text-secondary)">End your session on this device.</p>
+    <button id="settings-logout" class="btn btn-secondary" style="color:var(--danger-600); border-color:var(--danger-600)">Log Out</button>
   </div>
 </div>
 

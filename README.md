@@ -68,8 +68,11 @@ Same as before: `index.html`, `about.html`, `courses.html`,
 - **English course pages** (`course-business-english.html` etc.) still use the older visual pass — they inherited the new fonts/nav automatically, but haven't been rewritten for the new multi-program framing the way the homepage and new program pages have.
 - **Pricing page** still reflects only the old English-course pricing structure, not German/French/Nursing pricing.
 - **Blog** still has only English-track example content.
-- **Supabase `courses` table** still only has the two demo courses from the original seed script — doesn't yet reflect German/French/Nursing as real enrollable courses in the backend (so the Student/Teacher/Admin portals don't know about the new programs yet, only the public marketing site does).
-- **Admin/Teacher/Student dashboards** are unchanged — still built around the English-course data model.
+- **Teachers can't broadcast to their whole class yet** — only to one student at a time (via the grading flow). The database already supports course-wide notifications (that's how the seed script's "Welcome to the German Program" notification works), but there's no compose UI for it in the Teacher Dashboard, and the RLS policy currently only allows teachers to target a single user, not their whole course, for safety. Cheap to add if you want it next.
+
+## What's done as of this update
+- **Settings / Edit Profile**, in all three portals (Admin, Teacher, Student): change your display name, change your password, and log out — all for real, against Supabase Auth, not mocked. Look for "Settings" in the sidebar.
+- **German, French, and Nursing & Ausbildung are now real backend courses**, not just marketing pages — see `supabase/seed/seed-new-programs.js`. New teachers (Klaus Weber, Camille Fontaine, Dr. Amina Rachidi) and students are seeded and ready to log into their own dashboards, fully scoped by their own course — the Teacher/Student/Admin dashboards needed zero code changes for this, since they were already built generically around "whatever course this profile belongs to," not hardcoded to English.
 
 ## What's still simplified (see `supabase/README.md` for the full list)
 - **Self-signup grants course access immediately, with no payment gate.**
