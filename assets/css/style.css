@@ -268,31 +268,29 @@ h1,h2,h3,h4,.font-display{ font-family:'Inter', system-ui, sans-serif !important
 
 .wow-hero{
   position:relative; overflow:hidden; isolation:isolate;
-  background:
-    radial-gradient(circle at 18% 20%, rgba(214,40,40,.25), transparent 38%),
-    radial-gradient(circle at 85% 78%, rgba(20,60,120,.4), transparent 45%),
-    linear-gradient(155deg, #050b1a 0%, #0b1d3a 35%, #16305e 70%, var(--navy-700) 100%);
+  background:linear-gradient(155deg, #040a18 0%, #0b1d3a 40%, #16305e 75%, var(--navy-700) 100%);
   min-height:calc(100vh - 4rem);
 }
-.wow-noise{ position:absolute; inset:0; opacity:.05; z-index:0;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-.wow-glow{ position:absolute; width:38rem; height:38rem; border-radius:999px; filter:blur(80px); z-index:0; }
-.wow-glow-a{ background:var(--teal-500); opacity:.4; top:-12rem; left:-10rem; animation:wowPulse 7s ease-in-out infinite; }
-.wow-glow-b{ background:var(--red-600); opacity:.32; bottom:-10rem; right:-6rem; animation:wowPulse 9s ease-in-out infinite reverse; }
+.wow-noise{ display:none; }
+.wow-shape{ position:absolute; z-index:0; opacity:.5; }
+.wow-shape-a{ width:640px; height:640px; border-radius:50%; border:2px solid rgba(255,255,255,.08); top:-220px; right:-160px; }
+.wow-shape-b{ width:420px; height:420px; border-radius:50%; border:2px solid rgba(255,255,255,.1); top:-90px; right:-10px; }
+.wow-shape-c{ width:0; height:0; border-left:280px solid transparent; border-right:280px solid transparent; border-bottom:480px solid rgba(214,40,40,.08); bottom:-160px; left:-120px; transform:rotate(18deg); }
+.wow-shape-d{ width:340px; height:340px; background:var(--teal-600); opacity:.1; bottom:-140px; left:8%; border-radius:38% 62% 60% 40%/40% 45% 55% 60%; }
+.wow-glow{ display:none; }
 .wow-pill{
   display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1.1rem; border-radius:999px; color:#fff;
-  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); backdrop-filter:blur(10px);
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.28);
   font-weight:800; font-size:.82rem; text-transform:uppercase; letter-spacing:.06em;
-  animation:wowFloat 4s ease-in-out infinite;
 }
-.wow-headline{ text-shadow:0 20px 60px rgba(0,0,0,.5); }
+.wow-headline{ text-shadow:0 12px 40px rgba(0,0,0,.4); }
 .wow-headline .accent{ background:linear-gradient(90deg,#fff,#bcd4ff,#fff); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:wowShimmer 3s linear infinite; }
 .wow-cta{ position:relative; overflow:hidden; font-weight:800; box-shadow:0 0 0 0 rgba(214,40,40,.55); animation:wowGlowPulse 2.2s ease-in-out infinite; }
 .wow-cta::after{ content:''; position:absolute; inset:-150% -50%; background:linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent); transform:rotate(20deg) translateX(-70%); animation:shine 2.6s ease-in-out infinite; }
-.wow-cta-ghost{ color:#fff; background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.5); backdrop-filter:blur(10px); font-weight:700; }
-.wow-cta-ghost:hover{ background:rgba(255,255,255,.22); transform:translateY(-2px); }
+.wow-cta-ghost{ color:#fff; background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.4); font-weight:700; }
+.wow-cta-ghost:hover{ background:rgba(255,255,255,.14); transform:translateY(-2px); }
 .wow-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:.85rem; max-width:640px; }
-.wow-stats div{ padding:1rem; border-radius:16px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22); backdrop-filter:blur(12px); text-align:center; }
+.wow-stats div{ padding:1rem; border-radius:16px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.2); text-align:center; }
 .wow-stats strong{ display:block; color:#fff; font-size:1.6rem; font-weight:900; line-height:1; }
 .wow-stats span{ color:var(--navy-100); font-size:.74rem; font-weight:600; }
 
@@ -309,7 +307,8 @@ h1,h2,h3,h4,.font-display{ font-family:'Inter', system-ui, sans-serif !important
 .flag-de{ background:linear-gradient(to bottom,#000 33%,#D00 33%,#D00 66%,#FFCE00 66%); }
 .flag-fr{ background:linear-gradient(to right,#0055A4 33%,#fff 33%,#fff 66%,#EF4135 66%); }
 .flag-uk{ background:#012169 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='40'%3E%3Cpath d='M0 0L60 40M60 0L0 40' stroke='white' stroke-width='8'/%3E%3Cpath d='M0 0L60 40M60 0L0 40' stroke='%23C8102E' stroke-width='4'/%3E%3Cpath d='M30 0V40M0 20H60' stroke='white' stroke-width='12'/%3E%3Cpath d='M30 0V40M0 20H60' stroke='%23C8102E' stroke-width='7'/%3E%3C/svg%3E") center/cover; }
-.flag-us{ background:repeating-linear-gradient(#B22234 0 7.6%, #fff 7.6% 15.2%); }
+.flag-us{ position:relative; background:repeating-linear-gradient(#B22234 0 15.4%, #fff 15.4% 30.8%); }
+.flag-us::before{ content:''; position:absolute; top:0; left:0; width:45%; height:53.8%; background:#3C3B6E; }
 
 /* Urgency ribbon */
 .urgency-ribbon{ background:linear-gradient(90deg, var(--red-700), var(--red-600), var(--red-700)); background-size:200% auto; animation:wowShimmer 4s linear infinite; color:#fff; text-align:center; padding:.55rem 1rem; font-size:.82rem; font-weight:700; }
