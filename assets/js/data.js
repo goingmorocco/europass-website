@@ -246,7 +246,7 @@ const EP = (() => {
         (n.audience_type === 'user' && n.audience_id === user.id) ||
         n.from_id === user.id
       )
-      .map(n => ({ id: n.id, fromId: n.from_id, audience: n.audience_type, title: n.title, body: n.body, createdAt: n.created_at, readBy: (n.notification_reads || []).map(r => r.user_id) }));
+      .map(n => ({ id: n.id, fromId: n.from_id, audience: n.audience_type, title: n.title, body: n.body, createdAt: n.created_at, readBy: (n.notification_reads || []).map(r => r.user_id), relatedPostId: n.related_post_id }));
   }
   async function sendNotification({ fromId, audience, audienceId, title, body }) {
     const client = await db();
@@ -296,7 +296,7 @@ const EP = (() => {
     ]);
     if (e1) throw e1; if (e2) throw e2; if (e3) throw e3;
     return posts.map(p => ({
-      id: p.id, groupId: p.group_id, authorId: p.author_id, body: p.body, imageUrl: p.image_url, createdAt: p.created_at,
+      id: p.id, groupId: p.group_id, authorId: p.author_id, body: p.body, imageUrl: p.image_url, createdAt: p.created_at, editedAt: p.edited_at,
       likes: likes.filter(l => l.post_id === p.id).map(l => l.user_id),
       comments: comments.filter(c => c.post_id === p.id).map(c => ({ id: c.id, authorId: c.author_id, body: c.body, createdAt: c.created_at })),
     }));
@@ -324,6 +324,11 @@ const EP = (() => {
   async function deleteGroupPost(postId) {
     const client = await db();
     const { error } = await client.from('group_posts').delete().eq('id', postId);
+    if (error) throw error;
+  }
+  async function editGroupPost(postId, newBody) {
+    const client = await db();
+    const { error } = await client.from('group_posts').update({ body: newBody, edited_at: new Date().toISOString() }).eq('id', postId);
     if (error) throw error;
   }
   async function toggleLike(postId, userId, currentlyLiked) {
@@ -407,7 +412,7 @@ const EP = (() => {
     homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,
-    myGroup, allGroups, groupPosts, createGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
+    myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
     groupMessages, sendGroupMessage, reportPost, reportsForGroup, dismissReport,
   };
 })();

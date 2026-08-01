@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const user = await EP.requireRole('teacher');
   if (!user) return;
-  initPortalChrome(user);
+  initPortalChrome(user, 'teacher-shell');
   initCommunity(user, 'teacher-shell');
   wireTabs('teacher-shell', 'overview');
 

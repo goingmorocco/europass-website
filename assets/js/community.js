@@ -42,17 +42,31 @@ async function initCommunity(user, containerId) {
       const liked = p.likes.includes(user.id);
       const initials = (n) => (n || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
       return `
-      <div class="card p-5">
+      <div class="card p-5" data-post-id="${p.id}">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style="background:var(--navy-700)">${initials(p._authorName)}</div>
-          <div><p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(p._authorName || 'Someone')}</p><p class="text-xs" style="color:var(--text-disabled)">${EP.timeAgo(p.createdAt)}</p></div>
+          <div>
+            <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(p._authorName || 'Someone')}</p>
+            <p class="text-xs" style="color:var(--text-disabled)">${EP.timeAgo(p.createdAt)}${p.editedAt ? ' \u00b7 edited' : ''}</p>
+          </div>
           <div class="ml-auto flex items-center gap-3">
             ${p.authorId === user.id
-              ? `<button onclick="communityDeletePost('${p.id}')" class="text-xs" style="color:var(--danger-600)">Delete</button>`
+              ? `<button onclick="communityEditPost('${p.id}')" class="text-xs" style="color:var(--text-secondary)">Edit</button><button onclick="communityDeletePost('${p.id}')" class="text-xs" style="color:var(--danger-600)">Delete</button>`
               : `<button onclick="communityReportPost('${p.id}')" class="text-xs flex items-center gap-1" style="color:var(--text-disabled)"><i data-lucide="flag" class="w-3.5 h-3.5"></i> Report</button>`}
           </div>
         </div>
-        ${p.body ? `<p class="text-sm mb-3" style="color:var(--text-primary)">${escapeHtml(p.body)}</p>` : ''}
+
+        <div id="body-view-${p.id}">
+          ${p.body ? `<p class="text-sm mb-3" style="color:var(--text-primary)">${escapeHtml(p.body)}</p>` : ''}
+        </div>
+        <form id="body-edit-${p.id}" onsubmit="communitySaveEdit(event, '${p.id}')" class="hidden mb-3 space-y-2">
+          <textarea class="w-full px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">${escapeHtml(p.body || '')}</textarea>
+          <div class="flex gap-2">
+            <button type="submit" class="btn btn-teal btn-sm">Save</button>
+            <button type="button" onclick="communityCancelEdit('${p.id}')" class="btn btn-secondary btn-sm">Cancel</button>
+          </div>
+        </form>
+
         ${p.imageUrl ? `<img src="${p.imageUrl}" alt="" class="rounded-lg w-full max-h-96 object-cover mb-3">` : ''}
         <div class="flex items-center gap-4 pt-2 border-t" style="border-color:var(--border-default)">
           <button onclick="communityToggleLike('${p.id}', ${liked})" class="flex items-center gap-1.5 text-sm font-medium" style="color:${liked ? 'var(--red-600)' : 'var(--text-secondary)'}">
@@ -63,7 +77,11 @@ async function initCommunity(user, containerId) {
           </button>
         </div>
         <div id="comments-${p.id}" class="hidden mt-3 pt-3 border-t space-y-2" style="border-color:var(--border-default)">
-          ${p.comments.map(c => `<p class="text-xs"><span class="font-semibold" style="color:var(--navy-700)">${escapeHtml(c._authorName || 'Someone')}</span> <span style="color:var(--text-secondary)">${escapeHtml(c.body)}</span></p>`).join('')}
+          ${p.comments.map(c => `
+            <div class="flex items-center justify-between gap-2 text-xs">
+              <p><span class="font-semibold" style="color:var(--navy-700)">${escapeHtml(c._authorName || 'Someone')}</span> <span style="color:var(--text-secondary)">${escapeHtml(c.body)}</span></p>
+              ${c.authorId === user.id ? `<button onclick="communityDeleteComment('${c.id}')" class="shrink-0" style="color:var(--danger-600)">Delete</button>` : ''}
+            </div>`).join('')}
           <form onsubmit="communityAddComment(event, '${p.id}')" class="flex gap-2 mt-2">
             <input required placeholder="Write a comment..." class="flex-1 px-3 py-1.5 rounded-md border text-xs" style="border-color:var(--border-default)">
             <button type="submit" class="btn btn-secondary btn-sm">Post</button>
@@ -98,6 +116,42 @@ async function initCommunity(user, containerId) {
   window.communityDeletePost = async (postId) => {
     if (!confirm('Delete this post?')) return;
     try { await EP.deleteGroupPost(postId); await renderFeed(); } catch (err) { showToast(err.message, 'danger'); }
+  };
+
+  window.communityEditPost = (postId) => {
+    document.getElementById(`body-view-${postId}`).classList.add('hidden');
+    document.getElementById(`body-edit-${postId}`).classList.remove('hidden');
+  };
+  window.communityCancelEdit = (postId) => {
+    document.getElementById(`body-edit-${postId}`).classList.add('hidden');
+    document.getElementById(`body-view-${postId}`).classList.remove('hidden');
+  };
+  window.communitySaveEdit = async (e, postId) => {
+    e.preventDefault();
+    const newBody = e.target.querySelector('textarea').value.trim();
+    if (!newBody) { showToast('Post can\u2019t be empty', 'danger'); return; }
+    try { await EP.editGroupPost(postId, newBody); await renderFeed(); } catch (err) { showToast(err.message, 'danger'); }
+  };
+
+  window.communityDeleteComment = async (commentId) => {
+    if (!confirm('Delete this comment?')) return;
+    try { await EP.deleteComment(commentId); await renderFeed(); } catch (err) { showToast(err.message, 'danger'); }
+  };
+
+  // Called from portal.js when a notification bell item links to a post
+  // (a like/comment/reply notification) — brings the user straight to it.
+  window.communityJumpToPost = async (postId, { expandComments } = {}) => {
+    switchSubTab('feed');
+    await renderFeed();
+    const el = document.querySelector(`[data-post-id="${postId}"]`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.add('highlight-flash');
+    setTimeout(() => el.classList.remove('highlight-flash'), 1700);
+    if (expandComments) {
+      const c = document.getElementById(`comments-${postId}`);
+      if (c) c.classList.remove('hidden');
+    }
   };
 
   window.communityReportPost = (postId) => {

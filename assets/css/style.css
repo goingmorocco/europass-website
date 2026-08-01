@@ -179,6 +179,10 @@ textarea:focus-visible, [tabindex]:focus-visible{
 .persona-tab.on-dark:hover{ border-color:#fff; background:rgba(255,255,255,.1); }
 .persona-tab.on-dark[aria-selected="true"]{ background:#fff; border-color:#fff; color:var(--navy-700); }
 
+/* Brief highlight when landing on a post via a notification click */
+@keyframes highlightFlash { 0%, 100% { background-color: transparent; } 30% { background-color: var(--teal-50); } }
+.highlight-flash { animation: highlightFlash 1.6s ease-out; }
+
 /* Utility */
 .container-ep{ max-width:1120px; margin:0 auto; padding:0 1rem; }
 @media(min-width:1024px){ .container-ep{ padding:0 1.5rem; } }

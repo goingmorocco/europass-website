@@ -1,5 +1,5 @@
 /* Shared helpers for the three portal dashboards (Supabase-backed) */
-function initPortalChrome(user) {
+function initPortalChrome(user, containerId) {
   const nameEl = document.getElementById('portal-user-name');
   const roleEl = document.getElementById('portal-user-role');
   const initialsEl = document.getElementById('portal-user-initials');
@@ -10,10 +10,13 @@ function initPortalChrome(user) {
   const logoutBtn = document.getElementById('portal-logout');
   if (logoutBtn) logoutBtn.addEventListener('click', async () => { await EP.logout(); window.location.href = 'login.html'; });
 
-  refreshBell(user);
-  EP.onChange([EP.KEYS.notifications, EP.KEYS.notification_reads], () => refreshBell(user));
+  refreshBell(user, containerId);
+  EP.onChange([EP.KEYS.notifications, EP.KEYS.notification_reads], () => refreshBell(user, containerId));
 
   wireAccountSettings(user);
+
+  const lightboxClose = document.getElementById('notif-lightbox-close');
+  if (lightboxClose) lightboxClose.addEventListener('click', () => document.getElementById('notif-lightbox').classList.add('hidden'));
 }
 
 function wireAccountSettings(user) {
@@ -58,20 +61,41 @@ function wireAccountSettings(user) {
   if (settingsLogout) settingsLogout.addEventListener('click', async () => { await EP.logout(); window.location.href = 'login.html'; });
 }
 
-async function refreshBell(user) {
+const __bellNotifCache = {};
+async function refreshBell(user, containerId) {
   const dot = document.getElementById('portal-bell-dot');
   const list = document.getElementById('portal-bell-list');
   if (!dot && !list) return;
   const items = await EP.notificationsFor(user);
+  items.forEach(n => { __bellNotifCache[n.id] = n; });
   const unread = items.filter(n => !n.readBy.includes(user.id)).length;
   if (dot) dot.style.display = unread > 0 ? 'block' : 'none';
   if (list) {
     list.innerHTML = items.slice(0, 6).map(n => `
-      <div class="p-3 border-b text-sm" style="border-color:var(--border-default)">
+      <button onclick="handleNotificationClick('${n.id}', '${containerId}', '${user.id}')" class="w-full text-left p-3 border-b text-sm hover:opacity-70 transition" style="border-color:var(--border-default); background:${n.readBy.includes(user.id) ? 'transparent' : 'var(--navy-50)'}">
         <p class="font-semibold" style="color:var(--navy-700)">${escapeHtml(n.title)}</p>
         <p class="text-xs mt-0.5" style="color:var(--text-secondary)">${escapeHtml(n.body)}</p>
         <p class="text-[10px] mt-1" style="color:var(--text-disabled)">${EP.timeAgo(n.createdAt)}</p>
-      </div>`).join('') || `<div class="p-4 text-sm text-center" style="color:var(--text-secondary)">No notifications yet.</div>`;
+      </button>`).join('') || `<div class="p-4 text-sm text-center" style="color:var(--text-secondary)">No notifications yet.</div>`;
+  }
+}
+
+async function handleNotificationClick(notificationId, containerId, userId) {
+  const n = __bellNotifCache[notificationId];
+  if (!n) return;
+  const bellPopover = document.getElementById('bell-popover');
+  if (bellPopover) bellPopover.classList.add('hidden');
+  EP.markRead(notificationId, userId).catch(() => {});
+
+  if (n.relatedPostId && typeof window.communityJumpToPost === 'function') {
+    switchTab(containerId, 'community');
+    const wantsComments = /comment|reply/i.test(n.title);
+    setTimeout(() => window.communityJumpToPost(n.relatedPostId, { expandComments: wantsComments }), 60);
+  } else {
+    document.getElementById('notif-lightbox-title').textContent = n.title;
+    document.getElementById('notif-lightbox-body').textContent = n.body;
+    document.getElementById('notif-lightbox-time').textContent = EP.timeAgo(n.createdAt);
+    document.getElementById('notif-lightbox').classList.remove('hidden');
   }
 }
 

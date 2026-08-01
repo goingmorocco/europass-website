@@ -315,6 +315,18 @@
     </div>
   </div>
 </div>
+
+<div id="notif-lightbox" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <p class="eyebrow" style="color:var(--teal-600)">Notification</p>
+      <button id="notif-lightbox-close" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <h2 id="notif-lightbox-title" class="font-serif text-xl font-bold mb-2" style="color:var(--navy-700)"></h2>
+    <p id="notif-lightbox-body" class="text-sm mb-3" style="color:var(--text-secondary)"></p>
+    <p id="notif-lightbox-time" class="text-xs" style="color:var(--text-disabled)"></p>
+  </div>
+</div>
 <script>
 document.addEventListener('click', (e) => {
   const bell = document.getElementById('bell-popover');

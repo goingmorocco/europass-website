@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const user = await EP.requireRole('admin');
   if (!user) return;
-  initPortalChrome(user);
+  initPortalChrome(user, 'admin-shell');
   wireTabs('admin-shell', 'overview');
 
   async function renderKPIs() {
