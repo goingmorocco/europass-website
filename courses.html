@@ -121,9 +121,9 @@
       <button data-filter="exam-travel" aria-pressed="false" class="persona-tab">Exam &amp; Travel</button>
       <button data-filter="online" aria-pressed="false" class="persona-tab">Online</button>
     </div>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" data-reveal-group>
       
-    <div data-course-category="professional" class="card card-hover overflow-hidden">
+    <div data-course-category="professional" data-reveal="up" class="card card-hover lift-hover overflow-hidden">
       <div class="photo-placeholder aspect-[16/10] rounded-none"><i data-lucide="briefcase" class="w-10 h-10"></i></div>
       <div class="p-6">
         <span class="eyebrow">Professional</span>
@@ -133,7 +133,7 @@
       </div>
     </div>
       
-    <div data-course-category="kids" class="card card-hover overflow-hidden">
+    <div data-course-category="kids" data-reveal="up" class="card card-hover lift-hover overflow-hidden">
       <div class="photo-placeholder alt aspect-[16/10] rounded-none"><i data-lucide="baby" class="w-10 h-10"></i></div>
       <div class="p-6">
         <span class="eyebrow">Kids</span>
@@ -143,7 +143,7 @@
       </div>
     </div>
       
-    <div data-course-category="communication" class="card card-hover overflow-hidden">
+    <div data-course-category="communication" data-reveal="up" class="card card-hover lift-hover overflow-hidden">
       <div class="photo-placeholder warm aspect-[16/10] rounded-none"><i data-lucide="messages-square" class="w-10 h-10"></i></div>
       <div class="p-6">
         <span class="eyebrow">Communication</span>
@@ -153,7 +153,7 @@
       </div>
     </div>
       
-    <div data-course-category="exam-travel" class="card card-hover overflow-hidden">
+    <div data-course-category="exam-travel" data-reveal="up" class="card card-hover lift-hover overflow-hidden">
       <div class="photo-placeholder aspect-[16/10] rounded-none"><i data-lucide="plane" class="w-10 h-10"></i></div>
       <div class="p-6">
         <span class="eyebrow">Exam Travel</span>
@@ -163,7 +163,7 @@
       </div>
     </div>
       
-    <div data-course-category="online" class="card card-hover overflow-hidden">
+    <div data-course-category="online" data-reveal="up" class="card card-hover lift-hover overflow-hidden">
       <div class="photo-placeholder warm aspect-[16/10] rounded-none"><i data-lucide="laptop" class="w-10 h-10"></i></div>
       <div class="p-6">
         <span class="eyebrow">Online</span>
@@ -173,7 +173,7 @@
       </div>
     </div>
       
-    <div data-course-category="exam-travel" class="card card-hover overflow-hidden">
+    <div data-course-category="exam-travel" data-reveal="up" class="card card-hover lift-hover overflow-hidden">
       <div class="photo-placeholder alt aspect-[16/10] rounded-none"><i data-lucide="map" class="w-10 h-10"></i></div>
       <div class="p-6">
         <span class="eyebrow">Exam Travel</span>
@@ -183,7 +183,7 @@
       </div>
     </div>
       
-    <div data-course-category="professional" class="card card-hover overflow-hidden">
+    <div data-course-category="professional" data-reveal="up" class="card card-hover lift-hover overflow-hidden">
       <div class="photo-placeholder warm aspect-[16/10] rounded-none"><i data-lucide="building-2" class="w-10 h-10"></i></div>
       <div class="p-6">
         <span class="eyebrow">Professional</span>
@@ -198,29 +198,29 @@
 
 <section class="section" style="background:var(--bg-subtle)" id="teachers">
   <div class="container-ep">
-    <p class="eyebrow text-center">Our Teachers</p>
-    <h2 class="font-serif text-3xl font-bold text-center mt-2 mb-10" style="color:var(--navy-700)">Real teachers, real classrooms</h2>
-    <div class="grid md:grid-cols-4 gap-6">
+    <p class="eyebrow text-center" data-reveal="up">Our Teachers</p>
+    <h2 class="font-serif text-3xl font-bold text-center mt-2 mb-10" data-reveal="up" style="color:var(--navy-700)">Real teachers, real classrooms</h2>
+    <div class="grid md:grid-cols-4 gap-6" data-reveal-group>
       
-<div class="card p-5 text-center">
+<div class="card p-5 text-center" data-reveal="up">
   <div class="photo-placeholder w-20 h-20 rounded-full mx-auto mb-4"><i data-lucide="user" class="w-7 h-7"></i></div>
   <p class="font-semibold text-sm" style="color:var(--navy-700)">Sara El Amrani</p>
   <p class="text-xs mt-1" style="color:var(--text-secondary)">CELTA Certified</p>
   <p class="text-xs mt-1" style="color:var(--red-600)">Business English</p>
 </div>
-<div class="card p-5 text-center">
+<div class="card p-5 text-center" data-reveal="up">
   <div class="photo-placeholder w-20 h-20 rounded-full mx-auto mb-4"><i data-lucide="user" class="w-7 h-7"></i></div>
   <p class="font-semibold text-sm" style="color:var(--navy-700)">Marc Dubois</p>
   <p class="text-xs mt-1" style="color:var(--text-secondary)">Former IELTS Examiner</p>
   <p class="text-xs mt-1" style="color:var(--red-600)">Exam Prep</p>
 </div>
-<div class="card p-5 text-center">
+<div class="card p-5 text-center" data-reveal="up">
   <div class="photo-placeholder w-20 h-20 rounded-full mx-auto mb-4"><i data-lucide="user" class="w-7 h-7"></i></div>
   <p class="font-semibold text-sm" style="color:var(--navy-700)">Layla Idrissi</p>
   <p class="text-xs mt-1" style="color:var(--text-secondary)">Child Education Specialist</p>
   <p class="text-xs mt-1" style="color:var(--red-600)">Kids English</p>
 </div>
-<div class="card p-5 text-center">
+<div class="card p-5 text-center" data-reveal="up">
   <div class="photo-placeholder w-20 h-20 rounded-full mx-auto mb-4"><i data-lucide="user" class="w-7 h-7"></i></div>
   <p class="font-semibold text-sm" style="color:var(--navy-700)">Omar Ziani</p>
   <p class="text-xs mt-1" style="color:var(--text-secondary)">Conversation Coach</p>
