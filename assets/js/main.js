@@ -151,8 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const io = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            io.unobserve(entry.target);
+            const el = entry.target;
+            el.classList.add('is-visible');
+            el.addEventListener('transitionend', () => el.classList.add('reveal-done'), { once: true });
+            io.unobserve(el);
           }
         });
       }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
