@@ -103,115 +103,82 @@
 
 <main id="main">
 
-<!-- HERO — carousel, one CTA per slide, no program-switcher -->
-<section class="relative overflow-hidden" style="background:var(--navy-700)">
-  <div class="brand-circle drift" style="width:560px;height:560px; background:var(--navy-900); opacity:.45; top:-240px; right:-160px;"></div>
-  <div class="brand-circle drift" style="width:300px;height:300px; background:var(--teal-600); opacity:.14; bottom:-120px; right:140px; animation-delay:-4s;"></div>
+<!-- HERO — immersive animated homepage -->
+<section class="home-hero relative overflow-hidden">
+  <div class="hero-aurora hero-aurora-one"></div>
+  <div class="hero-aurora hero-aurora-two"></div>
+  <div class="hero-grid"></div>
+  <div class="floating-word word-one">Deutsch</div>
+  <div class="floating-word word-two">Français</div>
+  <div class="floating-word word-three">English</div>
 
-  <div class="container-ep relative z-10 py-14 lg:py-20">
-    <div class="carousel-track" id="hero-carousel">
-      <!-- Slide 1 -->
-      <div class="carousel-slide is-active" data-slide="0">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <p class="eyebrow mb-3" style="color:var(--teal-500)">Your Path to Germany</p>
-            <h1 class="font-serif text-4xl lg:text-5xl font-bold text-white leading-tight">Learn German. Get Placed. Move Forward.</h1>
-            <p class="mt-5 text-lg leading-relaxed" style="color:var(--navy-100)">A structured path from your first German lesson to a signed Ausbildung contract with a real employer &mdash; language training and job placement, built as one program.</p>
-            <div class="mt-8 flex flex-wrap gap-3">
-              <a href="contact.html" class="btn btn-teal">Book a Free Consultation</a>
-              <a href="test-level.html" class="btn btn-on-dark">Test My Level</a>
-            </div>
-          </div>
-          <div class="img-slot aspect-[4/3] elevation-3" style="box-shadow:var(--e3)">
-            <img src="assets/images/hero-1.jpg" alt="Students in a EuroPass classroom" loading="eager" onerror="this.style.display='none'">
-          </div>
+  <div class="container-ep relative z-10 py-16 lg:py-24">
+    <div class="grid lg:grid-cols-[1.02fr_.98fr] gap-12 items-center">
+      <div class="hero-copy" data-reveal="left">
+        <span class="hero-pill"><i data-lucide="sparkles" class="w-4 h-4"></i> Language school meets career launchpad</span>
+        <h1 class="font-serif text-5xl lg:text-7xl font-bold text-white leading-[.95] mt-6">Turn language into your next big move.</h1>
+        <p class="mt-6 text-lg lg:text-xl leading-relaxed" style="color:var(--navy-100)">Learn German, French, or English in a cinematic, outcome-focused campus experience — with placement support for Germany, live online paths, and a free level test that starts your plan today.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="test-level.html" class="btn btn-teal hero-cta"><i data-lucide="rocket" class="w-4 h-4"></i> Start Free Level Test</a>
+          <a href="#programs" class="btn btn-glass">Explore Programs</a>
+        </div>
+        <div class="hero-proof mt-10" data-reveal-group>
+          <div data-reveal="up"><strong class="stat-counter" data-count-to="3100" data-count-suffix="+">0</strong><span>Students taught</span></div>
+          <div data-reveal="up"><strong class="stat-counter" data-count-to="140" data-count-suffix="+">0</strong><span>Germany placements</span></div>
+          <div data-reveal="up"><strong class="stat-counter" data-count-to="49" data-count-suffix="/10">0</strong><span>Average rating</span></div>
         </div>
       </div>
-      <!-- Slide 2 -->
-      <div class="carousel-slide" data-slide="1">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <p class="eyebrow mb-3" style="color:var(--teal-500)">Four Languages, One Campus</p>
-            <h1 class="font-serif text-4xl lg:text-5xl font-bold text-white leading-tight">Choose the Program That Matches Your Goal</h1>
-            <p class="mt-5 text-lg leading-relaxed" style="color:var(--navy-100)">German, French, English, or a direct route into healthcare work in Germany &mdash; each program built around a specific outcome, not a generic curriculum.</p>
-            <div class="mt-8 flex flex-wrap gap-3">
-              <a href="#programs" class="btn btn-teal">Explore Programs</a>
-              <a href="test-level.html" class="btn btn-on-dark">Test My Level</a>
-            </div>
-          </div>
-          <div class="img-slot aspect-[4/3] elevation-3" style="box-shadow:var(--e3)">
-            <img src="assets/images/hero-2.jpg" alt="Advisor consultation session" loading="lazy" onerror="this.style.display='none'">
-          </div>
+
+      <div class="hero-showcase" data-reveal="right" aria-label="EuroPass student journey preview">
+        <div class="orbit-ring orbit-one"></div>
+        <div class="orbit-ring orbit-two"></div>
+        <div class="hero-photo-stack">
+          <figure class="hero-photo hero-photo-main">
+            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1100&q=85" alt="Students collaborating in a modern language classroom" loading="eager">
+          </figure>
+          <figure class="hero-photo hero-photo-small hero-photo-top">
+            <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?auto=format&fit=crop&w=700&q=85" alt="Advisor coaching a student on a career plan" loading="eager">
+          </figure>
+          <figure class="hero-photo hero-photo-small hero-photo-bottom">
+            <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=700&q=85" alt="Healthcare student preparing for a nursing pathway" loading="eager">
+          </figure>
+        </div>
+        <div class="glass-card journey-card">
+          <span class="badge badge-teal">Live journey</span>
+          <p class="font-serif text-xl font-bold mt-2 text-white">A1 → B2 → Interview → Contract</p>
+          <div class="journey-track mt-4"><span></span></div>
+        </div>
+        <div class="glass-card live-card">
+          <i data-lucide="video" class="w-5 h-5" style="color:var(--teal-500)"></i>
+          <div><p class="font-semibold text-white">Online & campus</p><p class="text-xs" style="color:var(--navy-100)">Live classes every week</p></div>
         </div>
       </div>
-      <!-- Slide 3 -->
-      <div class="carousel-slide" data-slide="2">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <p class="eyebrow mb-3" style="color:var(--teal-500)">Real Outcomes</p>
-            <h1 class="font-serif text-4xl lg:text-5xl font-bold text-white leading-tight">140+ Students Placed in German Ausbildung Contracts</h1>
-            <p class="mt-5 text-lg leading-relaxed" style="color:var(--navy-100)">Not just classes &mdash; a placement team that works with you from your first lesson until the day you sign.</p>
-            <div class="mt-8 flex flex-wrap gap-3">
-              <a href="#process" class="btn btn-teal">See How It Works</a>
-              <a href="test-level.html" class="btn btn-on-dark">Test My Level</a>
-            </div>
-          </div>
-          <div class="img-slot aspect-[4/3] elevation-3" style="box-shadow:var(--e3)">
-            <img src="assets/images/hero-3.jpg" alt="Graduate holding a certificate" loading="lazy" onerror="this.style.display='none'">
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="flex items-center gap-2 mt-8" role="tablist" aria-label="Carousel slides">
-      <button class="carousel-dot is-active" data-dot="0" aria-label="Slide 1"></button>
-      <button class="carousel-dot" data-dot="1" aria-label="Slide 2"></button>
-      <button class="carousel-dot" data-dot="2" aria-label="Slide 3"></button>
     </div>
   </div>
 </section>
 
-<!-- TRUST STRIP — animated counters -->
-<section class="border-b" style="border-color:var(--border-default)">
-  <div class="container-ep py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center" data-reveal="fade" data-reveal-group>
-    <div><p class="text-2xl font-serif font-bold stat-counter" style="color:var(--navy-700)" data-count-to="3100" data-count-suffix="+">0</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Students taught</p></div>
-    <div><p class="text-2xl font-serif font-bold stat-counter" style="color:var(--navy-700)" data-count-to="140" data-count-suffix="+">0</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Ausbildung placements</p></div>
-    <div><p class="text-2xl font-serif font-bold stat-counter" style="color:var(--navy-700)" data-count-to="49" data-count-suffix="/10">0</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Average student rating</p></div>
-    <div><p class="text-2xl font-serif font-bold stat-counter" style="color:var(--navy-700)" data-count-to="4">0</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Programs, one campus</p></div>
+<!-- TRUST STRIP — animated marquee -->
+<section class="logo-marquee" aria-label="EuroPass program highlights">
+  <div class="marquee-track">
+    <span>German A1-B2</span><span>French DELF</span><span>IELTS / TOEFL</span><span>Nursing Fundamentals</span><span>Ausbildung Placement</span><span>Live Online Classes</span>
+    <span>German A1-B2</span><span>French DELF</span><span>IELTS / TOEFL</span><span>Nursing Fundamentals</span><span>Ausbildung Placement</span><span>Live Online Classes</span>
   </div>
 </section>
 
-<!-- PROBLEM -->
-<section class="section">
-  <div class="container-ep max-w-3xl text-center" data-reveal="up">
-    <p class="eyebrow">The Real Problem</p>
-    <h2 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">Most language schools stop at the classroom door</h2>
-    <p class="mt-4 text-lg" style="color:var(--text-secondary)">You can spend a year learning German and still have no idea how to actually get hired in Germany. Generic classes don't prepare you for a real interview, a real contract, or a real move &mdash; and by the time you find out, you've already lost months.</p>
-  </div>
-</section>
-
-<!-- SOLUTION -->
-<section class="section" style="background:var(--bg-subtle)">
-  <div class="container-ep grid lg:grid-cols-2 gap-12 items-center">
-    <div data-reveal="left">
-      <p class="eyebrow">How EuroPass Is Different</p>
-      <h2 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">One program, from your first lesson to a signed contract</h2>
-      <div class="mt-8 space-y-6">
-        <div class="flex gap-4 group">
-          <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:var(--teal-50)"><i data-lucide="target" class="w-5 h-5 icon-pop" style="color:var(--teal-600)"></i></div>
-          <div><p class="font-semibold" style="color:var(--navy-700)">Built around your outcome, not a textbook</p><p class="text-sm mt-1" style="color:var(--text-secondary)">Every program maps to a specific goal &mdash; a job, an exam score, or a conversation you're finally ready to have.</p></div>
-        </div>
-        <div class="flex gap-4 group">
-          <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:var(--red-50)"><i data-lucide="user-check" class="w-5 h-5 icon-pop" style="color:var(--red-600)"></i></div>
-          <div><p class="font-semibold" style="color:var(--navy-700)">A free level test before you commit to anything</p><p class="text-sm mt-1" style="color:var(--text-secondary)">Know exactly where you stand and which program fits &mdash; in any of our three languages, in under five minutes.</p></div>
-        </div>
-        <div class="flex gap-4 group">
-          <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:var(--navy-50)"><i data-lucide="handshake" class="w-5 h-5 icon-pop" style="color:var(--navy-700)"></i></div>
-          <div><p class="font-semibold" style="color:var(--navy-700)">A placement team, not just teachers</p><p class="text-sm mt-1" style="color:var(--text-secondary)">For our German and Nursing tracks, real employer introductions are part of the program, not an afterthought.</p></div>
-        </div>
-      </div>
+<!-- PROBLEM + SOLUTION -->
+<section class="section modern-story">
+  <div class="container-ep grid lg:grid-cols-[.85fr_1.15fr] gap-10 items-stretch">
+    <div class="story-panel" data-reveal="left">
+      <p class="eyebrow">The EuroPass difference</p>
+      <h2 class="font-serif text-4xl font-bold mt-3" style="color:var(--navy-700)">Not another quiet classroom. A launch room.</h2>
+      <p class="mt-4 text-lg" style="color:var(--text-secondary)">Most schools stop at vocabulary lists. EuroPass connects lessons, confidence, exams, interviews, and career steps into one momentum-filled experience.</p>
+      <a href="contact.html" class="btn btn-primary mt-7">Plan my route</a>
     </div>
-    <div class="img-slot aspect-square" data-reveal="right">
-      <img src="assets/images/trust-team.jpg" alt="EuroPass team and campus" loading="lazy" onerror="this.style.display='none'">
+    <div class="feature-river" data-reveal-group>
+      <article class="feature-tile" data-reveal="up"><i data-lucide="target" class="w-6 h-6"></i><h3>Goal-mapped classes</h3><p>Every course points to a speaking, exam, study, or career outcome.</p></article>
+      <article class="feature-tile" data-reveal="up"><i data-lucide="scan-face" class="w-6 h-6"></i><h3>Free level diagnosis</h3><p>Start with clarity before you pay for anything.</p></article>
+      <article class="feature-tile" data-reveal="up"><i data-lucide="briefcase-business" class="w-6 h-6"></i><h3>Placement energy</h3><p>Germany tracks include employer-facing preparation and matching.</p></article>
+      <article class="feature-tile" data-reveal="up"><i data-lucide="monitor-play" class="w-6 h-6"></i><h3>Hybrid momentum</h3><p>Campus atmosphere with flexible live online options.</p></article>
     </div>
   </div>
 </section>
@@ -491,7 +458,6 @@
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
 
 <script src="assets/js/main.js"></script>
-<script src="assets/js/hero-carousel.js"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>
