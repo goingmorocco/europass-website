@@ -12,12 +12,41 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function myHomework() { return EP.homeworkByCourse(user.courseId); }
 
   function renderCourseInfo() {
+    if (!course) {
+      document.getElementById('student-course-info').innerHTML = `<p class="text-sm" style="color:var(--text-secondary)">No active course yet \u2014 see your enrollment status above.</p>`;
+      return;
+    }
     document.getElementById('student-course-info').innerHTML = `
       <div class="flex items-center gap-4">
         <div class="w-12 h-12 rounded-lg flex items-center justify-center shrink-0" style="background:var(--navy-50)"><i data-lucide="book-open" style="color:var(--navy-700)"></i></div>
         <div><p class="font-semibold" style="color:var(--navy-700)">${escapeHtml(course?.name || '')}</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Teacher: ${escapeHtml(teacher?.name || '')}</p></div>
       </div>`;
   }
+
+  async function renderEnrollmentBanner() {
+    const el = document.getElementById('enrollment-status-banner');
+    const enrollments = await EP.myEnrollments(user.id);
+    const pending = enrollments.filter(e => e.status === 'pending');
+    if (!pending.length) { el.innerHTML = ''; return; }
+    const courseList = await EP.courses();
+    el.innerHTML = pending.map(e => {
+      const c = courseList.find(x => x.id === e.courseId);
+      return `
+      <div class="card p-4 flex items-center justify-between gap-3" style="background:var(--warning-50); border-color:var(--warning-600)">
+        <div class="flex items-center gap-3">
+          <i data-lucide="clock" class="w-5 h-5 shrink-0" style="color:var(--warning-600)"></i>
+          <p class="text-sm" style="color:var(--text-primary)"><span class="font-semibold">Enrollment pending:</span> ${escapeHtml(c?.name || 'a program')} \u2014 an admin will review and confirm it soon.</p>
+        </div>
+        <button onclick="cancelMyEnrollment('${e.id}')" class="text-xs font-semibold shrink-0" style="color:var(--danger-600)">Withdraw</button>
+      </div>`;
+    }).join('');
+    lucide.createIcons();
+  }
+  window.cancelMyEnrollment = async (id) => {
+    if (!confirm('Withdraw this enrollment request?')) return;
+    try { await EP.cancelEnrollment(id); await renderEnrollmentBanner(); showToast('Enrollment request withdrawn'); }
+    catch (err) { showToast(err.message, 'danger'); }
+  };
 
   async function renderProgress() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
@@ -109,11 +138,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function renderAll() {
     renderCourseInfo();
-    await Promise.all([renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat()]);
+    await Promise.all([renderEnrollmentBanner(), renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat()]);
     lucide.createIcons();
   }
   await renderAll();
-  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.notifications, EP.KEYS.messages], renderAll);
+  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.notifications, EP.KEYS.messages, EP.KEYS.enrollments], renderAll);
 
   document.getElementById('submit-form').addEventListener('submit', async (e) => {
     e.preventDefault();

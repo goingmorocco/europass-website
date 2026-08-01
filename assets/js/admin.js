@@ -5,10 +5,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireTabs('admin-shell', 'overview');
 
   async function renderKPIs() {
-    const [allUsers, allPosts, allHomework, allNotifs] = await Promise.all([
-      EP.users(), EP.posts(), EP.homework(), EP.notificationsFor(user),
+    const [allUsers, allPosts, allHomework, allNotifs, allEnrollments] = await Promise.all([
+      EP.users(), EP.posts(), EP.homework(), EP.notificationsFor(user), EP.allEnrollments(),
     ]);
     const stats = [
+      ['clipboard-check', allEnrollments.filter(e => e.status === 'pending').length, 'Pending Enrollments', 'red-600', 'enrollments'],
       ['users', allUsers.length, 'Total Users', 'navy-700', 'users'],
       ['newspaper', allPosts.filter(p => p.status === 'published').length, 'Published Posts', 'red-600', 'blog'],
       ['clipboard-list', allHomework.length, 'Homework Assigned', 'navy-700', null],
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     lucide.createIcons();
   }
   await renderAll();
-  EP.onChange([EP.KEYS.posts, EP.KEYS.notifications, EP.KEYS.profiles, EP.KEYS.submissions], renderAll);
+  EP.onChange([EP.KEYS.posts, EP.KEYS.notifications, EP.KEYS.profiles, EP.KEYS.submissions, EP.KEYS.enrollments], renderAll);
 
   // ---- Post modal ----
   window.openPostForm = () => {
@@ -240,4 +241,62 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   await renderGroupTabs();
   EP.onChange([EP.KEYS.group_posts, EP.KEYS.group_post_comments, EP.KEYS.group_post_reports], renderGroupPosts);
+
+  // ---- Enrollments ----
+  let enrollmentFilter = 'pending';
+  document.querySelectorAll('[data-enrollment-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      enrollmentFilter = btn.dataset.enrollmentFilter;
+      document.querySelectorAll('[data-enrollment-filter]').forEach(b => b.setAttribute('aria-selected', String(b === btn)));
+      renderEnrollments();
+    });
+  });
+  async function renderEnrollments() {
+    const [all, courseList, roster] = await Promise.all([EP.allEnrollments(), EP.courses(), EP.users()]);
+    const courseById = Object.fromEntries(courseList.map(c => [c.id, c.name]));
+    const userById2 = Object.fromEntries(roster.map(u => [u.id, u.name]));
+    const filtered = enrollmentFilter === 'all' ? all : all.filter(e => e.status === enrollmentFilter);
+    const statusBadge = { pending: 'badge-warning', active: 'badge-success', completed: 'badge-info', cancelled: 'badge-danger' };
+    document.getElementById('admin-enrollments-list').innerHTML = filtered.map(e => `
+      <div class="card p-5 flex items-center justify-between gap-4">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="badge ${statusBadge[e.status] || 'badge-info'}">${e.status}</span>
+            <span class="badge ${e.paymentStatus === 'paid' ? 'badge-success' : e.paymentStatus === 'waived' ? 'badge-info' : 'badge-warning'}">${e.paymentStatus}</span>
+          </div>
+          <p class="font-semibold truncate" style="color:var(--navy-700)">${escapeHtml(userById2[e.studentId] || 'Unknown student')} \u2192 ${escapeHtml(courseById[e.courseId] || 'Unknown course')}</p>
+          <p class="text-xs mt-1" style="color:var(--text-secondary)">Requested ${EP.timeAgo(e.requestedAt)}${e.priceMad ? ` \u00b7 ${e.priceMad} MAD` : ''}</p>
+        </div>
+        ${e.status === 'pending' ? `
+        <div class="flex gap-2 shrink-0">
+          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(courseById[e.courseId] || '')})' class="btn btn-primary btn-sm">Approve</button>
+          <button onclick="rejectEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm" style="color:var(--danger-600); border-color:var(--danger-600)">Reject</button>
+        </div>` : ''}
+      </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No ${enrollmentFilter === 'all' ? '' : enrollmentFilter + ' '}enrollments.</p></div>`;
+  }
+  window.openActivateModal = (id, studentName, courseName) => {
+    document.getElementById('activate-enrollment-id').value = id;
+    document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(studentName)}</strong> \u2192 ${escapeHtml(courseName)}`;
+    document.getElementById('activate-enrollment-form').reset();
+    document.getElementById('activate-enrollment-modal').classList.remove('hidden');
+  };
+  window.rejectEnrollmentConfirm = async (id) => {
+    if (!confirm('Reject this enrollment request?')) return;
+    try { await EP.rejectEnrollment(id); await renderEnrollments(); showToast('Enrollment rejected', 'info'); }
+    catch (err) { showToast(err.message, 'danger'); }
+  };
+  document.getElementById('activate-enrollment-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await EP.activateEnrollment(document.getElementById('activate-enrollment-id').value, {
+        priceMad: document.getElementById('activate-price').value,
+        paymentStatus: document.getElementById('activate-payment-status').value,
+      });
+      document.getElementById('activate-enrollment-modal').classList.add('hidden');
+      await renderEnrollments();
+      showToast('Enrollment activated \u2014 student now has course access');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
+  await renderEnrollments();
+  EP.onChange([EP.KEYS.enrollments], renderEnrollments);
 });

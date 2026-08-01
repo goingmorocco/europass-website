@@ -28,6 +28,7 @@ const EP = (() => {
     notifications: 'notifications', notification_reads: 'notification_reads', messages: 'messages',
     groups: 'groups', group_posts: 'group_posts', group_post_likes: 'group_post_likes',
     group_post_comments: 'group_post_comments', group_messages: 'group_messages', group_post_reports: 'group_post_reports',
+    enrollments: 'enrollments',
   };
 
   function timeAgo(iso) {
@@ -61,29 +62,75 @@ const EP = (() => {
     return getSession();
   }
 
-  // Public self-signup — always creates a 'student' account (enforced by the
-  // handle_new_user trigger server-side, not by anything in this file; see
-  // supabase/migrations/002_functions_and_triggers.sql). courseId is optional —
-  // NOTE: in a real paid product this should NOT grant immediate access to a
-  // course's content; it should be confirmed by an admin (or a payment) before
-  // course_id is set. This MVP sets it immediately for demo purposes since
-  // payments aren't built yet — see supabase/README.md.
+  // Public self-signup — always creates a 'student' account with NO course
+  // access yet (enforced server-side by handle_new_user, which only ever
+  // reads a 'course_id' metadata key — deliberately NOT the key used below).
+  // The chosen course becomes a pending enrollment request instead; an
+  // admin must review and activate it before it grants real access. See
+  // supabase/migrations/008_enrollments.sql.
   async function signup({ email, password, fullName, courseId }) {
     const client = await db();
-    // Resolve relative to wherever this page is actually hosted (GitHub Pages
-    // subpath, custom domain, localhost while testing — whatever it is right
-    // now) so the confirmation email doesn't send people to the Supabase
-    // project's default Site URL (which defaults to localhost:3000 and is
-    // easy to forget to change). This still requires the resulting URL to be
-    // present in Dashboard → Authentication → URL Configuration → Redirect
-    // URLs, or Supabase will reject it and fall back to the Site URL anyway.
     const emailRedirectTo = new URL('login.html', window.location.href).href;
     const { data, error } = await client.auth.signUp({
       email, password,
-      options: { data: { full_name: fullName, course_id: courseId || null }, emailRedirectTo },
+      options: { data: { full_name: fullName, desired_course_id: courseId || null }, emailRedirectTo },
     });
     if (error) throw error;
+    if (data.session && courseId) {
+      await ensurePendingEnrollment().catch((e) => console.warn('Could not create enrollment request:', e));
+    }
     return { hasSession: !!data.session, user: data.user };
+  }
+
+  // Called after any successful login/signup-with-immediate-session. Reads
+  // the desired_course_id chosen at signup time (carried in the user's own
+  // auth metadata, unaffected by email-confirmation timing) and creates the
+  // pending enrollment on first opportunity, if one doesn't already exist.
+  async function ensurePendingEnrollment() {
+    const client = await db();
+    const { data: { user: authUser } } = await client.auth.getUser();
+    if (!authUser) return;
+    const desiredCourseId = authUser.user_metadata?.desired_course_id;
+    if (!desiredCourseId) return;
+    const { data: existing } = await client.from('enrollments').select('id').eq('student_id', authUser.id).eq('course_id', desiredCourseId).limit(1);
+    if (existing && existing.length) return;
+    await requestEnrollment(desiredCourseId, authUser.id);
+  }
+
+  async function requestEnrollment(courseId, studentId) {
+    const client = await db();
+    const { error } = await client.from('enrollments').insert({ course_id: courseId, student_id: studentId, status: 'pending', payment_status: 'unpaid' });
+    if (error && error.code !== '23505') throw error; // 23505 = already has a pending request for this course, fine
+  }
+  async function myEnrollments(studentId) {
+    const client = await db();
+    const { data, error } = await client.from('enrollments').select('*').eq('student_id', studentId).order('requested_at', { ascending: false });
+    if (error) throw error;
+    return data.map(mapEnrollment);
+  }
+  async function cancelEnrollment(id) {
+    const client = await db();
+    const { error } = await client.from('enrollments').update({ status: 'cancelled' }).eq('id', id);
+    if (error) throw error;
+  }
+  async function allEnrollments() {
+    const client = await db();
+    const { data, error } = await client.from('enrollments').select('*').order('requested_at', { ascending: false });
+    if (error) throw error;
+    return data.map(mapEnrollment);
+  }
+  async function activateEnrollment(id, { priceMad, paymentStatus }) {
+    const client = await db();
+    const { error } = await client.from('enrollments').update({ status: 'active', price_mad: priceMad || null, payment_status: paymentStatus }).eq('id', id);
+    if (error) throw error;
+  }
+  async function rejectEnrollment(id) {
+    const client = await db();
+    const { error } = await client.from('enrollments').update({ status: 'cancelled' }).eq('id', id);
+    if (error) throw error;
+  }
+  function mapEnrollment(e) {
+    return { id: e.id, studentId: e.student_id, courseId: e.course_id, status: e.status, paymentStatus: e.payment_status, priceMad: e.price_mad, requestedAt: e.requested_at, activatedAt: e.activated_at };
   }
 
   async function logout() {
@@ -414,5 +461,6 @@ const EP = (() => {
     messagesFor, sendMessage, onChange,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
     groupMessages, sendGroupMessage, reportPost, reportsForGroup, dismissReport,
+    ensurePendingEnrollment, requestEnrollment, myEnrollments, cancelEnrollment, allEnrollments, activateEnrollment, rejectEnrollment,
   };
 })();

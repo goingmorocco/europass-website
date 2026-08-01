@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('login-password').value
       );
       if (!user) throw new Error('Could not load your profile. Contact an administrator.');
+      await EP.ensurePendingEnrollment().catch(() => {});
       window.location.href = dashByRole[user.role] || 'index.html';
     } catch (err) {
       errorBox.textContent = err.message || 'Login failed. Check your email and password.';
