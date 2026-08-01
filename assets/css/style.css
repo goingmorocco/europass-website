@@ -251,95 +251,80 @@ textarea:focus-visible, [tabindex]:focus-visible{
 .eyebrow-icon{ display:inline-flex; align-items:center; gap:.4rem; }
 
 /* ============================================================
-   Exciting homepage refresh — kinetic hero, glass layers, marquee
+   WOW REDESIGN — red-primary, Inter typography, maximum energy
+   Preview only — not applied to the live site yet.
    ============================================================ */
-.home-hero{
+
+/* Inter takes over headings too — clean, modern, no more rounded serif */
+h1,h2,h3,h4,.font-display{ font-family:'Inter', system-ui, sans-serif !important; font-weight:800; letter-spacing:-.02em; }
+
+/* Red becomes the unambiguous primary — teal buttons render red here too */
+.btn-teal{ background:linear-gradient(135deg, var(--red-600), #A61E1E) !important; }
+.btn-teal:hover{ background:linear-gradient(135deg, #A61E1E, var(--red-700)) !important; }
+
+.wow-hero{
+  position:relative; overflow:hidden; isolation:isolate;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255,90,90,.35), transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(166,30,30,.4), transparent 45%),
+    linear-gradient(155deg, #1a0505 0%, #3a0a0a 35%, #7a1414 70%, var(--red-600) 100%);
   min-height:calc(100vh - 4rem);
-  background:radial-gradient(circle at 12% 18%, rgba(20,184,166,.34), transparent 30%),
-             radial-gradient(circle at 86% 20%, rgba(214,40,40,.30), transparent 27%),
-             linear-gradient(135deg, #07142d 0%, var(--navy-900) 44%, #132f5d 100%);
-  isolation:isolate;
 }
-.hero-grid{
-  position:absolute; inset:0; opacity:.18; z-index:0;
-  background-image:linear-gradient(rgba(255,255,255,.14) 1px, transparent 1px),
-                   linear-gradient(90deg, rgba(255,255,255,.14) 1px, transparent 1px);
-  background-size:54px 54px;
-  mask-image:linear-gradient(to bottom, #000 0%, transparent 88%);
-  animation:gridFloat 16s linear infinite;
+.wow-noise{ position:absolute; inset:0; opacity:.05; z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.wow-glow{ position:absolute; width:38rem; height:38rem; border-radius:999px; filter:blur(80px); z-index:0; }
+.wow-glow-a{ background:#ff6b6b; opacity:.45; top:-12rem; left:-10rem; animation:wowPulse 7s ease-in-out infinite; }
+.wow-glow-b{ background:#ffcf5c; opacity:.28; bottom:-10rem; right:-6rem; animation:wowPulse 9s ease-in-out infinite reverse; }
+.wow-pill{
+  display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1.1rem; border-radius:999px; color:#fff;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); backdrop-filter:blur(10px);
+  font-weight:800; font-size:.82rem; text-transform:uppercase; letter-spacing:.06em;
+  animation:wowFloat 4s ease-in-out infinite;
 }
-.hero-aurora{ position:absolute; width:32rem; height:32rem; border-radius:999px; filter:blur(56px); opacity:.55; z-index:0; }
-.hero-aurora-one{ left:-8rem; top:4rem; background:var(--teal-500); animation:auroraOne 12s ease-in-out infinite; }
-.hero-aurora-two{ right:-10rem; bottom:2rem; background:var(--red-600); animation:auroraTwo 14s ease-in-out infinite; }
-.hero-pill{
-  display:inline-flex; align-items:center; gap:.5rem; padding:.55rem .9rem; border-radius:var(--r-full);
-  color:#fff; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); backdrop-filter:blur(12px);
-  box-shadow:0 10px 30px rgba(0,0,0,.16); font-weight:700; font-size:.84rem;
-}
-.hero-copy h1{ text-shadow:0 18px 55px rgba(0,0,0,.35); }
-.hero-cta{ position:relative; overflow:hidden; }
-.hero-cta::after{ content:''; position:absolute; inset:-120% -40%; background:linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); transform:rotate(20deg) translateX(-70%); animation:shine 3.8s ease-in-out infinite; }
-.btn-glass{ color:#fff; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.24); backdrop-filter:blur(12px); }
-.btn-glass:hover{ background:rgba(255,255,255,.2); transform:translateY(-1px); }
-.hero-proof{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; max-width:620px; }
-.hero-proof div{ padding:1rem; border-radius:18px; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.17); backdrop-filter:blur(14px); }
-.hero-proof strong{ display:block; color:#fff; font-size:1.45rem; font-family:'Baloo 2',serif; line-height:1; }
-.hero-proof span{ color:var(--navy-100); font-size:.78rem; }
-.hero-showcase{ position:relative; min-height:590px; }
-.hero-photo-stack{ position:absolute; inset:1rem 0 0 0; }
-.hero-photo{ position:absolute; overflow:hidden; border-radius:34px; box-shadow:0 30px 80px rgba(0,0,0,.34); border:1px solid rgba(255,255,255,.28); }
-.hero-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
-.hero-photo-main{ width:78%; height:66%; right:5%; top:10%; transform:rotate(2deg); animation:floatCard 6s ease-in-out infinite; }
-.hero-photo-top{ width:38%; height:30%; left:3%; top:0; transform:rotate(-8deg); animation:floatCard 7s ease-in-out infinite reverse; }
-.hero-photo-bottom{ width:42%; height:32%; left:2%; bottom:7%; transform:rotate(7deg); animation:floatCard 7.8s ease-in-out infinite; }
-.glass-card{ position:absolute; border:1px solid rgba(255,255,255,.20); background:rgba(8,20,45,.58); backdrop-filter:blur(18px); box-shadow:0 24px 65px rgba(0,0,0,.28); border-radius:24px; padding:1rem; }
-.journey-card{ right:0; bottom:0; width:min(360px, 82%); }
-.live-card{ left:14%; top:48%; display:flex; align-items:center; gap:.75rem; }
-.journey-track{ height:8px; background:rgba(255,255,255,.14); overflow:hidden; border-radius:999px; }
-.journey-track span{ display:block; width:55%; height:100%; border-radius:inherit; background:linear-gradient(90deg, var(--teal-500), #fff, var(--red-300)); animation:progressPulse 2.8s ease-in-out infinite; }
-.orbit-ring{ position:absolute; border:1px solid rgba(255,255,255,.18); border-radius:999px; z-index:-1; }
-.orbit-one{ width:520px; height:520px; right:0; top:20px; animation:spinSlow 28s linear infinite; }
-.orbit-two{ width:390px; height:390px; right:90px; top:85px; animation:spinSlow 19s linear infinite reverse; }
-.floating-word{ position:absolute; z-index:1; color:rgba(255,255,255,.16); font-family:'Baloo 2',serif; font-weight:800; letter-spacing:.08em; text-transform:uppercase; pointer-events:none; }
-.word-one{ left:3%; bottom:18%; font-size:clamp(2rem,5vw,5.5rem); animation:wordDrift 10s ease-in-out infinite; }
-.word-two{ right:5%; top:14%; font-size:clamp(1.5rem,3vw,3.25rem); animation:wordDrift 12s ease-in-out infinite reverse; }
-.word-three{ left:38%; top:7%; font-size:clamp(1rem,2vw,2rem); animation:wordDrift 9s ease-in-out infinite; }
-.logo-marquee{ overflow:hidden; background:#fff; border-block:1px solid var(--border-default); }
-.marquee-track{ display:flex; gap:3rem; width:max-content; padding:1rem 0; animation:marquee 24s linear infinite; }
-.marquee-track span{ color:var(--navy-700); font-weight:800; text-transform:uppercase; letter-spacing:.12em; font-size:.8rem; white-space:nowrap; }
-.modern-story{ background:linear-gradient(180deg, #fff, var(--bg-subtle)); }
-.story-panel{ padding:2rem; border-radius:30px; background:#fff; box-shadow:var(--e3); border:1px solid var(--border-default); }
-.feature-river{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
-.feature-tile{ position:relative; overflow:hidden; min-height:190px; padding:1.35rem; border-radius:26px; background:linear-gradient(135deg, #fff, var(--navy-50)); border:1px solid var(--border-default); box-shadow:var(--e1); transition:transform .25s ease, box-shadow .25s ease; }
-.feature-tile::before{ content:''; position:absolute; width:9rem; height:9rem; right:-4rem; top:-4rem; border-radius:999px; background:rgba(20,184,166,.18); transition:transform .35s ease; }
-.feature-tile:hover{ transform:translateY(-8px) rotate(.5deg); box-shadow:var(--e3); }
-.feature-tile:hover::before{ transform:scale(1.45); }
-.feature-tile i{ color:var(--teal-600); }
-.feature-tile h3{ position:relative; margin-top:1.3rem; font-weight:800; color:var(--navy-700); font-size:1.1rem; }
-.feature-tile p{ position:relative; margin-top:.45rem; color:var(--text-secondary); font-size:.92rem; }
-@keyframes gridFloat{ from{ background-position:0 0; } to{ background-position:54px 54px; } }
-@keyframes auroraOne{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(90px,38px) scale(1.14); } }
-@keyframes auroraTwo{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(-70px,-60px) scale(1.08); } }
+.wow-headline{ text-shadow:0 20px 60px rgba(0,0,0,.5); }
+.wow-headline .accent{ background:linear-gradient(90deg,#fff,#ffd8d8,#fff); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:wowShimmer 3s linear infinite; }
+.wow-cta{ position:relative; overflow:hidden; font-weight:800; box-shadow:0 0 0 0 rgba(255,80,80,.6); animation:wowGlowPulse 2.2s ease-in-out infinite; }
+.wow-cta::after{ content:''; position:absolute; inset:-150% -50%; background:linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent); transform:rotate(20deg) translateX(-70%); animation:shine 2.6s ease-in-out infinite; }
+.wow-cta-ghost{ color:#fff; background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.5); backdrop-filter:blur(10px); font-weight:700; }
+.wow-cta-ghost:hover{ background:rgba(255,255,255,.22); transform:translateY(-2px); }
+.wow-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:.85rem; max-width:640px; }
+.wow-stats div{ padding:1rem; border-radius:16px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22); backdrop-filter:blur(12px); text-align:center; }
+.wow-stats strong{ display:block; color:#fff; font-size:1.6rem; font-weight:900; line-height:1; }
+.wow-stats span{ color:#ffe1e1; font-size:.74rem; font-weight:600; }
+
+/* Landmark collage */
+.landmark-stage{ position:relative; min-height:600px; }
+.landmark-card{ position:absolute; overflow:hidden; border-radius:22px; box-shadow:0 25px 70px rgba(0,0,0,.45); border:3px solid rgba(255,255,255,.35); }
+.landmark-card img{ width:100%; height:100%; object-fit:cover; display:block; }
+.landmark-de{ width:56%; height:44%; top:0; right:0; animation:wowFloat 6s ease-in-out infinite; z-index:4; }
+.landmark-fr{ width:44%; height:34%; top:4%; left:0; animation:wowFloat 7s ease-in-out infinite reverse; z-index:3; }
+.landmark-uk{ width:40%; height:32%; bottom:6%; left:6%; animation:wowFloat 6.5s ease-in-out infinite; z-index:2; }
+.landmark-us{ width:48%; height:36%; bottom:0; right:8%; animation:wowFloat 7.5s ease-in-out infinite reverse; z-index:1; }
+.flag-chip{ position:absolute; display:flex; align-items:center; gap:.4rem; padding:.35rem .6rem; border-radius:999px; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); font-size:.7rem; font-weight:800; color:#fff; text-transform:uppercase; letter-spacing:.04em; z-index:5; }
+.mini-flag{ width:20px; height:14px; border-radius:2px; overflow:hidden; display:inline-block; box-shadow:0 0 0 1px rgba(255,255,255,.5); flex-shrink:0; }
+.flag-de{ background:linear-gradient(to bottom,#000 33%,#D00 33%,#D00 66%,#FFCE00 66%); }
+.flag-fr{ background:linear-gradient(to right,#0055A4 33%,#fff 33%,#fff 66%,#EF4135 66%); }
+.flag-uk{ background:#012169 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='40'%3E%3Cpath d='M0 0L60 40M60 0L0 40' stroke='white' stroke-width='8'/%3E%3Cpath d='M0 0L60 40M60 0L0 40' stroke='%23C8102E' stroke-width='4'/%3E%3Cpath d='M30 0V40M0 20H60' stroke='white' stroke-width='12'/%3E%3Cpath d='M30 0V40M0 20H60' stroke='%23C8102E' stroke-width='7'/%3E%3C/svg%3E") center/cover; }
+.flag-us{ background:repeating-linear-gradient(#B22234 0 7.6%, #fff 7.6% 15.2%); }
+
+/* Urgency ribbon */
+.urgency-ribbon{ background:linear-gradient(90deg, var(--red-700), var(--red-600), var(--red-700)); background-size:200% auto; animation:wowShimmer 4s linear infinite; color:#fff; text-align:center; padding:.55rem 1rem; font-size:.82rem; font-weight:700; }
+
+/* Program marquee, red-themed */
+.wow-marquee{ overflow:hidden; background:#0d0505; border-block:1px solid rgba(255,255,255,.08); }
+.wow-marquee-track{ display:flex; gap:2.5rem; width:max-content; padding:.9rem 0; animation:marquee 22s linear infinite; }
+.wow-marquee-track span{ color:#ffdada; font-weight:800; text-transform:uppercase; letter-spacing:.1em; font-size:.78rem; white-space:nowrap; display:inline-flex; align-items:center; gap:.5rem; }
+.wow-marquee-track i{ color:var(--red-600); }
+
+@keyframes wowPulse{ 0%,100%{ transform:scale(1) translate(0,0); } 50%{ transform:scale(1.15) translate(30px,-20px); } }
+@keyframes wowFloat{ 0%,100%{ transform:translateY(0) rotate(0deg); } 50%{ transform:translateY(-16px) rotate(1deg); } }
+@keyframes wowShimmer{ to{ background-position:200% center; } }
+@keyframes wowGlowPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,80,80,.55); } 50%{ box-shadow:0 0 0 16px rgba(255,80,80,0); } }
 @keyframes shine{ 0%,45%{ transform:rotate(20deg) translateX(-75%); } 75%,100%{ transform:rotate(20deg) translateX(75%); } }
-@keyframes floatCard{ 0%,100%{ translate:0 0; } 50%{ translate:0 -18px; } }
-@keyframes progressPulse{ 0%,100%{ width:45%; } 50%{ width:92%; } }
-@keyframes spinSlow{ to{ transform:rotate(360deg); } }
-@keyframes wordDrift{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-20px); } }
 @keyframes marquee{ to{ transform:translateX(-50%); } }
-@media(max-width:1023px){
-  .home-hero{ min-height:auto; }
-  .hero-showcase{ min-height:520px; }
-  .hero-photo-main{ width:82%; right:0; }
-  .hero-proof{ grid-template-columns:1fr; }
-}
-@media(max-width:640px){
-  .hero-showcase{ min-height:410px; }
-  .hero-photo-main{ height:62%; width:86%; }
-  .hero-photo-small{ border-radius:22px; }
-  .journey-card{ width:92%; }
-  .live-card{ left:0; top:54%; }
-  .feature-river{ grid-template-columns:1fr; }
-}
+
+@media(max-width:1023px){ .landmark-stage{ min-height:480px; } .wow-stats{ grid-template-columns:1fr; } }
+@media(max-width:640px){ .landmark-stage{ min-height:380px; } .landmark-de{ width:64%; } }
 @media (prefers-reduced-motion: reduce){
-  .hero-grid,.hero-aurora,.hero-cta::after,.hero-photo,.journey-track span,.orbit-ring,.floating-word,.marquee-track{ animation:none !important; }
+  .wow-glow,.wow-pill,.wow-cta,.wow-cta::after,.landmark-card,.wow-marquee-track,.wow-headline .accent,.urgency-ribbon{ animation:none !important; }
 }
