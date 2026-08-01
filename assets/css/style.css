@@ -186,3 +186,65 @@ textarea:focus-visible, [tabindex]:focus-visible{
 /* Utility */
 .container-ep{ max-width:1120px; margin:0 auto; padding:0 1rem; }
 @media(min-width:1024px){ .container-ep{ padding:0 1.5rem; } }
+
+/* ============================================================
+   Redesign additions — image slots, scroll animations, carousel,
+   scroll-aware navbar. All additive; nothing above this line changed.
+   ============================================================ */
+
+/* Image slot — real <img> with a graceful fallback while the file is
+   missing (see assets/images/README.md), instead of a broken-image icon. */
+.img-slot{ position:relative; overflow:hidden; background:linear-gradient(135deg, var(--navy-50), #F3F5F8); border-radius:var(--r-lg); }
+.img-slot img{ width:100%; height:100%; object-fit:cover; display:block; }
+.img-slot img::before{ content:''; }
+
+/* Scroll-reveal — elements fade/slide up once when entering the viewport */
+[data-reveal]{ opacity:0; transform:translateY(24px); transition:opacity 560ms cubic-bezier(.16,.8,.3,1), transform 560ms cubic-bezier(.16,.8,.3,1); }
+[data-reveal].is-visible{ opacity:1; transform:translateY(0); }
+[data-reveal="fade"]{ transform:translateY(0); }
+[data-reveal="left"]{ transform:translateX(-32px); }
+[data-reveal="left"].is-visible{ transform:translateX(0); }
+[data-reveal="right"]{ transform:translateX(32px); }
+[data-reveal="right"].is-visible{ transform:translateX(0); }
+[data-reveal-group] > *{ transition-delay:calc(var(--reveal-index, 0) * 90ms); }
+
+@media (prefers-reduced-motion: reduce){
+  [data-reveal]{ opacity:1 !important; transform:none !important; transition:none !important; }
+}
+
+/* Hover-lift utility for cards/buttons beyond the existing .card-hover */
+.lift-hover{ transition:transform 220ms ease-out, box-shadow 220ms ease-out; }
+.lift-hover:hover{ transform:translateY(-4px); box-shadow:var(--e3); }
+
+/* Icon micro-animation on hover */
+.icon-pop{ transition:transform 200ms ease-out; display:inline-flex; }
+.group:hover .icon-pop{ transform:scale(1.12) rotate(-4deg); }
+
+/* Scroll-aware navbar */
+#site-header{ transition:box-shadow 220ms ease-out, padding 220ms ease-out; }
+#site-header.is-scrolled{ box-shadow:0 1px 0 var(--border-default), 0 8px 24px rgba(16,24,40,.06); }
+#site-header.is-scrolled .navbar-inner{ height:3.5rem; }
+.navbar-inner{ height:4rem; transition:height 220ms ease-out; }
+
+/* Active nav-link underline */
+.nav-link{ position:relative; }
+.nav-link::after{ content:''; position:absolute; left:0; right:0; bottom:-6px; height:2px; background:var(--red-600); transform:scaleX(0); transform-origin:left; transition:transform 200ms ease-out; }
+.nav-link:hover::after, .nav-link[aria-current="page"]::after{ transform:scaleX(1); }
+
+/* Hero carousel */
+.carousel-track{ position:relative; }
+.carousel-slide{ position:absolute; inset:0; opacity:0; visibility:hidden; transition:opacity 500ms ease-out; }
+.carousel-slide.is-active{ position:relative; opacity:1; visibility:visible; }
+.carousel-dot{ width:8px; height:8px; border-radius:999px; background:var(--navy-300); transition:all 200ms ease-out; cursor:pointer; border:none; padding:0; }
+.carousel-dot.is-active{ width:24px; background:var(--red-600); }
+
+/* Animated stat counters */
+.stat-counter{ font-variant-numeric:tabular-nums; }
+
+/* Background shape drift (very subtle, decorative only) */
+@keyframes driftSlow { 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(14px,-10px); } }
+.drift{ animation:driftSlow 14s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce){ .drift{ animation:none; } }
+
+/* Section eyebrow with icon */
+.eyebrow-icon{ display:inline-flex; align-items:center; gap:.4rem; }

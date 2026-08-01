@@ -135,4 +135,62 @@ document.addEventListener('DOMContentLoaded', () => {
       form.reset();
     });
   });
+
+  // Scroll-reveal — fade/slide elements in once as they enter the viewport.
+  // Opt-in via data-reveal="up|left|right|fade"; staggered groups via
+  // data-reveal-group on the parent (children get an incrementing delay).
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revealEls = document.querySelectorAll('[data-reveal]');
+  if (revealEls.length) {
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+      revealEls.forEach((el) => el.classList.add('is-visible'));
+    } else {
+      document.querySelectorAll('[data-reveal-group]').forEach((group) => {
+        Array.from(group.children).forEach((child, i) => child.style.setProperty('--reveal-index', i));
+      });
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+      revealEls.forEach((el) => io.observe(el));
+    }
+  }
+
+  // Animated stat counters — data-count-to="2400" data-count-suffix="+"
+  const counters = document.querySelectorAll('[data-count-to]');
+  if (counters.length && !reduceMotion && 'IntersectionObserver' in window) {
+    const countIo = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const target = parseFloat(el.dataset.countTo);
+        const suffix = el.dataset.countSuffix || '';
+        const duration = 1200;
+        const start = performance.now();
+        function tick(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(target * eased).toLocaleString() + suffix;
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        countIo.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+    counters.forEach((el) => countIo.observe(el));
+  } else if (counters.length) {
+    counters.forEach((el) => { el.textContent = parseFloat(el.dataset.countTo).toLocaleString() + (el.dataset.countSuffix || ''); });
+  }
+
+  // Scroll-aware navbar (adds a shadow + slightly shrinks once scrolled)
+  const siteHeader = document.getElementById('site-header');
+  if (siteHeader) {
+    const onScroll = () => siteHeader.classList.toggle('is-scrolled', window.scrollY > 12);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
 });

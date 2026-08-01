@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const [courseList, allUsers] = await Promise.all([EP.courses(), EP.users()]);
   const course = courseList.find(c => c.id === user.courseId);
-  const teacher = allUsers.find(u => u.id === course?.teacherId);
+  const teacher = allUsers.find(u => u.id === course?.teacher_id);
 
   async function myHomework() { return EP.homeworkByCourse(user.courseId); }
 
