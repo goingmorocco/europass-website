@@ -249,10 +249,9 @@ textarea:focus-visible, [tabindex]:focus-visible{
 
 /* Section eyebrow with icon */
 .eyebrow-icon{ display:inline-flex; align-items:center; gap:.4rem; }
-
 /* ============================================================
    WOW REDESIGN — red-primary, Inter typography, maximum energy
-   Preview only — not applied to the live site yet.
+   Applied site-wide: Inter headings, navy-primary hero, real photography.
    ============================================================ */
 
 /* Inter takes over headings too — clean, modern, no more rounded serif */

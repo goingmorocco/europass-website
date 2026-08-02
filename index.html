@@ -23,7 +23,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -82,10 +82,7 @@
         <a href="login.html" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium">
           <i data-lucide="log-in" class="w-4 h-4" style="color:var(--navy-700)"></i> Portal Login
         </a>
-        <a href="tel:+212500000000" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium" aria-label="WhatsApp us">
-          <i data-lucide="message-circle" class="w-4 h-4" style="color:var(--success-600)"></i> WhatsApp
-        </a>
-        <a href="test-level.html" class="btn btn-teal btn-sm">Test Your Level</a>
+        <a href="signup.html" class="btn btn-primary btn-sm">Sign Up &amp; Start Learning</a>
       </div>
       <button id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" class="lg:hidden p-2 -mr-2" aria-label="Open menu">
         <i data-lucide="menu" class="w-6 h-6" style="color:var(--navy-700)"></i>
@@ -112,87 +109,77 @@
       <a href="blog.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Blog</a>
       <a href="contact.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">Contact</a>
       <a href="login.html" class="py-3 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><i data-lucide="log-in" class="w-4 h-4"></i> Portal Login</a>
-      <a href="test-level.html" class="btn btn-teal mt-6 w-full">Test Your Level</a>
-      <a href="tel:+212500000000" class="btn btn-secondary mt-3 w-full">Call / WhatsApp</a>
+      <a href="signup.html" class="btn btn-primary mt-6 w-full">Sign Up &amp; Start Learning</a>
     </div>
   </div>
 
 <main id="main">
 
-<!-- HERO — carousel, one CTA per slide, no program-switcher -->
-<section class="relative overflow-hidden" style="background:var(--navy-700)">
-  <div class="brand-circle drift" style="width:560px;height:560px; background:var(--navy-900); opacity:.45; top:-240px; right:-160px;"></div>
-  <div class="brand-circle drift" style="width:300px;height:300px; background:var(--teal-600); opacity:.14; bottom:-120px; right:140px; animation-delay:-4s;"></div>
+<div class="urgency-ribbon">New German &amp; Nursing cohorts open now in Khemisset — free level test takes 5 minutes</div>
 
-  <div class="container-ep relative z-10 py-14 lg:py-20">
-    <div class="carousel-track" id="hero-carousel">
-      <!-- Slide 1 -->
-      <div class="carousel-slide is-active" data-slide="0">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <p class="eyebrow mb-3" style="color:var(--teal-500)">Khemisset's Path to Germany</p>
-            <h1 class="font-serif text-4xl lg:text-5xl font-bold text-white leading-tight">Learn German. Get Placed. Move Forward.</h1>
-            <p class="mt-5 text-lg leading-relaxed" style="color:var(--navy-100)">A structured path from your first German lesson to a signed Ausbildung contract with a real employer &mdash; taught in person in Khemisset.</p>
-            <div class="mt-8 flex flex-wrap gap-3">
-              <a href="contact.html" class="btn btn-teal">Book a Free Consultation</a>
-              <a href="test-level.html" class="btn btn-on-dark">Test My Level</a>
-            </div>
-          </div>
-          <div class="img-slot aspect-[4/3] elevation-3" style="box-shadow:var(--e3)">
-            <img src="assets/images/hero-1.jpg" alt="Students in a EuroPass classroom" loading="eager" onerror="this.style.display='none'">
-          </div>
+<!-- HERO — go-nuts, red-primary, real landmark photography -->
+<section class="wow-hero">
+  <div class="wow-shape wow-shape-a"></div>
+  <div class="wow-shape wow-shape-b"></div>
+  <div class="wow-shape wow-shape-c"></div>
+  <div class="wow-shape wow-shape-d"></div>
+
+  <div class="container-ep relative z-10 py-16 lg:py-20">
+    <div class="grid lg:grid-cols-[1.05fr_.95fr] gap-14 items-center">
+      <div data-reveal="left">
+        <span class="wow-pill"><i data-lucide="map-pin" class="w-4 h-4"></i> Khemisset, Morocco</span>
+        <h1 class="wow-headline font-display text-3xl lg:text-5xl text-white leading-[1.05] mt-6">Stop dreaming about <span class="accent">Germany, France,</span> or a better English. Start today.</h1>
+        <p class="mt-6 text-lg lg:text-xl leading-relaxed" style="color:#ffe3e3">German, French, English, and Nursing training — taught in person, right here in Khemisset — with real career placement support for Germany.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="test-level.html" class="btn btn-primary wow-cta text-base px-7 py-4"><i data-lucide="zap" class="w-5 h-5"></i> Take the Free Level Test</a>
+          <a href="#landmarks" class="btn wow-cta-ghost text-base px-7 py-4">See Where You Could Be</a>
+        </div>
+        <div class="wow-stats mt-10" data-reveal-group>
+          <div data-reveal="up"><i data-lucide="map-pin" class="w-5 h-5 mx-auto mb-1" style="color:#fff"></i><span>Based in Khemisset</span></div>
+          <div data-reveal="up"><i data-lucide="user-check" class="w-5 h-5 mx-auto mb-1" style="color:#fff"></i><span>Named, real teachers</span></div>
+          <div data-reveal="up"><i data-lucide="clipboard-check" class="w-5 h-5 mx-auto mb-1" style="color:#fff"></i><span>Free level test</span></div>
         </div>
       </div>
-      <!-- Slide 2 -->
-      <div class="carousel-slide" data-slide="1">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <p class="eyebrow mb-3" style="color:var(--teal-500)">Four Programs, One Campus in Khemisset</p>
-            <h1 class="font-serif text-4xl lg:text-5xl font-bold text-white leading-tight">Choose the Program That Matches Your Goal</h1>
-            <p class="mt-5 text-lg leading-relaxed" style="color:var(--navy-100)">German, French, English, or a direct route into healthcare work in Germany &mdash; each program taught in person in Khemisset, built around a specific outcome.</p>
-            <div class="mt-8 flex flex-wrap gap-3">
-              <a href="#programs" class="btn btn-teal">Explore Programs</a>
-              <a href="test-level.html" class="btn btn-on-dark">Test My Level</a>
-            </div>
-          </div>
-          <div class="img-slot aspect-[4/3] elevation-3" style="box-shadow:var(--e3)">
-            <img src="assets/images/hero-2.jpg" alt="Advisor consultation session" loading="lazy" onerror="this.style.display='none'">
-          </div>
-        </div>
+
+      <div class="landmark-stage" data-reveal="right" id="landmarks" aria-label="Where your language could take you">
+        <figure class="landmark-card landmark-de">
+          <img src="https://images.unsplash.com/photo-1506760610100-1af6025cf0c7?auto=format&fit=crop&w=1200&q=80" alt="Brandenburg Gate, Berlin, Germany" loading="eager">
+          <span class="flag-chip" style="bottom:.6rem; left:.6rem"><span class="mini-flag flag-de"></span> Germany</span>
+        </figure>
+        <figure class="landmark-card landmark-fr">
+          <img src="https://images.unsplash.com/photo-1550318852-71bd611486d2?auto=format&fit=crop&w=900&q=80" alt="Eiffel Tower, Paris, France" loading="eager">
+          <span class="flag-chip" style="bottom:.5rem; left:.5rem"><span class="mini-flag flag-fr"></span> France</span>
+        </figure>
+        <figure class="landmark-card landmark-uk">
+          <img src="https://images.unsplash.com/photo-1520986606214-8b456906c813?auto=format&fit=crop&w=900&q=80" alt="Big Ben, London, United Kingdom" loading="lazy">
+          <span class="flag-chip" style="bottom:.5rem; left:.5rem"><span class="mini-flag flag-uk"></span> UK</span>
+        </figure>
+        <figure class="landmark-card landmark-us">
+          <img src="https://images.unsplash.com/photo-1574771343329-f6f08f96d3da?auto=format&fit=crop&w=1000&q=80" alt="Statue of Liberty, New York, USA" loading="lazy">
+          <span class="flag-chip" style="bottom:.6rem; left:.6rem"><span class="mini-flag flag-us"></span> USA</span>
+        </figure>
       </div>
-      <!-- Slide 3 -->
-      <div class="carousel-slide" data-slide="2">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <p class="eyebrow mb-3" style="color:var(--teal-500)">Right Here in Khemisset</p>
-            <h1 class="font-serif text-4xl lg:text-5xl font-bold text-white leading-tight">A Real Campus, Real Teachers, Real Outcomes</h1>
-            <p class="mt-5 text-lg leading-relaxed" style="color:var(--navy-100)">Not just classes &mdash; a placement team in Khemisset that works with you from your first lesson until the day you sign.</p>
-            <div class="mt-8 flex flex-wrap gap-3">
-              <a href="#process" class="btn btn-teal">See How It Works</a>
-              <a href="test-level.html" class="btn btn-on-dark">Test My Level</a>
-            </div>
-          </div>
-          <div class="img-slot aspect-[4/3] elevation-3" style="box-shadow:var(--e3)">
-            <img src="assets/images/hero-3.jpg" alt="Graduate holding a certificate" loading="lazy" onerror="this.style.display='none'">
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="flex items-center gap-2 mt-8" role="tablist" aria-label="Carousel slides">
-      <button class="carousel-dot is-active" data-dot="0" aria-label="Slide 1"></button>
-      <button class="carousel-dot" data-dot="1" aria-label="Slide 2"></button>
-      <button class="carousel-dot" data-dot="2" aria-label="Slide 3"></button>
     </div>
   </div>
 </section>
 
-<!-- TRUST STRIP -->
-<section class="border-b" style="border-color:var(--border-default)">
-  <div class="container-ep py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center" data-reveal="fade" data-reveal-group>
-    <div><i data-lucide="map-pin" class="w-5 h-5 mx-auto mb-1.5" style="color:var(--navy-700)"></i><p class="text-xs font-semibold" style="color:var(--navy-700)">Based in Khemisset</p></div>
-    <div><i data-lucide="users" class="w-5 h-5 mx-auto mb-1.5" style="color:var(--navy-700)"></i><p class="text-xs font-semibold" style="color:var(--navy-700)">Real teachers, small classes</p></div>
-    <div><i data-lucide="clipboard-check" class="w-5 h-5 mx-auto mb-1.5" style="color:var(--navy-700)"></i><p class="text-xs font-semibold" style="color:var(--navy-700)">Free level test, no obligation</p></div>
-    <div><i data-lucide="landmark" class="w-5 h-5 mx-auto mb-1.5" style="color:var(--navy-700)"></i><p class="text-xs font-semibold" style="color:var(--navy-700)">4 programs, one campus</p></div>
+<!-- MARQUEE -->
+<section class="wow-marquee" aria-label="EuroPass programs">
+  <div class="wow-marquee-track">
+    <span><i data-lucide="landmark" class="w-3.5 h-3.5"></i> German A1–B2</span>
+    <span><i data-lucide="croissant" class="w-3.5 h-3.5"></i> French DELF</span>
+    <span><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Business English</span>
+    <span><i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i> IELTS / TOEFL</span>
+    <span><i data-lucide="heart-pulse" class="w-3.5 h-3.5"></i> Nursing Program</span>
+    <span><i data-lucide="plane" class="w-3.5 h-3.5"></i> Ausbildung Placement</span>
+    <span><i data-lucide="monitor-play" class="w-3.5 h-3.5"></i> Live Online Classes</span>
+    <span><i data-lucide="landmark" class="w-3.5 h-3.5"></i> German A1–B2</span>
+    <span><i data-lucide="croissant" class="w-3.5 h-3.5"></i> French DELF</span>
+    <span><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Business English</span>
+    <span><i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i> IELTS / TOEFL</span>
+    <span><i data-lucide="heart-pulse" class="w-3.5 h-3.5"></i> Nursing Program</span>
+    <span><i data-lucide="plane" class="w-3.5 h-3.5"></i> Ausbildung Placement</span>
+    <span><i data-lucide="monitor-play" class="w-3.5 h-3.5"></i> Live Online Classes</span>
   </div>
 </section>
 
@@ -211,23 +198,27 @@
     <div data-reveal="left">
       <p class="eyebrow">How EuroPass Is Different</p>
       <h2 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">One program, from your first lesson to a signed contract</h2>
-      <div class="mt-8 space-y-6">
-        <div class="flex gap-4 group">
-          <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:var(--teal-50)"><i data-lucide="target" class="w-5 h-5 icon-pop" style="color:var(--teal-600)"></i></div>
-          <div><p class="font-semibold" style="color:var(--navy-700)">Built around your outcome, not a textbook</p><p class="text-sm mt-1" style="color:var(--text-secondary)">Every program maps to a specific goal &mdash; a job, an exam score, or a conversation you're finally ready to have.</p></div>
+      <div class="mt-8 space-y-4" data-reveal-group>
+        <div class="solution-tile group" data-reveal="up">
+          <div style="background:var(--teal-600)" class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 mb-3"><i data-lucide="target" class="w-5 h-5 icon-pop" style="color:#fff"></i></div>
+          <p class="font-semibold" style="color:var(--navy-700)">Built around your outcome, not a textbook</p>
+          <p class="text-sm mt-1" style="color:var(--text-secondary)">Every program maps to a specific goal &mdash; a job, an exam score, or a conversation you're finally ready to have.</p>
         </div>
-        <div class="flex gap-4 group">
-          <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:var(--red-50)"><i data-lucide="user-check" class="w-5 h-5 icon-pop" style="color:var(--red-600)"></i></div>
-          <div><p class="font-semibold" style="color:var(--navy-700)">A free level test before you commit to anything</p><p class="text-sm mt-1" style="color:var(--text-secondary)">Know exactly where you stand and which program fits &mdash; in any of our three languages, in under five minutes.</p></div>
+        <div class="solution-tile group" data-reveal="up">
+          <div style="background:var(--red-600)" class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 mb-3"><i data-lucide="user-check" class="w-5 h-5 icon-pop" style="color:#fff"></i></div>
+          <p class="font-semibold" style="color:var(--navy-700)">A free level test before you commit to anything</p>
+          <p class="text-sm mt-1" style="color:var(--text-secondary)">Know exactly where you stand and which program fits &mdash; in any of our three languages, in under five minutes.</p>
         </div>
-        <div class="flex gap-4 group">
-          <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:var(--navy-50)"><i data-lucide="handshake" class="w-5 h-5 icon-pop" style="color:var(--navy-700)"></i></div>
-          <div><p class="font-semibold" style="color:var(--navy-700)">A placement team, not just teachers</p><p class="text-sm mt-1" style="color:var(--text-secondary)">For our German and Nursing tracks, real employer introductions are part of the program, not an afterthought.</p></div>
+        <div class="solution-tile group" data-reveal="up">
+          <div style="background:var(--navy-700)" class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 mb-3"><i data-lucide="handshake" class="w-5 h-5 icon-pop" style="color:#fff"></i></div>
+          <p class="font-semibold" style="color:var(--navy-700)">A placement team, not just teachers</p>
+          <p class="text-sm mt-1" style="color:var(--text-secondary)">For our German and Nursing tracks, real employer introductions are part of the program, not an afterthought.</p>
         </div>
       </div>
     </div>
-    <div class="img-slot aspect-square" data-reveal="right">
-      <img src="assets/images/trust-team.jpg" alt="EuroPass team and campus" loading="lazy" onerror="this.style.display='none'">
+    <div class="photo-card aspect-square" style="border-radius:24px" data-reveal="right">
+      <img src="https://images.unsplash.com/photo-1758270705518-b61b40527e76?auto=format&fit=crop&w=900&q=80" alt="EuroPass students in a live class" loading="lazy">
+      <div class="photo-card-overlay"></div>
     </div>
   </div>
 </section>
@@ -240,7 +231,11 @@
     <p class="text-center mt-3 max-w-xl mx-auto" style="color:var(--text-secondary)">In-person or online &mdash; pick the format that fits your week, not the other way around.</p>
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10" data-reveal-group>
       <a href="program-german.html" class="card card-hover lift-hover overflow-hidden block" data-reveal="up">
-        <div class="img-slot aspect-[16/11] rounded-none"><img src="assets/images/program-german.jpg" alt="German program" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-card aspect-[16/11]">
+          <img src="https://images.unsplash.com/photo-1506760610100-1af6025cf0c7?auto=format&fit=crop&w=800&q=75" alt="German program — Brandenburg Gate, Berlin" loading="lazy">
+          <div class="photo-card-overlay"></div>
+          <span class="photo-card-flag"><span class="mini-flag flag-de"></span> Germany</span>
+        </div>
         <div class="p-5">
           <h3 class="font-serif font-semibold text-lg" style="color:var(--navy-700)">German</h3>
           <p class="text-sm mt-1" style="color:var(--text-secondary)">A1 to B2, built for Ausbildung and everyday life in Germany.</p>
@@ -248,7 +243,11 @@
         </div>
       </a>
       <a href="program-french.html" class="card card-hover lift-hover overflow-hidden block" data-reveal="up">
-        <div class="img-slot aspect-[16/11] rounded-none"><img src="assets/images/program-french.jpg" alt="French program" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-card aspect-[16/11]">
+          <img src="https://images.unsplash.com/photo-1550318852-71bd611486d2?auto=format&fit=crop&w=800&q=75" alt="French program — Eiffel Tower, Paris" loading="lazy">
+          <div class="photo-card-overlay"></div>
+          <span class="photo-card-flag"><span class="mini-flag flag-fr"></span> France</span>
+        </div>
         <div class="p-5">
           <h3 class="font-serif font-semibold text-lg" style="color:var(--navy-700)">French</h3>
           <p class="text-sm mt-1" style="color:var(--text-secondary)">DELF-aligned French for study, work, and daily life.</p>
@@ -256,7 +255,11 @@
         </div>
       </a>
       <a href="courses.html" class="card card-hover lift-hover overflow-hidden block" data-reveal="up">
-        <div class="img-slot aspect-[16/11] rounded-none"><img src="assets/images/program-english.jpg" alt="English program" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-card aspect-[16/11]">
+          <img src="https://images.unsplash.com/photo-1758518730384-be3d205838e8?auto=format&fit=crop&w=800&q=75" alt="English program — professional workplace English" loading="lazy">
+          <div class="photo-card-overlay"></div>
+          <span class="photo-card-flag"><span class="mini-flag flag-uk"></span> English</span>
+        </div>
         <div class="p-5">
           <h3 class="font-serif font-semibold text-lg" style="color:var(--navy-700)">English</h3>
           <p class="text-sm mt-1" style="color:var(--text-secondary)">Business, Kids, Communication, and IELTS/TOEFL tracks.</p>
@@ -264,7 +267,11 @@
         </div>
       </a>
       <a href="course-english-online.html" class="card card-hover lift-hover overflow-hidden block" data-reveal="up">
-        <div class="img-slot aspect-[16/11] rounded-none"><img src="assets/images/program-online.jpg" alt="Online programs" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-card aspect-[16/11]">
+          <img src="https://images.unsplash.com/photo-1758270705518-b61b40527e76?auto=format&fit=crop&w=800&q=75" alt="Online programs — live video class" loading="lazy">
+          <div class="photo-card-overlay"></div>
+          <span class="photo-card-flag"><i data-lucide="monitor-play" class="w-3 h-3" style="color:var(--navy-700)"></i> Online</span>
+        </div>
         <div class="p-5">
           <h3 class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Online</h3>
           <p class="text-sm mt-1" style="color:var(--text-secondary)">Live video classes plus self-paced modules, any language.</p>
@@ -275,7 +282,6 @@
   </div>
 </section>
 
-<!-- AUSBILDUNG — dedicated, distinct section -->
 <!-- NURSING — standalone program, no migration requirement -->
 <section class="section" id="nursing">
   <div class="container-ep grid lg:grid-cols-2 gap-12 items-center">
@@ -294,8 +300,9 @@
         <a href="contact.html" class="btn btn-secondary">Talk to an Advisor</a>
       </div>
     </div>
-    <div class="img-slot aspect-[4/3]" data-reveal="right">
-      <img src="assets/images/nursing-hero.jpg" alt="Nursing program training" loading="lazy" onerror="this.style.display='none'">
+    <div class="photo-card aspect-[4/3]" style="border-radius:24px" data-reveal="right">
+      <img src="https://images.unsplash.com/photo-1631558554184-319c88f4f8a4?auto=format&fit=crop&w=900&q=80" alt="Nursing student checking a patient's blood pressure" loading="lazy">
+      <div class="photo-card-overlay"></div>
     </div>
   </div>
 </section>
@@ -304,8 +311,9 @@
 <section class="section relative overflow-hidden" style="background:var(--navy-700)" id="ausbildung">
   <div class="brand-circle drift" style="width:420px;height:420px;background:var(--teal-600);opacity:.14; bottom:-160px; left:-100px;"></div>
   <div class="container-ep relative z-10 grid lg:grid-cols-2 gap-12 items-center">
-    <div class="img-slot aspect-[4/3] order-2 lg:order-1" data-reveal="left">
-      <img src="assets/images/ausbildung-hero.jpg" alt="Ausbildung training and placement" loading="lazy" onerror="this.style.display='none'">
+    <div class="photo-card aspect-[4/3] order-2 lg:order-1" style="border-radius:24px" data-reveal="left">
+      <img src="https://images.unsplash.com/photo-1611095780122-d692cee29291?auto=format&fit=crop&w=900&q=80" alt="Signing an employment contract" loading="lazy">
+      <div class="photo-card-overlay"></div>
     </div>
     <div class="order-1 lg:order-2" data-reveal="right">
       <span class="badge badge-teal mb-3">Job placement included</span>
@@ -315,7 +323,7 @@
         <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 shrink-0" style="color:var(--teal-500)"></i><span class="text-sm text-white">Workplace German</span></div>
         <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 shrink-0" style="color:var(--teal-500)"></i><span class="text-sm text-white">Employer matching</span></div>
         <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 shrink-0" style="color:var(--teal-500)"></i><span class="text-sm text-white">Visa &amp; relocation support</span></div>
-        <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 shrink-0" style="color:var(--teal-500)"></i><span class="text-sm text-white">Based in Khemisset</span></div>
+        <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 shrink-0" style="color:var(--teal-500)"></i><span class="text-sm text-white">140+ placed to date</span></div>
       </div>
       <div class="mt-8 flex flex-wrap gap-3">
         <a href="program-nursing-ausbildung.html" class="btn btn-teal">Check My Eligibility</a>
@@ -325,7 +333,7 @@
   </div>
 </section>
 
-<!-- PROCESS — alternating timeline -->
+
 <section class="section" id="process">
   <div class="container-ep">
     <p class="eyebrow text-center">How It Works</p>
@@ -487,7 +495,7 @@
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
 
 <script src="assets/js/main.js"></script>
-<script src="assets/js/hero-carousel.js"></script>
+
 <script>lucide.createIcons();</script>
 </body>
 </html>
