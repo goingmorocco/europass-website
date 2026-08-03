@@ -195,4 +195,24 @@ document.addEventListener('DOMContentLoaded', () => {
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
   }
+
+  // Language preference — default to Arabic for browsers set to Arabic
+  // (the best available signal on a static site with no server-side geo
+  // detection), but only ever redirect once and only from the homepage,
+  // and never override a choice the visitor already made.
+  const langSwitchAr = document.getElementById('lang-switch-ar');
+  if (langSwitchAr) {
+    langSwitchAr.addEventListener('click', () => localStorage.setItem('europass_lang_pref', 'ar'));
+  }
+  document.querySelectorAll('#lang-switch-en, #lang-switch-en-mobile').forEach((el) => {
+    el.addEventListener('click', () => localStorage.setItem('europass_lang_pref', 'en'));
+  });
+  const isHomepage = /\/(index\.html)?$/.test(window.location.pathname);
+  if (isHomepage && !localStorage.getItem('europass_lang_pref')) {
+    const prefersArabic = (navigator.languages || [navigator.language || '']).some((l) => l.toLowerCase().startsWith('ar'));
+    if (prefersArabic) {
+      localStorage.setItem('europass_lang_pref', 'ar');
+      window.location.href = 'ar/index.html';
+    }
+  }
 });

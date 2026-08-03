@@ -343,3 +343,24 @@ h1,h2,h3,h4,.font-display{ font-family:'Inter', system-ui, sans-serif !important
 @media (prefers-reduced-motion: reduce){
   .wow-glow,.wow-pill,.wow-cta,.wow-cta::after,.landmark-card,.wow-marquee-track,.wow-headline .accent,.urgency-ribbon{ animation:none !important; }
 }
+
+/* ============================================================
+   RTL / Arabic support
+   ============================================================ */
+[dir="rtl"]{ font-family:'Cairo', 'Inter', system-ui, sans-serif; }
+[dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3,[dir="rtl"] h4,[dir="rtl"] .font-display{ font-family:'Cairo', system-ui, sans-serif !important; }
+[dir="rtl"] .eyebrow{ letter-spacing:0; }
+[dir="rtl"] .chevron,[dir="rtl"] [data-lucide="arrow-right"],[dir="rtl"] [data-lucide="chevron-right"]{ transform:scaleX(-1); }
+[dir="rtl"] .accordion-trigger [data-lucide="chevron-down"]{ transform:none; }
+[dir="rtl"] .btn i,[dir="rtl"] .nav-link i{ transform:scaleX(1); }
+[dir="rtl"] .rtl-flip{ transform:scaleX(-1); }
+
+/* Language switcher pill */
+.lang-switch{ display:inline-flex; align-items:center; gap:.25rem; padding:.3rem; border-radius:999px; background:var(--bg-subtle); border:1px solid var(--border-default); }
+.lang-switch a{ padding:.3rem .65rem; border-radius:999px; font-size:.76rem; font-weight:700; color:var(--text-secondary); }
+.lang-switch a.is-active{ background:var(--navy-700); color:#fff; }
+
+/* Language suggestion banner */
+.lang-banner{ background:var(--navy-700); color:#fff; text-align:center; padding:.6rem 1rem; font-size:.85rem; }
+.lang-banner a{ text-decoration:underline; font-weight:700; }
+.lang-banner button{ margin-inline-start:.75rem; color:var(--navy-100); font-size:.78rem; }
