@@ -365,3 +365,31 @@ html, body{ overflow-x: hidden; max-width: 100vw; }
 .lang-banner{ background:var(--navy-700); color:#fff; text-align:center; padding:.6rem 1rem; font-size:.85rem; }
 .lang-banner a{ text-decoration:underline; font-weight:700; }
 .lang-banner button{ margin-inline-start:.75rem; color:var(--navy-100); font-size:.78rem; }
+
+/* ============================================================
+   Adecco-inspired section — honest single-path hero + icon tiles
+   Preview only.
+   ============================================================ */
+.adecco-hero{ position:relative; overflow:hidden; border-radius:28px; }
+.adecco-hero img{ width:100%; height:100%; object-fit:cover; display:block; }
+.adecco-hero-overlay{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(11,29,58,.15) 0%, rgba(11,29,58,.75) 100%); }
+.adecco-stat-row{ position:absolute; left:0; right:0; bottom:0; display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:rgba(255,255,255,.15); }
+.adecco-stat-row div{ background:rgba(11,29,58,.55); backdrop-filter:blur(6px); padding:1.1rem 1rem; text-align:center; }
+.adecco-stat-row strong{ display:block; color:#fff; font-family:'Inter',sans-serif; font-weight:800; font-size:1.15rem; }
+.adecco-stat-row span{ color:var(--navy-100); font-size:.72rem; }
+
+.icon-tile{ padding:2rem 1.6rem; border-radius:4px; border-top:3px solid var(--red-600); background:#fff; box-shadow:var(--e1); transition:transform .2s ease, box-shadow .2s ease; }
+.icon-tile:hover{ transform:translateY(-4px); box-shadow:var(--e3); }
+.icon-tile .icon-tile-icon{ width:3rem; height:3rem; }
+.icon-tile h3{ font-family:'Inter',sans-serif; font-weight:800; font-size:1.05rem; color:var(--navy-700); margin-top:1.1rem; }
+.icon-tile p{ margin-top:.5rem; font-size:.88rem; color:var(--text-secondary); line-height:1.55; }
+.icon-tile a{ display:inline-flex; align-items:center; gap:.3rem; margin-top:1rem; font-size:.85rem; font-weight:700; color:var(--red-600); }
+.icon-tile a:hover{ text-decoration:underline; }
+
+.program-tile{ position:relative; overflow:hidden; border-radius:4px; aspect-ratio:4/3; display:block; }
+.program-tile img{ width:100%; height:100%; object-fit:cover; transition:transform .5s ease; }
+.program-tile:hover img{ transform:scale(1.06); }
+.program-tile-overlay{ position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, rgba(11,29,58,.88) 100%); }
+.program-tile-label{ position:absolute; left:1.2rem; right:1.2rem; bottom:1.1rem; color:#fff; }
+.program-tile-label span{ display:block; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--red-300); }
+.program-tile-label strong{ display:flex; align-items:center; justify-content:space-between; font-family:'Inter',sans-serif; font-weight:800; font-size:1.15rem; margin-top:.2rem; }
