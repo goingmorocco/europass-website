@@ -378,11 +378,21 @@ html, body{ overflow-x: hidden; max-width: 100vw; }
 .adecco-stat-row strong{ display:block; color:#fff; font-family:'Inter',sans-serif; font-weight:800; font-size:1.15rem; }
 .adecco-stat-row span{ color:var(--navy-100); font-size:.72rem; }
 
-/* Full-bleed hero — photo spans the entire section, white card floats on top */
-.adecco-fullbleed-hero{ position:relative; min-height:560px; display:flex; align-items:center; overflow:hidden; }
-.adecco-fullbleed-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
-.adecco-fullbleed-scrim{ position:absolute; inset:0; background:linear-gradient(90deg, rgba(11,29,58,.15) 0%, rgba(11,29,58,.05) 45%, transparent 60%); z-index:1; }
-.adecco-hero-card{ position:relative; z-index:10; background:#fff; border-radius:20px; padding:2.5rem 2.25rem; max-width:460px; box-shadow:0 30px 70px rgba(0,0,0,.25); }
+/* Full-bleed hero — background-image directly on the section (simplest, most robust
+   technique), red duotone tint layered on top of a real photo, moderate height */
+.adecco-fullbleed-hero{
+  position:relative; min-height:420px; display:flex; align-items:center;
+  background-image:url('https://images.unsplash.com/photo-1758270705518-b61b40527e76?auto=format&fit=crop&w=1800&q=80');
+  background-size:cover; background-position:center 30%;
+}
+.adecco-fullbleed-scrim{
+  position:absolute; inset:0;
+  background:
+    linear-gradient(90deg, rgba(166,30,30,.92) 0%, rgba(166,30,30,.75) 35%, rgba(214,40,40,.35) 65%, rgba(214,40,40,.15) 100%),
+    rgba(166,30,30,.35);
+  mix-blend-mode:multiply;
+}
+.adecco-hero-card{ position:relative; z-index:10; background:#fff; border-radius:20px; padding:2.25rem 2rem; max-width:440px; box-shadow:0 30px 70px rgba(0,0,0,.3); }
 @media(max-width:768px){
   .adecco-fullbleed-hero{ min-height:auto; padding:2.5rem 0; }
   .adecco-hero-card{ max-width:100%; margin:0 1rem; }
