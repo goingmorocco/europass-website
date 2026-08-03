@@ -347,6 +347,7 @@ h1,h2,h3,h4,.font-display{ font-family:'Inter', system-ui, sans-serif !important
 /* ============================================================
    RTL / Arabic support
    ============================================================ */
+html, body{ overflow-x: hidden; max-width: 100vw; }
 [dir="rtl"]{ font-family:'Cairo', 'Inter', system-ui, sans-serif; }
 [dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3,[dir="rtl"] h4,[dir="rtl"] .font-display{ font-family:'Cairo', system-ui, sans-serif !important; }
 [dir="rtl"] .eyebrow{ letter-spacing:0; }
