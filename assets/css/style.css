@@ -373,8 +373,7 @@ html, body{ overflow-x: hidden; max-width: 100vw; }
 .lang-banner button{ margin-inline-start:.75rem; color:var(--navy-100); font-size:.78rem; }
 
 /* ============================================================
-   Adecco-inspired section — honest single-path hero + icon tiles
-   Preview only.
+   Adecco-inspired homepage section — honest single-path hero + icon tiles
    ============================================================ */
 .adecco-hero{ position:relative; overflow:hidden; border-radius:28px; }
 .adecco-hero img{ width:100%; height:100%; object-fit:cover; display:block; }
