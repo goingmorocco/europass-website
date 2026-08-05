@@ -5,40 +5,50 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireTabs('admin-shell', 'overview');
 
   // ---- Rich text editor (Quill) for blog posts ----
-  // Quill has no built-in line-spacing control, so register one as a custom
-  // style attributor — this is the standard, documented way to extend Quill.
+  // Initialized lazily (on first modal open, not on page load) because the
+  // editor container starts hidden inside #post-modal — some browsers throw
+  // when Quill measures a display:none element, and an uncaught error here
+  // would previously stop this entire script, silently breaking every
+  // button defined below it (including "Add Post"). Wrapped in try/catch
+  // as a second safety net regardless of cause.
   let quill = null;
-  if (window.Quill && document.getElementById('post-body-editor')) {
-    const Parchment = Quill.import('parchment');
-    const LineHeightStyle = new Parchment.Attributor.Style('lineheight', 'line-height', {
-      scope: Parchment.Scope.BLOCK,
-      whitelist: ['1', '1.5', '2', '2.5'],
-    });
-    Quill.register(LineHeightStyle, true);
+  function ensureQuill() {
+    if (quill || !window.Quill || !document.getElementById('post-body-editor')) return quill;
+    try {
+      const Parchment = Quill.import('parchment');
+      const LineHeightStyle = new Parchment.Attributor.Style('lineheight', 'line-height', {
+        scope: Parchment.Scope.BLOCK,
+        whitelist: ['1', '1.5', '2', '2.5'],
+      });
+      Quill.register(LineHeightStyle, true);
 
-    quill = new Quill('#post-body-editor', {
-      theme: 'snow',
-      placeholder: 'Write your post...',
-      modules: {
-        toolbar: [
-          [{ header: [1, 2, 3, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ color: [] }, { background: [] }],
-          [{ lineheight: ['1', '1.5', '2', '2.5'] }],
-          [{ align: [] }],
-          [{ list: 'ordered' }, { list: 'bullet' }],
-          ['blockquote', 'link', 'image', 'video'],
-          ['clean'],
-        ],
-      },
-    });
-    // Label the line-height dropdown options (Quill shows raw values otherwise)
-    document.querySelectorAll('.ql-lineheight .ql-picker-item').forEach((item) => {
-      const v = item.dataset.value;
-      item.textContent = v === '1' ? 'Single' : v === '1.5' ? '1.5×' : v === '2' ? 'Double' : '2.5×';
-    });
-    const lhLabel = document.querySelector('.ql-lineheight .ql-picker-label');
-    if (lhLabel) lhLabel.setAttribute('aria-label', 'Line spacing');
+      quill = new Quill('#post-body-editor', {
+        theme: 'snow',
+        placeholder: 'Write your post...',
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ color: [] }, { background: [] }],
+            [{ lineheight: ['1', '1.5', '2', '2.5'] }],
+            [{ align: [] }],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['blockquote', 'link', 'image', 'video'],
+            ['clean'],
+          ],
+        },
+      });
+      document.querySelectorAll('.ql-lineheight .ql-picker-item').forEach((item) => {
+        const v = item.dataset.value;
+        item.textContent = v === '1' ? 'Single' : v === '1.5' ? '1.5×' : v === '2' ? 'Double' : '2.5×';
+      });
+      const lhLabel = document.querySelector('.ql-lineheight .ql-picker-label');
+      if (lhLabel) lhLabel.setAttribute('aria-label', 'Line spacing');
+    } catch (err) {
+      console.error('Quill failed to initialize — falling back to plain text body:', err);
+      quill = null;
+    }
+    return quill;
   }
 
   async function renderKPIs() {
@@ -134,8 +144,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.openPostForm = () => {
     document.getElementById('post-form').reset();
     document.getElementById('post-id').value = '';
-    if (quill) quill.setContents([]);
     document.getElementById('post-modal').classList.remove('hidden');
+    const q = ensureQuill();
+    if (q) q.setContents([]);
   };
   window.editPost = async (id) => {
     const p = (await EP.posts()).find(x => x.id === id);
@@ -145,9 +156,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('post-category').value = p.category;
     document.getElementById('post-language').value = p.language || 'en';
     document.getElementById('post-excerpt').value = p.excerpt;
-    if (quill) quill.root.innerHTML = p.body || '';
-    else document.getElementById('post-body').value = p.body;
     document.getElementById('post-modal').classList.remove('hidden');
+    const q = ensureQuill();
+    if (q) q.root.innerHTML = p.body || '';
+    else document.getElementById('post-body').value = p.body;
   };
   window.deletePostConfirm = async (id) => {
     if (!confirm('Delete this post?')) return;
