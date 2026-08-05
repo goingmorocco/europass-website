@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>اختبر مستواك — الألمانية والفرنسية والإنجليزية | EuroPass Khemisset</title>
-<meta name="description" content="اختبار ذاتي مجاني في الألمانية أو الفرنسية أو الإنجليزية. احصل على مستواك التقديري وتوصية بالبرنامج المناسب خلال أقل من 5 دقائق.">
+<title>المدونة | EuroPass Khemisset</title>
+<meta name="description" content="نصائح تعلّم اللغة، ونصائح مهنية، وتحضير IELTS/TOEFL من فريق EuroPass في خميسات.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org", "@type": "EducationalOrganization", "name": "EuroPass",
@@ -49,9 +49,9 @@
       <nav class="hidden lg:flex items-center gap-7" aria-label="التنقل الرئيسي">
         <a href="index.html" class="nav-link text-sm">الرئيسية</a>
         <a href="courses.html" class="nav-link text-sm">البرامج</a>
-        <a href="test-level.html" class="nav-link text-sm font-semibold" aria-current="page" style="color:var(--navy-700)">اختبر مستواك</a>
+        <a href="test-level.html" class="nav-link text-sm" style="color:var(--teal-600)">اختبر مستواك</a>
         <a href="about.html" class="nav-link text-sm">من نحن</a>
-        <a href="blog.html" class="nav-link text-sm">المدونة</a>
+        <a href="blog.html" class="nav-link text-sm font-semibold" aria-current="page" style="color:var(--navy-700)">المدونة</a>
         <a href="contact.html" class="nav-link text-sm">اتصل بنا</a>
       </nav>
       <div class="hidden lg:flex items-center gap-3">
@@ -93,54 +93,23 @@
 
 <main id="main">
 
-<section class="section !pt-10 !pb-20">
-  <div class="container-ep max-w-2xl">
-    <div class="text-center mb-8">
-      <p class="eyebrow" style="color:var(--teal-600)">اختبار مجاني</p>
-      <h1 class="font-serif text-3xl font-bold mt-2" style="color:var(--navy-700)">اختبر مستواك</h1>
-      <p class="mt-2 text-sm" style="color:var(--text-secondary)">اختر لغة، أجب عن بضعة أسئلة سريعة، واحصل على تقدير لمستواك — مجانًا، دون التزام.</p>
+<section class="py-14" style="background:var(--navy-50)">
+  <div class="container-ep text-center">
+    <p class="eyebrow">المدونة</p>
+    <h1 class="font-serif text-4xl font-bold mt-2" style="color:var(--navy-700)">تعلّم شيئًا جديدًا كل أسبوع</h1>
+  </div>
+</section>
+<section class="section !pt-10">
+  <div class="container-ep">
+    <div class="flex flex-wrap gap-2 justify-center mb-10">
+      <button data-filter="all" aria-pressed="true" class="persona-tab">الكل</button>
+      <button data-filter="career" aria-pressed="false" class="persona-tab">المسار المهني</button>
+      <button data-filter="parenting" aria-pressed="false" class="persona-tab">الأبوة</button>
+      <button data-filter="ielts" aria-pressed="false" class="persona-tab">IELTS</button>
+      <button data-filter="local-life" aria-pressed="false" class="persona-tab">الحياة المحلية</button>
+      <button data-filter="entertainment" aria-pressed="false" class="persona-tab">ترفيه</button>
     </div>
-
-    <div class="flex flex-wrap gap-2 justify-center mb-8" role="tablist" aria-label="اختر لغة للاختبار">
-      <button class="flag-tab" data-lang="de" role="tab" aria-selected="true"><span class="text-lg">🇩🇪</span> الألمانية</button>
-      <button class="flag-tab" data-lang="fr" role="tab" aria-selected="false"><span class="text-lg">🇫🇷</span> الفرنسية</button>
-      <button class="flag-tab" data-lang="en" role="tab" aria-selected="false"><span class="text-lg">🇬🇧</span> الإنجليزية</button>
-    </div>
-
-    <div class="w-full h-2 rounded-full mb-8" style="background:var(--teal-50)">
-      <div id="quiz-progress" class="h-2 rounded-full transition-all duration-300" style="background:var(--teal-600); width:0%"></div>
-    </div>
-
-    <div id="step-intro" class="text-center">
-      <div class="text-5xl mb-4" id="test-intro-flag">🇩🇪</div>
-      <h2 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">مستعد لاختبار لغتك <span id="test-intro-lang">الألمانية</span>؟</h2>
-      <p class="mt-2 text-sm max-w-md mx-auto" style="color:var(--text-secondary)">6 أسئلة سريعة، حوالي 3 دقائق. أجب بصدق — لا توجد نقطة انطلاق خاطئة، فقط الفصل المناسب لمستواك اليوم.</p>
-      <button id="start-quiz-btn" class="btn btn-teal mt-6">ابدأ الاختبار</button>
-    </div>
-
-    <div id="step-quiz" class="hidden">
-      <p id="quiz-progress-label" class="text-xs mb-4" style="color:var(--text-secondary)">السؤال 1</p>
-      <div id="quiz-question" class="card p-6"></div>
-      <div class="flex justify-between mt-6">
-        <button id="quiz-back" class="btn btn-secondary">السابق</button>
-        <button id="quiz-next" disabled class="btn btn-teal">التالي</button>
-      </div>
-    </div>
-
-    <div id="step-results" class="hidden text-center">
-      <div class="text-5xl mb-4" id="result-flag">🇩🇪</div>
-      <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5" style="background:var(--teal-50)">
-        <span id="result-level" class="font-serif text-2xl font-bold" style="color:var(--teal-600)">B1</span>
-      </div>
-      <p class="eyebrow">مستواك التقديري</p>
-      <h2 id="result-label" class="font-serif text-2xl font-bold mt-2" style="color:var(--navy-700)">متوسط — الألمانية</h2>
-      <p class="mt-3 max-w-md mx-auto text-sm" style="color:var(--text-secondary)">هذا اختبار ذاتي سريع، وليس امتحانًا معتمدًا — سيؤكد مستشار برنامجك مستواك الدقيق في حصتك الأولى.</p>
-      <div class="mt-8 flex flex-wrap gap-3 justify-center">
-        <a id="result-program-link" href="program-german.html" class="btn btn-teal">استكشف البرنامج الألماني</a>
-        <a href="contact.html" class="btn btn-secondary">تحدث مع مستشار</a>
-      </div>
-      <button id="retake-btn" class="text-sm font-semibold mt-6 underline" style="color:var(--text-secondary)">اختبر لغة أخرى</button>
-    </div>
+    <div id="dynamic-posts-grid-ar" class="grid md:grid-cols-3 gap-6"></div>
   </div>
 </section>
 
@@ -183,8 +152,9 @@
     </div>
   </footer>
 
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/ar-blog-live.js"></script>
 <script src="../assets/js/main.js"></script>
-<script src="../assets/js/ar-test-level.js"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>
