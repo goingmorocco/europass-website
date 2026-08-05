@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (quill || !window.Quill || !document.getElementById('post-body-editor')) return quill;
     try {
       const Parchment = Quill.import('parchment');
-      const LineHeightStyle = new Parchment.Attributor.Style('lineheight', 'line-height', {
+      const LineHeightStyle = new Parchment.StyleAttributor('lineheight', 'line-height', {
         scope: Parchment.Scope.BLOCK,
         whitelist: ['1', '1.5', '2', '2.5'],
       });
@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('post-body').removeAttribute('required');
     } catch (err) {
       console.error('Quill failed to initialize — falling back to plain text body:', err);
+      if (typeof showToast === 'function') showToast('Rich text editor unavailable — using plain text for now', 'info');
       quill = null;
     }
     return quill;
