@@ -205,10 +205,11 @@ const EP = (() => {
   }
 
   // ---- Blog posts ----
-  async function posts({ publishedOnly = false } = {}) {
+  async function posts({ publishedOnly = false, language = null } = {}) {
     const client = await db();
     let q = client.from('posts').select('*').order('created_at', { ascending: false });
     if (publishedOnly) q = q.eq('status', 'published');
+    if (language) q = q.eq('language', language);
     const { data, error } = await q;
     if (error) throw error;
     return data;
@@ -223,13 +224,13 @@ const EP = (() => {
     const client = await db();
     if (post.id) {
       const { error } = await client.from('posts').update({
-        title: post.title, category: post.category, excerpt: post.excerpt, body: post.body, status: post.status,
+        title: post.title, category: post.category, language: post.language || 'en', excerpt: post.excerpt, body: post.body, status: post.status,
       }).eq('id', post.id);
       if (error) throw error;
     } else {
       const { data: { user } } = await client.auth.getUser();
       const { error } = await client.from('posts').insert({
-        title: post.title, category: post.category, excerpt: post.excerpt, body: post.body, status: post.status, author_id: user.id,
+        title: post.title, category: post.category, language: post.language || 'en', excerpt: post.excerpt, body: post.body, status: post.status, author_id: user.id,
       });
       if (error) throw error;
     }

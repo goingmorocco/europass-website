@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const badgeByCategory = { 'Career': 'badge-info', 'Parenting': 'badge-danger', 'IELTS': 'badge-amber', 'Vie Locale': 'badge-success', 'Entertainment': 'badge-info' };
 
   let posts = [];
-  try { posts = await EP.posts({ publishedOnly: true }); } catch (e) { console.warn('Could not load posts (check SUPABASE_URL/ANON_KEY in data.js):', e); }
+  try { posts = await EP.posts({ publishedOnly: true, language: 'en' }); } catch (e) { console.warn('Could not load posts (check SUPABASE_URL/ANON_KEY in data.js):', e); }
 
   grid.innerHTML = posts.map(p => `
     <a href="blog-post.html?id=${p.id}" data-course-category="${categoryToFilterKey[p.category] || 'career'}" class="card card-hover overflow-hidden block">
