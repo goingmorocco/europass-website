@@ -248,21 +248,34 @@
 
 <!-- Blog post modal -->
 <div id="post-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+  <div class="card w-full max-w-2xl p-6 max-h-[92vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-4">
       <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">New Blog Post</p>
       <button onclick="closeModal('post-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <form id="post-form" class="space-y-4">
       <input type="hidden" id="post-id">
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="post-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="post-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Language</label>
+          <select id="post-language" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+            <option value="en">English</option>
+            <option value="ar">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577; (Arabic)</option>
+          </select>
+        </div>
+      </div>
       <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label>
         <select id="post-category" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
           <option>Career</option><option>Parenting</option><option>IELTS</option><option>Vie Locale</option><option>Entertainment</option>
         </select>
       </div>
       <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Excerpt</label><input id="post-excerpt" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Body</label><textarea id="post-body" required rows="5" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea></div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Body</label>
+        <p class="text-xs mb-2" style="color:var(--text-secondary)">Use the video button for YouTube (paste the video URL) and the image button for any image URL.</p>
+        <div id="post-body-editor" style="background:#fff"></div>
+        <input type="hidden" id="post-body">
+      </div>
       <div class="flex gap-3">
         <button type="submit" data-status="draft" class="btn btn-secondary flex-1">Save Draft</button>
         <button type="submit" data-status="published" class="btn btn-primary flex-1">Publish</button>
@@ -453,7 +466,7 @@ document.getElementById('avatar-settings-btn').addEventListener('click', () => {
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
 
 <script src="assets/js/main.js"></script>
-<script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/admin.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.2/quill.snow.min.css" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.2/quill.min.js"></script><script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/admin.js"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>
