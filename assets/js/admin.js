@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       const lhLabel = document.querySelector('.ql-lineheight .ql-picker-label');
       if (lhLabel) lhLabel.setAttribute('aria-label', 'Line spacing');
+      document.getElementById('post-body').classList.add('hidden');
+      document.getElementById('post-body').removeAttribute('required');
     } catch (err) {
       console.error('Quill failed to initialize — falling back to plain text body:', err);
       quill = null;
