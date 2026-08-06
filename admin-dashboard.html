@@ -290,6 +290,12 @@
       </div>
       <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Excerpt</label><input id="post-excerpt" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
       <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Cover Photo URL</label>
+        <p class="text-xs mb-2" style="color:var(--text-secondary)">Shown as the thumbnail in the blog posts grid. Paste any image URL — optional.</p>
+        <input id="post-cover-url" type="url" placeholder="https://..." class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <img id="post-cover-preview" class="hidden mt-2 rounded-md" style="max-height:120px; object-fit:cover">
+      </div>
+      <div>
         <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Body</label>
         <p class="text-xs mb-2" style="color:var(--text-secondary)">Use the video button for YouTube (paste the video URL) and the image button for any image URL. The "Tx" button clears formatting from selected text — select some text first, then click it.</p>
         <div id="post-body-editor" style="background:#fff"></div>

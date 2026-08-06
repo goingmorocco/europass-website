@@ -87,16 +87,20 @@
 <main id="main">
 
 <div class="container-ep pt-6 text-xs" style="color:var(--text-secondary)">
-  <a href="index.html" class="hover:underline">الرئيسية</a> / <a href="blog.html" class="hover:underline">المدونة</a> / <span style="color:var(--navy-700)">مقال</span>
+  <a href="index.html" class="hover:underline">الرئيسية</a> / <a href="blog.html" class="hover:underline">المدونة</a> / <span style="color:var(--navy-700)" id="post-live-crumb">مقال</span>
 </div>
 <article class="section !pt-8 max-w-3xl mx-auto">
-  <span id="post-live-badge" class="badge badge-info">المسار المهني</span>
-  <h1 id="post-live-title" class="font-serif text-3xl lg:text-4xl font-bold mt-4" style="color:var(--navy-700)">جارٍ تحميل المقال...</h1>
-  <div id="post-live-byline" class="flex items-center gap-3 mt-5">
-    <div class="photo-placeholder w-10 h-10 rounded-full"><i data-lucide="user" class="w-4 h-4"></i></div>
-    <div><p class="text-sm font-semibold" style="color:var(--navy-700)">فريق EuroPass</p></div>
+  <img id="post-live-cover" class="hidden w-full rounded-lg mb-6" style="max-height:380px; object-fit:cover" onerror="this.classList.add('hidden')">
+  <span id="post-live-badge" class="badge badge-info hidden">المسار المهني</span>
+  <h1 id="post-live-title" class="font-serif text-3xl lg:text-4xl font-bold mt-4" style="color:var(--navy-700)"></h1>
+  <div id="post-live-byline" class="flex items-center gap-3 mt-5"></div>
+  <div id="post-live-body" class="prose-content mt-8 space-y-5 text-sm leading-relaxed hidden" style="color:var(--text-primary)"></div>
+  <div id="post-live-notfound" class="text-center py-16 hidden">
+    <i data-lucide="file-search" class="w-10 h-10 mx-auto mb-4" style="color:var(--text-secondary)"></i>
+    <p class="font-semibold" style="color:var(--navy-700)">هذا المقال غير متاح.</p>
+    <p class="text-sm mt-1" style="color:var(--text-secondary)">ربما تم إلغاء نشره، أو أن الرابط غير محدّث.</p>
+    <a href="blog.html" class="btn btn-primary mt-6">العودة إلى المدونة</a>
   </div>
-  <div id="post-live-body" class="prose-content mt-8 space-y-5 text-sm leading-relaxed" style="color:var(--text-primary)"></div>
 </article>
 
 <section class="section" style="background:var(--bg-subtle)">

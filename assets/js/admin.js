@@ -150,16 +150,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('fullscreen-label').textContent = isFull ? 'Collapse' : 'Expand';
   };
 
-  // ---- Category dropdown (populated from the categories table) ----
+  // ---- Category dropdown (populated from the categories table, with a
+  // hardcoded fallback so the form still works if migration 010 hasn't
+  // been run yet — an empty dropdown was a real way "Publish" could look
+  // broken even though the actual submit code was fine) ----
+  const FALLBACK_CATEGORIES = ['Career', 'Parenting', 'IELTS', 'Vie Locale', 'Entertainment'];
   async function populateCategoryOptions(selected) {
     const select = document.getElementById('post-category');
+    let names = FALLBACK_CATEGORIES;
     try {
       const cats = await EP.categories();
-      select.innerHTML = cats.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-      if (selected) select.value = selected;
+      if (cats && cats.length) names = cats.map(c => c.name);
     } catch (err) {
-      console.error('Could not load categories:', err);
+      console.error('Could not load categories table (has migration 010_categories.sql been run?), using defaults:', err);
     }
+    select.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('');
+    if (selected) select.value = selected;
   }
 
   // ---- Manage categories modal ----
@@ -200,6 +206,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.openPostForm = async () => {
     document.getElementById('post-form').reset();
     document.getElementById('post-id').value = '';
+    document.getElementById('post-cover-preview').classList.add('hidden');
     await populateCategoryOptions();
     document.getElementById('post-modal').classList.remove('hidden');
     const q = ensureQuill();
@@ -213,11 +220,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     await populateCategoryOptions(p.category);
     document.getElementById('post-language').value = p.language || 'en';
     document.getElementById('post-excerpt').value = p.excerpt;
+    document.getElementById('post-cover-url').value = p.cover_image_url || '';
+    updateCoverPreview();
     document.getElementById('post-modal').classList.remove('hidden');
     const q = ensureQuill();
     if (q) q.root.innerHTML = p.body || '';
     else document.getElementById('post-body').value = p.body;
   };
+  function updateCoverPreview() {
+    const url = document.getElementById('post-cover-url').value.trim();
+    const img = document.getElementById('post-cover-preview');
+    if (!url) { img.classList.add('hidden'); img.src = ''; return; }
+    img.src = url;
+    img.classList.remove('hidden');
+  }
+  document.getElementById('post-cover-url').addEventListener('input', updateCoverPreview);
+  document.getElementById('post-cover-preview').addEventListener('error', () => {
+    document.getElementById('post-cover-preview').classList.add('hidden');
+  });
   window.deletePostConfirm = async (id) => {
     if (!confirm('Delete this post?')) return;
     try { await EP.deletePost(id); await renderAll(); showToast('Post deleted', 'info'); }
@@ -243,6 +263,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         category: document.getElementById('post-category').value,
         language: document.getElementById('post-language').value,
         excerpt: document.getElementById('post-excerpt').value,
+        coverImageUrl: document.getElementById('post-cover-url').value.trim(),
         body: bodyHtml,
         status,
       });

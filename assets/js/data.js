@@ -240,13 +240,13 @@ const EP = (() => {
     const client = await db();
     if (post.id) {
       const { error } = await client.from('posts').update({
-        title: post.title, category: post.category, language: post.language || 'en', excerpt: post.excerpt, body: post.body, status: post.status,
+        title: post.title, category: post.category, language: post.language || 'en', excerpt: post.excerpt, body: post.body, status: post.status, cover_image_url: post.coverImageUrl || null,
       }).eq('id', post.id);
       if (error) throw error;
     } else {
       const { data: { user } } = await client.auth.getUser();
       const { error } = await client.from('posts').insert({
-        title: post.title, category: post.category, language: post.language || 'en', excerpt: post.excerpt, body: post.body, status: post.status, author_id: user.id,
+        title: post.title, category: post.category, language: post.language || 'en', excerpt: post.excerpt, body: post.body, status: post.status, author_id: user.id, cover_image_url: post.coverImageUrl || null,
       });
       if (error) throw error;
     }
