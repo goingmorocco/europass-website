@@ -143,10 +143,64 @@ document.addEventListener('DOMContentLoaded', async () => {
   await renderAll();
   EP.onChange([EP.KEYS.posts, EP.KEYS.notifications, EP.KEYS.profiles, EP.KEYS.submissions, EP.KEYS.enrollments], renderAll);
 
+  // ---- Fullscreen editor toggle ----
+  window.toggleFullscreenEditor = () => {
+    const card = document.getElementById('post-modal-card');
+    const isFull = card.classList.toggle('is-fullscreen');
+    document.getElementById('fullscreen-label').textContent = isFull ? 'Collapse' : 'Expand';
+  };
+
+  // ---- Category dropdown (populated from the categories table) ----
+  async function populateCategoryOptions(selected) {
+    const select = document.getElementById('post-category');
+    try {
+      const cats = await EP.categories();
+      select.innerHTML = cats.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+      if (selected) select.value = selected;
+    } catch (err) {
+      console.error('Could not load categories:', err);
+    }
+  }
+
+  // ---- Manage categories modal ----
+  window.loadCategoryManager = async () => {
+    const list = document.getElementById('category-list');
+    list.innerHTML = `<p class="text-xs" style="color:var(--text-secondary)">Loading...</p>`;
+    try {
+      const cats = await EP.categories();
+      list.innerHTML = cats.map(c => `
+        <div class="flex items-center justify-between px-3 py-2 rounded-md" style="background:var(--bg-subtle)">
+          <span class="text-sm">${c.name}</span>
+          <button type="button" onclick="deleteCategoryConfirm('${c.id}','${c.name.replace(/'/g, "\\'")}')" class="text-xs font-semibold" style="color:var(--danger-600)">Delete</button>
+        </div>`).join('') || `<p class="text-xs" style="color:var(--text-secondary)">No categories yet.</p>`;
+    } catch (err) {
+      list.innerHTML = `<p class="text-xs" style="color:var(--danger-600)">${err.message}</p>`;
+    }
+  };
+  window.deleteCategoryConfirm = async (id, name) => {
+    if (!confirm(`Delete the "${name}" category? Existing posts already using it keep it — this only removes it as a future option.`)) return;
+    try {
+      await EP.deleteCategory(id);
+      await loadCategoryManager();
+      showToast('Category deleted', 'info');
+    } catch (err) { showToast(err.message, 'danger'); }
+  };
+  document.getElementById('category-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('category-name-input');
+    try {
+      await EP.addCategory(input.value);
+      input.value = '';
+      await loadCategoryManager();
+      showToast('Category added');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
+
   // ---- Post modal ----
-  window.openPostForm = () => {
+  window.openPostForm = async () => {
     document.getElementById('post-form').reset();
     document.getElementById('post-id').value = '';
+    await populateCategoryOptions();
     document.getElementById('post-modal').classList.remove('hidden');
     const q = ensureQuill();
     if (q) q.setContents([]);
@@ -156,7 +210,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!p) return;
     document.getElementById('post-id').value = p.id;
     document.getElementById('post-title').value = p.title;
-    document.getElementById('post-category').value = p.category;
+    await populateCategoryOptions(p.category);
     document.getElementById('post-language').value = p.language || 'en';
     document.getElementById('post-excerpt').value = p.excerpt;
     document.getElementById('post-modal').classList.remove('hidden');

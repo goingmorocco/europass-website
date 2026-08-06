@@ -429,10 +429,14 @@ html, body{ overflow-x: hidden; max-width: 100vw; }
 
 /* Blog post rich-text editor (Quill) */
 #post-body-editor{ border-radius:0 0 var(--r-md) var(--r-md); }
-#post-body-editor .ql-editor{ min-height:220px; font-size:.92rem; line-height:1.6; }
+#post-body-editor .ql-editor{ min-height:380px; font-size:.92rem; line-height:1.6; }
 .ql-toolbar.ql-snow{ border-radius:var(--r-md) var(--r-md) 0 0; border-color:var(--border-default) !important; }
 .ql-container.ql-snow{ border-color:var(--border-default) !important; }
 .post-body-rendered iframe{ max-width:100%; aspect-ratio:16/9; width:100%; height:auto; border-radius:var(--r-md); }
 .post-body-rendered img{ max-width:100%; border-radius:var(--r-md); margin:1rem 0; }
 .post-body-rendered p{ margin-bottom:1rem; }
 [dir="rtl"] .post-body-rendered{ text-align:right; }
+
+/* Fullscreen editor toggle */
+#post-modal-card.is-fullscreen{ max-width:100vw !important; width:100vw; height:100vh; max-height:100vh; border-radius:0; }
+#post-modal-card.is-fullscreen #post-body-editor .ql-editor{ min-height:calc(100vh - 480px); }

@@ -214,6 +214,22 @@ const EP = (() => {
     if (error) throw error;
     return data;
   }
+  async function categories() {
+    const client = await db();
+    const { data, error } = await client.from('categories').select('*').order('name');
+    if (error) throw error;
+    return data;
+  }
+  async function addCategory(name) {
+    const client = await db();
+    const { error } = await client.from('categories').insert({ name: name.trim() });
+    if (error) throw error;
+  }
+  async function deleteCategory(id) {
+    const client = await db();
+    const { error } = await client.from('categories').delete().eq('id', id);
+    if (error) throw error;
+  }
   async function postById(id) {
     const client = await db();
     const { data, error } = await client.from('posts').select('*').eq('id', id).eq('status', 'published').single();
@@ -457,6 +473,7 @@ const EP = (() => {
     getSession, requireRole, login, signup, logout,
     users, courses, addUser, removeUser, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
     posts, postById, savePost, deletePost,
+    categories, addCategory, deleteCategory,
     homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,
