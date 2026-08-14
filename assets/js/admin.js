@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       ['clipboard-check', allEnrollments.filter(e => e.status === 'pending').length, 'Pending Enrollments', 'red-600', 'enrollments'],
       ['users', allUsers.length, 'Total Users', 'navy-700', 'users'],
       ['newspaper', allPosts.filter(p => p.status === 'published').length, 'Published Posts', 'red-600', 'blog'],
-      ['clipboard-list', allHomework.length, 'Homework Assigned', 'navy-700', null],
+      ['clipboard-list', allHomework.length, 'Homework Assigned', 'navy-700', 'homework'],
       ['bell', allNotifs.length, 'Notifications Sent', 'amber-600', 'notifications'],
     ];
     document.getElementById('admin-kpis').innerHTML = stats.map(([icon, val, label, color, tab]) => {
@@ -132,16 +132,86 @@ document.addEventListener('DOMContentLoaded', async () => {
     </tbody></table>`;
   }
 
+  // ---- Homework & Grades (admin view-only — grading itself stays with the
+  // owning teacher; RLS only grants admins read access here, by design,
+  // so students always know exactly who graded their work) ----
+  let hwCache = { homework: [], submissions: [], courses: [], users: [] };
+  function hwCourseName(courseId) { return hwCache.courses.find(c => c.id === courseId)?.name || '\u2014'; }
+  function hwUserName(userId) { return hwCache.users.find(u => u.id === userId)?.name || 'Unknown'; }
+
+  async function renderHomework() {
+    const [hw, subs, courseList, userList] = await Promise.all([EP.homework(), EP.submissions(), EP.courses(), EP.users()]);
+    hwCache = { homework: hw, submissions: subs, courses: courseList, users: userList };
+
+    const courseFilter = document.getElementById('hw-course-filter');
+    const teacherFilter = document.getElementById('hw-teacher-filter');
+    if (!courseFilter.dataset.populated) {
+      courseFilter.innerHTML = '<option value="">All Courses</option>' + courseList.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+      const teachers = userList.filter(u => u.role === 'teacher');
+      teacherFilter.innerHTML = '<option value="">All Teachers</option>' + teachers.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+      courseFilter.dataset.populated = '1';
+      courseFilter.addEventListener('change', renderHomeworkList);
+      teacherFilter.addEventListener('change', renderHomeworkList);
+    }
+    renderHomeworkList();
+  }
+
+  function renderHomeworkList() {
+    const courseId = document.getElementById('hw-course-filter').value;
+    const teacherId = document.getElementById('hw-teacher-filter').value;
+    let list = hwCache.homework;
+    if (courseId) list = list.filter(h => h.courseId === courseId);
+    if (teacherId) list = list.filter(h => h.teacherId === teacherId);
+
+    document.getElementById('admin-homework-list').innerHTML = list.map(h => {
+      const hwSubs = hwCache.submissions.filter(s => s.homeworkId === h.id);
+      const graded = hwSubs.filter(s => s.status === 'graded').length;
+      return `
+      <button onclick="openHomeworkDetail('${h.id}')" class="card card-hover p-5 flex items-center justify-between gap-4 w-full text-left">
+        <div class="min-w-0">
+          <p class="font-semibold truncate" style="color:var(--navy-700)">${escapeHtml(h.title)}</p>
+          <p class="text-xs mt-1" style="color:var(--text-secondary)">${escapeHtml(hwCourseName(h.courseId))} \u00b7 ${escapeHtml(hwUserName(h.teacherId))} \u00b7 Due ${h.dueDate ? new Date(h.dueDate).toLocaleDateString() : '\u2014'}</p>
+        </div>
+        <div class="shrink-0 text-right">
+          <span class="badge ${graded === hwSubs.length && hwSubs.length ? 'badge-success' : 'badge-warning'}">${graded}/${hwSubs.length} graded</span>
+          <p class="text-xs mt-1" style="color:var(--text-secondary)">${hwSubs.length} submission${hwSubs.length === 1 ? '' : 's'}</p>
+        </div>
+      </button>`;
+    }).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No homework matches this filter.</p></div>`;
+    lucide.createIcons();
+  }
+
+  window.openHomeworkDetail = (id) => {
+    const h = hwCache.homework.find(x => x.id === id);
+    if (!h) return;
+    document.getElementById('hw-detail-title').textContent = h.title;
+    document.getElementById('hw-detail-meta').textContent = `${hwCourseName(h.courseId)} \u00b7 Assigned by ${hwUserName(h.teacherId)} \u00b7 Due ${h.dueDate ? new Date(h.dueDate).toLocaleDateString() : 'no due date'}`;
+    const subs = hwCache.submissions.filter(s => s.homeworkId === id);
+    document.getElementById('hw-detail-submissions').innerHTML = subs.map(s => `
+      <div class="p-4 rounded-lg" style="background:var(--bg-subtle)">
+        <div class="flex items-center justify-between mb-1">
+          <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(hwUserName(s.studentId))}</p>
+          <span class="badge ${s.status === 'graded' ? 'badge-success' : 'badge-warning'}">${s.status}</span>
+        </div>
+        ${s.grade != null ? `<p class="text-sm font-semibold mt-1" style="color:var(--navy-700)">Grade: ${escapeHtml(String(s.grade))}</p>` : ''}
+        ${s.feedback ? `<p class="text-xs mt-1" style="color:var(--text-secondary)">Feedback: ${escapeHtml(s.feedback)}</p>` : ''}
+        <p class="text-xs mt-2" style="color:var(--text-disabled)">${s.submittedAt ? 'Submitted ' + EP.timeAgo(s.submittedAt) : 'Not yet submitted'}</p>
+      </div>`).join('') || `<p class="text-sm text-center py-6" style="color:var(--text-secondary)">No students have submitted this yet.</p>`;
+    document.getElementById('homework-detail-modal').classList.remove('hidden');
+    lucide.createIcons();
+  };
+
   async function renderAll() {
     const { allPosts, allNotifs } = await renderKPIs();
     await renderActivity(allNotifs, allPosts);
     renderPosts(allPosts);
     renderNotifHistory(allNotifs);
     await renderUsers();
+    await renderHomework();
     lucide.createIcons();
   }
   await renderAll();
-  EP.onChange([EP.KEYS.posts, EP.KEYS.notifications, EP.KEYS.profiles, EP.KEYS.submissions, EP.KEYS.enrollments], renderAll);
+  EP.onChange([EP.KEYS.posts, EP.KEYS.notifications, EP.KEYS.profiles, EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.enrollments], renderAll);
 
   // ---- Fullscreen editor toggle ----
   window.toggleFullscreenEditor = () => {

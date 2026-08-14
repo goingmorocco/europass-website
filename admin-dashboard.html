@@ -134,6 +134,9 @@
     <button data-tab-trigger="blog" onclick="switchTab('admin-shell','blog')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="newspaper" class="w-4 h-4"></i>Blog
     </button>
+    <button data-tab-trigger="homework" onclick="switchTab('admin-shell','homework')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="clipboard-list" class="w-4 h-4"></i>Homework &amp; Grades
+    </button>
     <button data-tab-trigger="notifications" onclick="switchTab('admin-shell','notifications')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="bell" class="w-4 h-4"></i>Notifications
     </button>
@@ -221,6 +224,33 @@
       <input id="category-name-input" required placeholder="New category name" class="flex-1 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
       <button type="submit" class="btn btn-primary btn-sm">Add</button>
     </form>
+  </div>
+</div>
+
+<div data-tab-panel="homework" class="hidden">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Homework &amp; Grades</h1>
+  </div>
+  <div class="flex flex-wrap gap-2 mb-6">
+    <select id="hw-course-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="">All Courses</option>
+    </select>
+    <select id="hw-teacher-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="">All Teachers</option>
+    </select>
+  </div>
+  <div id="admin-homework-list" class="space-y-3"></div>
+</div>
+
+<!-- Homework detail / submissions & grades modal -->
+<div id="homework-detail-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-1">
+      <p id="hw-detail-title" class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Homework</p>
+      <button onclick="closeModal('homework-detail-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <p id="hw-detail-meta" class="text-xs mb-5" style="color:var(--text-secondary)"></p>
+    <div id="hw-detail-submissions" class="space-y-3"></div>
   </div>
 </div>
 
