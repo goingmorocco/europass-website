@@ -48,7 +48,20 @@
       </a>
       <nav class="hidden lg:flex items-center gap-7" aria-label="التنقل الرئيسي">
         <a href="index.html" class="nav-link text-sm">الرئيسية</a>
-        <a href="courses.html" class="nav-link text-sm">البرامج</a>
+        <div class="relative group hidden lg:block">
+        <button class="nav-link text-sm inline-flex items-center gap-1">
+          البرامج <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+        </button>
+        <div class="absolute right-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-30">
+          <div class="card p-2 w-64">
+            <a href="program-german.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="landmark" class="w-4 h-4" style="color:var(--navy-500)"></i> الألمانية</a>
+            <a href="program-french.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="croissant" class="w-4 h-4" style="color:var(--navy-500)"></i> الفرنسية</a>
+            <a href="courses.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="briefcase" class="w-4 h-4" style="color:var(--navy-500)"></i> الإنجليزية</a>
+            <a href="program-nursing.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="heart-pulse" class="w-4 h-4" style="color:var(--navy-500)"></i> برنامج التمريض</a>
+            <a href="program-nursing-ausbildung.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="plane" class="w-4 h-4" style="color:var(--navy-500)"></i> التدريب المهني الألماني (Ausbildung)</a>
+          </div>
+        </div>
+      </div>
         <a href="test-level.html" class="nav-link text-sm font-semibold" aria-current="page" style="color:var(--navy-700)">اختبر مستواك</a>
         <a href="about.html" class="nav-link text-sm">من نحن</a>
         <a href="blog.html" class="nav-link text-sm">المدونة</a>
@@ -81,7 +94,12 @@
         </div>
       </div>
       <a href="index.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">الرئيسية</a>
-      <a href="courses.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">البرامج</a>
+      <p class="text-xs font-semibold uppercase tracking-wide pt-3" style="color:var(--text-secondary)">البرامج</p>
+      <a href="program-german.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><i data-lucide="landmark" class="w-4 h-4" style="color:var(--navy-500)"></i> الألمانية</a>
+      <a href="program-french.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><i data-lucide="croissant" class="w-4 h-4" style="color:var(--navy-500)"></i> الفرنسية</a>
+      <a href="courses.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><i data-lucide="briefcase" class="w-4 h-4" style="color:var(--navy-500)"></i> الإنجليزية</a>
+      <a href="program-nursing.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><i data-lucide="heart-pulse" class="w-4 h-4" style="color:var(--navy-500)"></i> برنامج التمريض</a>
+      <a href="program-nursing-ausbildung.html" class="py-2.5 border-b nav-link flex items-center gap-2" style="border-color:var(--border-default)"><i data-lucide="plane" class="w-4 h-4" style="color:var(--navy-500)"></i> التدريب المهني الألماني (Ausbildung)</a>
       <a href="test-level.html" class="py-3 border-b nav-link" style="border-color:var(--border-default); color:var(--teal-600)">اختبر مستواك</a>
       <a href="about.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">من نحن</a>
       <a href="blog.html" class="py-3 border-b nav-link" style="border-color:var(--border-default)">المدونة</a>
