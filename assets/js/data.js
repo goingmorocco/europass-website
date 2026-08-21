@@ -196,7 +196,25 @@ const EP = (() => {
     const { error } = await client.functions.invoke('admin-create-user', {
       body: { email, password: 'Welcome2026!', full_name: name, role, course_id: courseId },
     });
-    if (error) throw error;
+    if (error) throw await unwrapFunctionError(error);
+  }
+
+  // The Supabase client's default error for a failed Edge Function call is
+  // just "Edge Function returned a non-2xx status code" — the actual reason
+  // (missing env var, duplicate email, RLS rejection, etc.) is sitting in
+  // the function's own response body and never gets read. This pulls it out
+  // so errors are actually diagnosable instead of always showing the same
+  // generic message regardless of what really went wrong.
+  async function unwrapFunctionError(error) {
+    try {
+      if (error && error.context && typeof error.context.json === 'function') {
+        const body = await error.context.clone().json();
+        if (body && (body.error || body.message)) {
+          return new Error(body.error || body.message);
+        }
+      }
+    } catch (_) { /* body wasn't JSON or already consumed — fall through */ }
+    return error;
   }
   async function removeUser(id) {
     const client = await db();
