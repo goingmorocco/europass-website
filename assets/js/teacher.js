@@ -125,13 +125,73 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function renderAll() {
     myStudents = await EP.studentsOf(myCourseId);
     if (!activeThreadStudentId && myStudents.length) activeThreadStudentId = myStudents[0].id;
-    await Promise.all([renderKPIs(), renderPending(), renderStudents(), renderHwList(), renderGradeList()]);
+    await Promise.all([renderKPIs(), renderPending(), renderStudents(), renderHwList(), renderGradeList(), renderTeacherResources()]);
     renderThreads();
     await renderChat();
     lucide.createIcons();
   }
   await renderAll();
-  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.messages], renderAll);
+  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.messages, EP.KEYS.resources], renderAll);
+
+  // ---- Resources (materials the admin has shared) ----
+  let teacherResourcesCache = [];
+  const T_RES_TYPE_ICON = { pdf: 'file-text', video: 'youtube', link: 'link' };
+  const T_RES_TYPE_LABEL = { pdf: 'PDF', video: 'Video', link: 'Link' };
+
+  async function renderTeacherResources() {
+    const list = document.getElementById('teacher-resources-list');
+    if (!list) return; // resources tab not present on this page
+    try {
+      teacherResourcesCache = await EP.resources();
+    } catch (err) {
+      console.error('Could not load resources:', err);
+      list.innerHTML = `<p class="text-sm col-span-full" style="color:var(--danger-600)">Could not load resources right now.</p>`;
+      return;
+    }
+    const catFilter = document.getElementById('tres-category-filter');
+    if (catFilter && !catFilter.dataset.populated) {
+      catFilter.addEventListener('change', renderTeacherResourcesList);
+      catFilter.dataset.populated = '1';
+    }
+    if (catFilter) {
+      const cats = [...new Set(teacherResourcesCache.map(r => r.category))].sort();
+      const current = catFilter.value;
+      catFilter.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+      catFilter.value = current;
+    }
+    renderTeacherResourcesList();
+  }
+
+  function renderTeacherResourcesList() {
+    const list = document.getElementById('teacher-resources-list');
+    if (!list) return;
+    const filterEl = document.getElementById('tres-category-filter');
+    const filter = filterEl ? filterEl.value : '';
+    const items = filter ? teacherResourcesCache.filter(r => r.category === filter) : teacherResourcesCache;
+    list.innerHTML = items.map(r => `
+      <div class="card p-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="${T_RES_TYPE_ICON[r.type]}" class="w-4 h-4 shrink-0" style="color:var(--red-600)"></i>
+          <p class="font-semibold text-sm truncate" style="color:var(--navy-700)">${escapeHtml(r.title)}</p>
+        </div>
+        ${r.description ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">${escapeHtml(r.description)}</p>` : ''}
+        <div class="flex items-center gap-2 mt-3">
+          <span class="badge badge-info">${escapeHtml(r.category)}</span>
+          <span class="text-xs" style="color:var(--text-disabled)">${T_RES_TYPE_LABEL[r.type]}</span>
+        </div>
+        ${r.type === 'pdf'
+          ? `<button onclick='openPdfViewer(${JSON.stringify(r.url)}, ${JSON.stringify(r.title)})' class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--red-600)">View PDF <i data-lucide="eye" class="w-3 h-3"></i></button>`
+          : `<a href="${r.url}" target="_blank" rel="noopener" class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--red-600)">Open <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a>`}
+      </div>`).join('') || `<p class="text-sm col-span-full text-center py-10" style="color:var(--text-secondary)">No resources shared yet.</p>`;
+    lucide.createIcons();
+  }
+
+  window.openPdfViewer = (url, title) => {
+    document.getElementById('pdf-viewer-title').textContent = title;
+    document.getElementById('pdf-viewer-frame').src = url;
+    document.getElementById('pdf-viewer-download').href = url;
+    document.getElementById('pdf-viewer-modal').classList.remove('hidden');
+  };
 
   document.getElementById('hw-form').addEventListener('submit', async (e) => {
     e.preventDefault();

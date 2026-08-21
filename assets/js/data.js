@@ -28,7 +28,7 @@ const EP = (() => {
     notifications: 'notifications', notification_reads: 'notification_reads', messages: 'messages',
     groups: 'groups', group_posts: 'group_posts', group_post_likes: 'group_post_likes',
     group_post_comments: 'group_post_comments', group_messages: 'group_messages', group_post_reports: 'group_post_reports',
-    enrollments: 'enrollments',
+    enrollments: 'enrollments', resources: 'resources',
   };
 
   function timeAgo(iso) {
@@ -230,6 +230,54 @@ const EP = (() => {
     const { error } = await client.from('categories').delete().eq('id', id);
     if (error) throw error;
   }
+  const MAX_PDF_BYTES = 10485760; // 10MB, matches the storage bucket's own limit
+  async function uploadResourcePdf(file) {
+    if (file.type !== 'application/pdf') throw new Error('Only PDF files are allowed.');
+    if (file.size > MAX_PDF_BYTES) throw new Error('PDF must be under 10MB.');
+    const client = await db();
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name}`.replace(/\s+/g, '_');
+    const { error } = await client.storage.from('teacher-resources').upload(path, file, { contentType: file.type });
+    if (error) throw error;
+    const { data } = client.storage.from('teacher-resources').getPublicUrl(path);
+    return { path, publicUrl: data.publicUrl };
+  }
+
+  async function resources() {
+    const client = await db();
+    const { data, error } = await client.from('resources').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return data.map(r => ({
+      id: r.id, title: r.title, description: r.description, type: r.type, category: r.category,
+      url: r.type === 'pdf' ? r.file_path : r.external_url, createdBy: r.created_by, createdAt: r.created_at,
+    }));
+  }
+
+  async function addResource({ title, description, type, category, file, externalUrl }) {
+    const client = await db();
+    const { data: { user } } = await client.auth.getUser();
+    let filePath = null, publicUrl = null;
+    if (type === 'pdf') {
+      if (!file) throw new Error('Choose a PDF file to upload.');
+      const uploaded = await uploadResourcePdf(file);
+      filePath = uploaded.publicUrl; // store the public URL directly — simplest to read back and render
+    } else {
+      if (!externalUrl || !externalUrl.trim()) throw new Error('Add a link for this resource.');
+    }
+    const { error } = await client.from('resources').insert({
+      title, description: description || null, type, category: category || 'General',
+      file_path: type === 'pdf' ? filePath : null,
+      external_url: type !== 'pdf' ? externalUrl.trim() : null,
+      created_by: user.id,
+    });
+    if (error) throw error;
+  }
+
+  async function deleteResource(id) {
+    const client = await db();
+    const { error } = await client.from('resources').delete().eq('id', id);
+    if (error) throw error;
+  }
+
   async function postById(id) {
     const client = await db();
     const { data, error } = await client.from('posts').select('*').eq('id', id).eq('status', 'published').single();
@@ -474,6 +522,7 @@ const EP = (() => {
     users, courses, addUser, removeUser, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
     posts, postById, savePost, deletePost,
     categories, addCategory, deleteCategory,
+    resources, addResource, deleteResource,
     homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,

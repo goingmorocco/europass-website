@@ -105,6 +105,7 @@
       <button onclick="switchTab('admin-shell','enrollments'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-check" class="w-4 h-4"></i> Enrollments</button>
       <button onclick="switchTab('admin-shell','blog'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="newspaper" class="w-4 h-4"></i> Blog</button>
       <button onclick="switchTab('admin-shell','homework'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Homework &amp; Grades</button>
+      <button onclick="switchTab('admin-shell','resources'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="folder-open" class="w-4 h-4"></i> Resources</button>
       <button onclick="switchTab('admin-shell','notifications'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="bell" class="w-4 h-4"></i> Notifications</button>
       <button onclick="switchTab('admin-shell','users'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users" class="w-4 h-4"></i> Users</button>
       <button onclick="switchTab('admin-shell','groups'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users-round" class="w-4 h-4"></i> Groups</button>
@@ -129,6 +130,9 @@
     </button>
     <button data-tab-trigger="homework" onclick="switchTab('admin-shell','homework')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="clipboard-list" class="w-4 h-4"></i>Homework &amp; Grades
+    </button>
+    <button data-tab-trigger="resources" onclick="switchTab('admin-shell','resources')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="folder-open" class="w-4 h-4"></i>Resources
     </button>
     <button data-tab-trigger="notifications" onclick="switchTab('admin-shell','notifications')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="bell" class="w-4 h-4"></i>Notifications
@@ -233,6 +237,54 @@
     </select>
   </div>
   <div id="admin-homework-list" class="space-y-3"></div>
+</div>
+
+<div data-tab-panel="resources" class="hidden">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Resources</h1>
+    <button onclick="openResourceForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Resource</button>
+  </div>
+  <div class="flex flex-wrap gap-2 mb-6">
+    <select id="res-category-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="">All Categories</option>
+    </select>
+  </div>
+  <div id="admin-resources-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</div>
+
+<!-- Add resource modal -->
+<div id="resource-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-4">
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add Resource</p>
+      <button onclick="closeModal('resource-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <form id="resource-form" class="space-y-4">
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="res-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Description (optional)</label><textarea id="res-description" rows="2" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea></div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Type</label>
+          <select id="res-type" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+            <option value="pdf">PDF Document</option>
+            <option value="video">Video Link</option>
+            <option value="link">Other Link</option>
+          </select>
+        </div>
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label><input id="res-category" list="res-category-suggestions" placeholder="e.g. German, General Teaching" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"><datalist id="res-category-suggestions"></datalist></div>
+      </div>
+      <div id="res-pdf-field">
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">PDF File</label>
+        <input id="res-file" type="file" accept="application/pdf" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <p class="text-xs mt-1" style="color:var(--text-secondary)">Up to 10MB.</p>
+      </div>
+      <div id="res-url-field" class="hidden">
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Link</label>
+        <input id="res-url" type="url" placeholder="https://..." class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <p id="res-url-hint" class="text-xs mt-1" style="color:var(--text-secondary)">Paste a YouTube (or other video) URL.</p>
+      </div>
+      <button type="submit" class="btn btn-primary w-full">Send to Teachers</button>
+    </form>
+  </div>
 </div>
 
 <!-- Homework detail / submissions & grades modal -->

@@ -201,6 +201,102 @@ document.addEventListener('DOMContentLoaded', async () => {
     lucide.createIcons();
   };
 
+  // ---- Resources (admin sends PDFs / video links / other links to teachers) ----
+  let resourcesCache = [];
+  const RES_TYPE_ICON = { pdf: 'file-text', video: 'youtube', link: 'link' };
+  const RES_TYPE_LABEL = { pdf: 'PDF', video: 'Video', link: 'Link' };
+
+  window.openResourceForm = () => {
+    document.getElementById('resource-form').reset();
+    document.getElementById('res-pdf-field').classList.remove('hidden');
+    document.getElementById('res-url-field').classList.add('hidden');
+    document.getElementById('resource-modal').classList.remove('hidden');
+  };
+  document.getElementById('res-type').addEventListener('change', (e) => {
+    const isPdf = e.target.value === 'pdf';
+    document.getElementById('res-pdf-field').classList.toggle('hidden', !isPdf);
+    document.getElementById('res-url-field').classList.toggle('hidden', isPdf);
+    document.getElementById('res-url-hint').textContent = e.target.value === 'video'
+      ? 'Paste a YouTube (or other video) URL.' : 'Paste any link \u2014 a Google Drive folder, an article, anything useful.';
+  });
+
+  async function renderResources() {
+    try {
+      resourcesCache = await EP.resources();
+    } catch (err) {
+      console.error('Could not load resources (has migration 012_teacher_resources.sql been run?):', err);
+      document.getElementById('admin-resources-list').innerHTML = `<p class="text-sm col-span-full" style="color:var(--danger-600)">Could not load resources. Has the resources migration been run yet?</p>`;
+      return;
+    }
+    const catFilter = document.getElementById('res-category-filter');
+    if (!catFilter.dataset.populated) {
+      catFilter.addEventListener('change', renderResourcesList);
+    }
+    const cats = [...new Set(resourcesCache.map(r => r.category))].sort();
+    catFilter.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    catFilter.dataset.populated = '1';
+    const suggestions = document.getElementById('res-category-suggestions');
+    if (suggestions) suggestions.innerHTML = cats.map(c => `<option value="${escapeHtml(c)}">`).join('');
+    renderResourcesList();
+  }
+
+  function renderResourcesList() {
+    const filter = document.getElementById('res-category-filter').value;
+    const list = filter ? resourcesCache.filter(r => r.category === filter) : resourcesCache;
+    document.getElementById('admin-resources-list').innerHTML = list.map(r => `
+      <div class="card p-4">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <i data-lucide="${RES_TYPE_ICON[r.type]}" class="w-4 h-4 shrink-0" style="color:var(--red-600)"></i>
+            <p class="font-semibold text-sm truncate" style="color:var(--navy-700)">${escapeHtml(r.title)}</p>
+          </div>
+          <button onclick="deleteResourceConfirm('${r.id}','${escapeHtml(r.title).replace(/'/g, "\\'")}')" class="shrink-0" aria-label="Delete"><i data-lucide="trash-2" class="w-4 h-4" style="color:var(--danger-600)"></i></button>
+        </div>
+        ${r.description ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">${escapeHtml(r.description)}</p>` : ''}
+        <div class="flex items-center gap-2 mt-3">
+          <span class="badge badge-info">${escapeHtml(r.category)}</span>
+          <span class="text-xs" style="color:var(--text-disabled)">${RES_TYPE_LABEL[r.type]}</span>
+        </div>
+        <a href="${r.url}" target="_blank" rel="noopener" class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--red-600)">Open <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a>
+      </div>`).join('') || `<p class="text-sm col-span-full text-center py-10" style="color:var(--text-secondary)">No resources in this category yet.</p>`;
+    lucide.createIcons();
+  }
+
+  window.deleteResourceConfirm = async (id, title) => {
+    if (!confirm(`Delete "${title}"? Teachers will no longer see it.`)) return;
+    try {
+      await EP.deleteResource(id);
+      await renderResources();
+      showToast('Resource deleted');
+    } catch (err) { showToast(err.message, 'danger'); }
+  };
+
+  document.getElementById('resource-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const type = document.getElementById('res-type').value;
+    submitBtn.disabled = true;
+    submitBtn.textContent = type === 'pdf' ? 'Uploading...' : 'Sending...';
+    try {
+      await EP.addResource({
+        title: document.getElementById('res-title').value,
+        description: document.getElementById('res-description').value,
+        type,
+        category: document.getElementById('res-category').value,
+        file: type === 'pdf' ? document.getElementById('res-file').files[0] : null,
+        externalUrl: type !== 'pdf' ? document.getElementById('res-url').value : null,
+      });
+      closeModal('resource-modal');
+      await renderResources();
+      showToast('Resource sent to teachers');
+    } catch (err) {
+      showToast(err.message, 'danger');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send to Teachers';
+    }
+  });
+
   async function renderAll() {
     const { allPosts, allNotifs } = await renderKPIs();
     await renderActivity(allNotifs, allPosts);
@@ -208,10 +304,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderNotifHistory(allNotifs);
     await renderUsers();
     await renderHomework();
+    await renderResources();
     lucide.createIcons();
   }
   await renderAll();
-  EP.onChange([EP.KEYS.posts, EP.KEYS.notifications, EP.KEYS.profiles, EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.enrollments], renderAll);
+  EP.onChange([EP.KEYS.posts, EP.KEYS.notifications, EP.KEYS.profiles, EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.enrollments, EP.KEYS.resources], renderAll);
 
   // ---- Fullscreen editor toggle ----
   window.toggleFullscreenEditor = () => {

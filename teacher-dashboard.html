@@ -107,6 +107,7 @@
       <button onclick="switchTab('teacher-shell','grade'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="check-circle" class="w-4 h-4"></i> Grade Submissions</button>
       <button onclick="switchTab('teacher-shell','messages'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="messages-square" class="w-4 h-4"></i> Messages</button>
       <button onclick="switchTab('teacher-shell','community'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users-round" class="w-4 h-4"></i> Community</button>
+      <button onclick="switchTab('teacher-shell','resources'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="folder-open" class="w-4 h-4"></i> Resources</button>
       <button onclick="switchTab('teacher-shell','settings'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="settings" class="w-4 h-4"></i> Settings</button>
       <a href="index.html" class="flex items-center gap-3 py-3 mt-4 nav-link" style="color:var(--text-secondary)"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Website</a>
     </div>
@@ -134,6 +135,9 @@
     </button>
     <button data-tab-trigger="community" onclick="switchTab('teacher-shell','community')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="users-round" class="w-4 h-4"></i>Community
+    </button>
+    <button data-tab-trigger="resources" onclick="switchTab('teacher-shell','resources')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="folder-open" class="w-4 h-4"></i>Resources
     </button>
     <button data-tab-trigger="settings" onclick="switchTab('teacher-shell','settings')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="settings" class="w-4 h-4"></i>Settings
@@ -287,6 +291,33 @@
         <button type="submit" class="btn btn-teal btn-sm">Send</button>
       </form>
     </div>
+  </div>
+</div>
+
+<div data-tab-panel="resources" class="hidden">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Resources</h1>
+  </div>
+  <p class="text-sm mb-6" style="color:var(--text-secondary)">Materials your admin has shared to help you teach \u2014 PDFs, video links, and other resources.</p>
+  <div class="flex flex-wrap gap-2 mb-6">
+    <select id="tres-category-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="">All Categories</option>
+    </select>
+  </div>
+  <div id="teacher-resources-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</div>
+
+<!-- PDF viewer modal -->
+<div id="pdf-viewer-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.7)">
+  <div class="card w-full max-w-4xl p-4 flex flex-col" style="height:90vh">
+    <div class="flex items-center justify-between mb-3 shrink-0">
+      <p id="pdf-viewer-title" class="font-serif font-semibold" style="color:var(--navy-700)">Document</p>
+      <div class="flex items-center gap-3">
+        <a id="pdf-viewer-download" href="#" download class="text-sm font-semibold inline-flex items-center gap-1" style="color:var(--red-600)"><i data-lucide="download" class="w-4 h-4"></i> Download</a>
+        <button onclick="closeModal('pdf-viewer-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+    </div>
+    <iframe id="pdf-viewer-frame" src="" class="flex-1 w-full rounded-md" style="border:1px solid var(--border-default)" title="PDF viewer"></iframe>
   </div>
 </div>
 
