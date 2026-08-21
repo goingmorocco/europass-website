@@ -398,6 +398,10 @@
     </div>
     <form id="user-form" class="space-y-4">
       <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Full Name</label><input id="user-name" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Login Email</label>
+        <input id="user-email" required type="email" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <p class="text-xs mt-1" style="color:var(--text-secondary)">Suggested from the name \u2014 change it if this email is already taken by a removed user.</p>
+      </div>
       <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Role</label>
         <select id="user-role" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
           <option value="teacher">Teacher</option><option value="student">Student</option>

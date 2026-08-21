@@ -490,19 +490,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     const courseSel = document.getElementById('user-course');
     courseSel.innerHTML = (await EP.courses()).map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
     document.getElementById('user-form').reset();
+    document.getElementById('user-email').dataset.autofilled = 'true';
     document.getElementById('user-modal').classList.remove('hidden');
   };
+  // Auto-suggests an email as the admin types a name, but stops the moment
+  // they edit the email field directly — so a deliberate fix for a
+  // collision is never silently overwritten by the next keystroke in Name.
+  document.getElementById('user-name').addEventListener('input', (e) => {
+    const emailField = document.getElementById('user-email');
+    if (emailField.dataset.autofilled === 'true') {
+      emailField.value = EP.suggestEmail(e.target.value);
+    }
+  });
+  document.getElementById('user-email').addEventListener('input', (e) => {
+    e.target.dataset.autofilled = 'false';
+  });
   document.getElementById('user-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     try {
       await EP.addUser({
         name: document.getElementById('user-name').value,
+        email: document.getElementById('user-email').value,
         role: document.getElementById('user-role').value,
         courseId: document.getElementById('user-course').value,
       });
       closeModal('user-modal');
       await renderAll();
-      showToast('User added — check the browser console/Edge Function logs for their login email.');
+      showToast('User added \u2014 login email: ' + document.getElementById('user-email').value);
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
