@@ -5,18 +5,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const navDrawer = document.getElementById('nav-drawer');
   const navClose = document.getElementById('nav-close');
   if (navToggle && navDrawer) {
+    // The drawer slides off-screen using either translate-x-full (English,
+    // LTR) or -translate-x-full (Arabic, RTL-mirrored) — detect which one
+    // this specific page actually uses instead of hardcoding it, since that
+    // mismatch was silently breaking the toggle on Arabic pages: the ARIA
+    // attributes updated fine, but the class that actually shows the drawer
+    // was never touched.
+    const hiddenClass = navDrawer.classList.contains('-translate-x-full') ? '-translate-x-full' : 'translate-x-full';
     navToggle.addEventListener('click', () => {
-      navDrawer.classList.remove('translate-x-full');
+      navDrawer.classList.remove(hiddenClass);
       navDrawer.setAttribute('aria-hidden', 'false');
       navToggle.setAttribute('aria-expanded', 'true');
     });
-  }
-  if (navClose && navDrawer) {
-    navClose.addEventListener('click', () => {
-      navDrawer.classList.add('translate-x-full');
-      navDrawer.setAttribute('aria-hidden', 'true');
-      navToggle && navToggle.setAttribute('aria-expanded', 'false');
-    });
+    if (navClose) {
+      navClose.addEventListener('click', () => {
+        navDrawer.classList.add(hiddenClass);
+        navDrawer.setAttribute('aria-hidden', 'true');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    }
   }
 
   // Accordion (FAQ, curriculum)
