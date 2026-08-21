@@ -175,9 +175,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           <p class="font-semibold text-sm truncate" style="color:var(--navy-700)">${escapeHtml(r.title)}</p>
         </div>
         ${r.description ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">${escapeHtml(r.description)}</p>` : ''}
-        <div class="flex items-center gap-2 mt-3">
+        <div class="flex items-center gap-2 mt-3 flex-wrap">
           <span class="badge badge-info">${escapeHtml(r.category)}</span>
           <span class="text-xs" style="color:var(--text-disabled)">${T_RES_TYPE_LABEL[r.type]}</span>
+          ${r.targetTeacherId ? `<span class="badge badge-success">Sent just for you</span>` : ''}
         </div>
         ${r.type === 'pdf'
           ? `<button onclick='openPdfViewer(${JSON.stringify(r.url)}, ${JSON.stringify(r.title)})' class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--red-600)">View PDF <i data-lucide="eye" class="w-3 h-3"></i></button>`

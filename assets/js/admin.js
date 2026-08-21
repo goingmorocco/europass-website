@@ -203,15 +203,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ---- Resources (admin sends PDFs / video links / other links to teachers) ----
   let resourcesCache = [];
+  let teachersCache = [];
   const RES_TYPE_ICON = { pdf: 'file-text', video: 'youtube', link: 'link' };
   const RES_TYPE_LABEL = { pdf: 'PDF', video: 'Video', link: 'Link' };
 
-  window.openResourceForm = () => {
+  window.openResourceForm = async () => {
     document.getElementById('resource-form').reset();
     document.getElementById('res-pdf-field').classList.remove('hidden');
     document.getElementById('res-url-field').classList.add('hidden');
+    const teacherSelect = document.getElementById('res-target-teacher');
+    if (!teachersCache.length) {
+      teachersCache = (await EP.users()).filter(u => u.role === 'teacher');
+      teacherSelect.innerHTML = '<option value="">All Teachers</option>' + teachersCache.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+    }
+    teacherSelect.value = '';
+    document.getElementById('res-submit-btn').textContent = 'Send to All Teachers';
     document.getElementById('resource-modal').classList.remove('hidden');
   };
+  document.getElementById('res-target-teacher').addEventListener('change', (e) => {
+    const teacher = teachersCache.find(t => t.id === e.target.value);
+    document.getElementById('res-submit-btn').textContent = teacher ? `Send to ${teacher.name}` : 'Send to All Teachers';
+  });
   document.getElementById('res-type').addEventListener('change', (e) => {
     const isPdf = e.target.value === 'pdf';
     document.getElementById('res-pdf-field').classList.toggle('hidden', !isPdf);
@@ -223,9 +235,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function renderResources() {
     try {
       resourcesCache = await EP.resources();
+      if (!teachersCache.length) teachersCache = (await EP.users()).filter(u => u.role === 'teacher');
     } catch (err) {
-      console.error('Could not load resources (has migration 012_teacher_resources.sql been run?):', err);
-      document.getElementById('admin-resources-list').innerHTML = `<p class="text-sm col-span-full" style="color:var(--danger-600)">Could not load resources. Has the resources migration been run yet?</p>`;
+      console.error('Could not load resources (has migration 012_teacher_resources.sql and 013_resource_teacher_targeting.sql been run?):', err);
+      document.getElementById('admin-resources-list').innerHTML = `<p class="text-sm col-span-full" style="color:var(--danger-600)">Could not load resources. Have the resources migrations been run yet?</p>`;
       return;
     }
     const catFilter = document.getElementById('res-category-filter');
@@ -238,6 +251,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const suggestions = document.getElementById('res-category-suggestions');
     if (suggestions) suggestions.innerHTML = cats.map(c => `<option value="${escapeHtml(c)}">`).join('');
     renderResourcesList();
+  }
+
+  function resourceRecipientLabel(r) {
+    if (!r.targetTeacherId) return 'All Teachers';
+    const t = teachersCache.find(x => x.id === r.targetTeacherId);
+    return t ? t.name : 'A teacher (removed)';
   }
 
   function renderResourcesList() {
@@ -253,10 +272,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           <button onclick="deleteResourceConfirm('${r.id}','${escapeHtml(r.title).replace(/'/g, "\\'")}')" class="shrink-0" aria-label="Delete"><i data-lucide="trash-2" class="w-4 h-4" style="color:var(--danger-600)"></i></button>
         </div>
         ${r.description ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">${escapeHtml(r.description)}</p>` : ''}
-        <div class="flex items-center gap-2 mt-3">
+        <div class="flex items-center gap-2 mt-3 flex-wrap">
           <span class="badge badge-info">${escapeHtml(r.category)}</span>
           <span class="text-xs" style="color:var(--text-disabled)">${RES_TYPE_LABEL[r.type]}</span>
         </div>
+        <div class="flex items-center gap-1.5 mt-2"><i data-lucide="${r.targetTeacherId ? 'user' : 'users'}" class="w-3.5 h-3.5" style="color:var(--text-secondary)"></i><span class="text-xs" style="color:var(--text-secondary)">${escapeHtml(resourceRecipientLabel(r))}</span></div>
         <a href="${r.url}" target="_blank" rel="noopener" class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--red-600)">Open <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a>
       </div>`).join('') || `<p class="text-sm col-span-full text-center py-10" style="color:var(--text-secondary)">No resources in this category yet.</p>`;
     lucide.createIcons();
@@ -273,8 +293,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('resource-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const submitBtn = document.getElementById('res-submit-btn');
     const type = document.getElementById('res-type').value;
+    const targetTeacherId = document.getElementById('res-target-teacher').value;
+    const targetTeacher = teachersCache.find(t => t.id === targetTeacherId);
+    const originalLabel = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = type === 'pdf' ? 'Uploading...' : 'Sending...';
     try {
@@ -285,15 +308,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         category: document.getElementById('res-category').value,
         file: type === 'pdf' ? document.getElementById('res-file').files[0] : null,
         externalUrl: type !== 'pdf' ? document.getElementById('res-url').value : null,
+        targetTeacherId: targetTeacherId || null,
       });
       closeModal('resource-modal');
       await renderResources();
-      showToast('Resource sent to teachers');
+      showToast(targetTeacher ? `Resource sent to ${targetTeacher.name}` : 'Resource sent to all teachers');
     } catch (err) {
       showToast(err.message, 'danger');
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Send to Teachers';
+      submitBtn.textContent = originalLabel;
     }
   });
 

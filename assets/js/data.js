@@ -249,13 +249,14 @@ const EP = (() => {
     return data.map(r => ({
       id: r.id, title: r.title, description: r.description, type: r.type, category: r.category,
       url: r.type === 'pdf' ? r.file_path : r.external_url, createdBy: r.created_by, createdAt: r.created_at,
+      targetTeacherId: r.target_teacher_id,
     }));
   }
 
-  async function addResource({ title, description, type, category, file, externalUrl }) {
+  async function addResource({ title, description, type, category, file, externalUrl, targetTeacherId }) {
     const client = await db();
     const { data: { user } } = await client.auth.getUser();
-    let filePath = null, publicUrl = null;
+    let filePath = null;
     if (type === 'pdf') {
       if (!file) throw new Error('Choose a PDF file to upload.');
       const uploaded = await uploadResourcePdf(file);
@@ -267,6 +268,7 @@ const EP = (() => {
       title, description: description || null, type, category: category || 'General',
       file_path: type === 'pdf' ? filePath : null,
       external_url: type !== 'pdf' ? externalUrl.trim() : null,
+      target_teacher_id: targetTeacherId || null,
       created_by: user.id,
     });
     if (error) throw error;

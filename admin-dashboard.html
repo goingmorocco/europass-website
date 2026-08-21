@@ -272,6 +272,11 @@
         </div>
         <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label><input id="res-category" list="res-category-suggestions" placeholder="e.g. German, General Teaching" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"><datalist id="res-category-suggestions"></datalist></div>
       </div>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Send To</label>
+        <select id="res-target-teacher" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+          <option value="">All Teachers</option>
+        </select>
+      </div>
       <div id="res-pdf-field">
         <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">PDF File</label>
         <input id="res-file" type="file" accept="application/pdf" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
@@ -282,7 +287,7 @@
         <input id="res-url" type="url" placeholder="https://..." class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
         <p id="res-url-hint" class="text-xs mt-1" style="color:var(--text-secondary)">Paste a YouTube (or other video) URL.</p>
       </div>
-      <button type="submit" class="btn btn-primary w-full">Send to Teachers</button>
+      <button type="submit" id="res-submit-btn" class="btn btn-primary w-full">Send to All Teachers</button>
     </form>
   </div>
 </div>
