@@ -214,8 +214,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const teacherSelect = document.getElementById('res-target-teacher');
     if (!teachersCache.length) {
       teachersCache = (await EP.users()).filter(u => u.role === 'teacher');
-      teacherSelect.innerHTML = '<option value="">All Teachers</option>' + teachersCache.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
     }
+    // Always rebuild the dropdown's options here, even when teachersCache
+    // was already populated by something else (renderResources() fills it
+    // on every dashboard load) — the fetch is what's worth caching, not
+    // this cheap, idempotent HTML population. Skipping it when the cache
+    // was already warm was the actual bug: the select silently kept only
+    // its static default option and never showed any teacher names.
+    teacherSelect.innerHTML = '<option value="">All Teachers</option>' + teachersCache.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
     teacherSelect.value = '';
     document.getElementById('res-submit-btn').textContent = 'Send to All Teachers';
     document.getElementById('resource-modal').classList.remove('hidden');
