@@ -216,6 +216,10 @@
       <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Manage Categories</p>
       <button onclick="closeModal('category-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
+    <div id="category-lang-toggle" class="flex gap-2 mb-4">
+      <button type="button" data-lang="en" onclick="loadCategoryManager('en')" class="btn btn-primary btn-sm flex-1">English</button>
+      <button type="button" data-lang="ar" onclick="loadCategoryManager('ar')" class="btn btn-secondary btn-sm flex-1">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;</button>
+    </div>
     <div id="category-list" class="space-y-2 mb-4"></div>
     <form id="category-form" class="flex gap-2">
       <input id="category-name-input" required placeholder="New category name" class="flex-1 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">

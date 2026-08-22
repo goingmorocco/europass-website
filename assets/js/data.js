@@ -239,15 +239,17 @@ const EP = (() => {
     if (error) throw error;
     return data;
   }
-  async function categories() {
+  async function categories(language = null) {
     const client = await db();
-    const { data, error } = await client.from('categories').select('*').order('name');
+    let q = client.from('categories').select('*').order('name');
+    if (language) q = q.eq('language', language);
+    const { data, error } = await q;
     if (error) throw error;
     return data;
   }
-  async function addCategory(name) {
+  async function addCategory(name, language = 'en') {
     const client = await db();
-    const { error } = await client.from('categories').insert({ name: name.trim() });
+    const { error } = await client.from('categories').insert({ name: name.trim(), language });
     if (error) throw error;
   }
   async function deleteCategory(id) {

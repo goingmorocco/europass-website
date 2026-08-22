@@ -347,16 +347,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('fullscreen-label').textContent = isFull ? 'Collapse' : 'Expand';
   };
 
-  // ---- Category dropdown (populated from the categories table, with a
-  // hardcoded fallback so the form still works if migration 010 hasn't
-  // been run yet — an empty dropdown was a real way "Publish" could look
-  // broken even though the actual submit code was fine) ----
+  // ---- Category dropdown (populated from the categories table, filtered
+  // by the post's own Language field, with a hardcoded English fallback so
+  // the form still works if migration 010 hasn't been run yet) ----
   const FALLBACK_CATEGORIES = ['Career', 'Parenting', 'IELTS', 'Vie Locale', 'Entertainment'];
   async function populateCategoryOptions(selected) {
     const select = document.getElementById('post-category');
-    let names = FALLBACK_CATEGORIES;
+    const lang = document.getElementById('post-language').value || 'en';
+    let names = lang === 'en' ? FALLBACK_CATEGORIES : [];
     try {
-      const cats = await EP.categories();
+      const cats = await EP.categories(lang);
       if (cats && cats.length) names = cats.map(c => c.name);
     } catch (err) {
       console.error('Could not load categories table (has migration 010_categories.sql been run?), using defaults:', err);
@@ -364,15 +364,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     select.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('');
     if (selected) select.value = selected;
   }
+  document.getElementById('post-language').addEventListener('change', () => populateCategoryOptions());
 
-  // ---- Manage categories modal ----
-  window.loadCategoryManager = async () => {
+  // ---- Manage categories modal — has its own EN/AR toggle, independent
+  // of whatever language the post form currently has selected ----
+  let categoryManagerLang = 'en';
+  window.loadCategoryManager = async (lang) => {
+    if (lang) categoryManagerLang = lang;
+    document.querySelectorAll('#category-lang-toggle button').forEach((b) => {
+      const active = b.dataset.lang === categoryManagerLang;
+      b.classList.toggle('btn-primary', active);
+      b.classList.toggle('btn-secondary', !active);
+    });
     const list = document.getElementById('category-list');
     list.innerHTML = `<p class="text-xs" style="color:var(--text-secondary)">Loading...</p>`;
     try {
-      const cats = await EP.categories();
+      const cats = await EP.categories(categoryManagerLang);
       list.innerHTML = cats.map(c => `
-        <div class="flex items-center justify-between px-3 py-2 rounded-md" style="background:var(--bg-subtle)">
+        <div class="flex items-center justify-between px-3 py-2 rounded-md" style="background:var(--bg-subtle)" ${categoryManagerLang === 'ar' ? 'dir="rtl"' : ''}>
           <span class="text-sm">${c.name}</span>
           <button type="button" onclick="deleteCategoryConfirm('${c.id}','${c.name.replace(/'/g, "\\'")}')" class="text-xs font-semibold" style="color:var(--danger-600)">Delete</button>
         </div>`).join('') || `<p class="text-xs" style="color:var(--text-secondary)">No categories yet.</p>`;
@@ -392,7 +401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     const input = document.getElementById('category-name-input');
     try {
-      await EP.addCategory(input.value);
+      await EP.addCategory(input.value, categoryManagerLang);
       input.value = '';
       await loadCategoryManager();
       showToast('Category added');
@@ -403,6 +412,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.openPostForm = async () => {
     document.getElementById('post-form').reset();
     document.getElementById('post-id').value = '';
+    document.getElementById('post-language').value = 'en';
     document.getElementById('post-cover-preview').classList.add('hidden');
     document.getElementById('post-cover-status').classList.add('hidden');
     await populateCategoryOptions();
@@ -415,8 +425,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!p) return;
     document.getElementById('post-id').value = p.id;
     document.getElementById('post-title').value = p.title;
-    await populateCategoryOptions(p.category);
     document.getElementById('post-language').value = p.language || 'en';
+    await populateCategoryOptions(p.category);
     document.getElementById('post-excerpt').value = p.excerpt;
     document.getElementById('post-cover-url').value = p.cover_image_url || '';
     updateCoverPreview();
