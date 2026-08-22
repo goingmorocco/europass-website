@@ -207,6 +207,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // (the best available signal on a static site with no server-side geo
   // detection), but only ever redirect once and only from the homepage,
   // and never override a choice the visitor already made.
+  //
+  // isHomepage must explicitly exclude anything already under /ar/ — the
+  // redirect target below ('ar/index.html') is a relative path that's only
+  // correct starting from the root. Without this check, the same script
+  // running on the Arabic homepage itself would try to redirect to a
+  // relative 'ar/index.html' from inside /ar/, resolving to the
+  // non-existent /ar/ar/index.html — a real bug that was very likely the
+  // cause of Search Console's "Redirect error" on the Arabic homepage.
   const langSwitchAr = document.getElementById('lang-switch-ar');
   if (langSwitchAr) {
     langSwitchAr.addEventListener('click', () => localStorage.setItem('europass_lang_pref', 'ar'));
@@ -214,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('#lang-switch-en, #lang-switch-en-mobile').forEach((el) => {
     el.addEventListener('click', () => localStorage.setItem('europass_lang_pref', 'en'));
   });
-  const isHomepage = /\/(index\.html)?$/.test(window.location.pathname);
+  const isHomepage = !/\/ar\//.test(window.location.pathname) && /\/(index\.html)?$/.test(window.location.pathname);
   if (isHomepage && !localStorage.getItem('europass_lang_pref')) {
     const prefersArabic = (navigator.languages || [navigator.language || '']).some((l) => l.toLowerCase().startsWith('ar'));
     if (prefersArabic) {
