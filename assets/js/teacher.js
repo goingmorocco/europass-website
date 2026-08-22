@@ -122,6 +122,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 
+  // ---- Resources (materials the admin has shared) ----
+  // These must be declared before renderAll() is called below — renderAll()
+  // calls renderTeacherResources(), which reads teacherResourcesCache, and
+  // `let`/`const` bindings aren't accessible until their own declaration
+  // line runs. Having this block after the renderAll() call threw exactly
+  // that error on every load: "Cannot access before initialization."
+  let teacherResourcesCache = [];
+  const T_RES_TYPE_ICON = { pdf: 'file-text', video: 'youtube', link: 'link' };
+  const T_RES_TYPE_LABEL = { pdf: 'PDF', video: 'Video', link: 'Link' };
+
   async function renderAll() {
     myStudents = await EP.studentsOf(myCourseId);
     if (!activeThreadStudentId && myStudents.length) activeThreadStudentId = myStudents[0].id;
@@ -132,11 +142,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   await renderAll();
   EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.messages, EP.KEYS.resources], renderAll);
-
-  // ---- Resources (materials the admin has shared) ----
-  let teacherResourcesCache = [];
-  const T_RES_TYPE_ICON = { pdf: 'file-text', video: 'youtube', link: 'link' };
-  const T_RES_TYPE_LABEL = { pdf: 'PDF', video: 'Video', link: 'Link' };
 
   async function renderTeacherResources() {
     const list = document.getElementById('teacher-resources-list');
