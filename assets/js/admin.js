@@ -404,6 +404,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('post-form').reset();
     document.getElementById('post-id').value = '';
     document.getElementById('post-cover-preview').classList.add('hidden');
+    document.getElementById('post-cover-status').classList.add('hidden');
     await populateCategoryOptions();
     document.getElementById('post-modal').classList.remove('hidden');
     const q = ensureQuill();
@@ -434,6 +435,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('post-cover-url').addEventListener('input', updateCoverPreview);
   document.getElementById('post-cover-preview').addEventListener('error', () => {
     document.getElementById('post-cover-preview').classList.add('hidden');
+  });
+  // Uploading a file fills the URL field with the result — the two inputs
+  // aren't separate modes, whichever the admin used most recently just wins,
+  // same low-friction pattern as the resource PDF upload.
+  document.getElementById('post-cover-file').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const status = document.getElementById('post-cover-status');
+    status.classList.remove('hidden');
+    status.style.color = 'var(--text-secondary)';
+    status.textContent = 'Uploading...';
+    try {
+      const url = await EP.uploadPostCover(file);
+      document.getElementById('post-cover-url').value = url;
+      updateCoverPreview();
+      status.textContent = 'Uploaded.';
+      status.style.color = 'var(--success-600)';
+    } catch (err) {
+      status.textContent = err.message;
+      status.style.color = 'var(--danger-600)';
+      e.target.value = '';
+    }
   });
   window.deletePostConfirm = async (id) => {
     if (!confirm('Delete this post?')) return;

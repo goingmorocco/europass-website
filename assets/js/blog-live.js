@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     <a href="blog-post.html?id=${p.id}" data-course-category="${categoryToFilterKey[p.category] || 'career'}" class="card card-hover overflow-hidden block">
       <div class="photo-placeholder aspect-[16/10] rounded-none relative">
         <i data-lucide="sparkles" class="w-10 h-10"></i>
-        ${p.cover_image_url ? `<img src="${escapeHtmlLocal(p.cover_image_url)}" alt="${escapeHtmlLocal(p.title)}" class="absolute inset-0 w-full h-full object-cover" loading="lazy" onerror="this.remove()">` : ''}
+        ${thumbnailFor(p) ? `<img src="${escapeHtmlLocal(thumbnailFor(p))}" alt="${escapeHtmlLocal(p.title)}" class="absolute inset-0 w-full h-full object-cover" loading="lazy" onerror="this.remove()">` : ''}
       </div>
       <div class="p-5">
         <span class="badge ${badgeByCategory[p.category] || 'badge-info'} mb-2">${p.category}</span>
@@ -25,6 +25,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         <p class="text-xs mt-2" style="color:var(--text-secondary)">${escapeHtmlLocal(p.excerpt)}</p>
       </div>
     </a>`).join('');
+
+  // Falls back to the first image found inside the post's own body content
+  // when no cover photo was set — the grid then never has to fall back
+  // further than that to the plain icon placeholder unless a post truly
+  // has no images anywhere.
+  function thumbnailFor(post) {
+    if (post.cover_image_url) return post.cover_image_url;
+    const match = (post.body || '').match(/<img[^>]+src=["']([^"']+)["']/i);
+    return match ? match[1] : null;
+  }
 
   if (window.lucide) lucide.createIcons();
   if (posts.length && document.querySelectorAll('[data-filter]').length) {

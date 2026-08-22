@@ -256,6 +256,18 @@ const EP = (() => {
     if (error) throw error;
   }
   const MAX_PDF_BYTES = 10485760; // 10MB, matches the storage bucket's own limit
+  const MAX_COVER_BYTES = 5242880; // 5MB, matches the storage bucket's own limit
+  async function uploadPostCover(file) {
+    if (!file.type.startsWith('image/')) throw new Error('Choose an image file.');
+    if (file.size > MAX_COVER_BYTES) throw new Error('Image must be under 5MB.');
+    const client = await db();
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name}`.replace(/\s+/g, '_');
+    const { error } = await client.storage.from('blog-covers').upload(path, file, { contentType: file.type });
+    if (error) throw error;
+    const { data } = client.storage.from('blog-covers').getPublicUrl(path);
+    return data.publicUrl;
+  }
+
   async function uploadResourcePdf(file) {
     if (file.type !== 'application/pdf') throw new Error('Only PDF files are allowed.');
     if (file.size > MAX_PDF_BYTES) throw new Error('PDF must be under 10MB.');
@@ -549,7 +561,7 @@ const EP = (() => {
     users, courses, addUser, removeUser, suggestEmail, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
     posts, postById, savePost, deletePost,
     categories, addCategory, deleteCategory,
-    resources, addResource, deleteResource,
+    resources, addResource, deleteResource, uploadPostCover,
     homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,

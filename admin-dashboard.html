@@ -370,9 +370,11 @@
       </div>
       <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Excerpt</label><input id="post-excerpt" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
       <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Cover Photo URL</label>
-        <p class="text-xs mb-2" style="color:var(--text-secondary)">Shown as the thumbnail in the blog posts grid. Paste any image URL — optional.</p>
-        <input id="post-cover-url" type="url" placeholder="https://..." class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Cover Photo</label>
+        <p class="text-xs mb-2" style="color:var(--text-secondary)">Shown as the thumbnail in the blog posts grid. Upload an image, or paste a URL instead — optional.</p>
+        <input id="post-cover-file" type="file" accept="image/*" class="w-full px-4 py-3 rounded-md border text-sm mb-2" style="border-color:var(--border-default)">
+        <input id="post-cover-url" type="url" placeholder="...or paste an image URL" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <p id="post-cover-status" class="text-xs mt-1 hidden"></p>
         <img id="post-cover-preview" class="hidden mt-2 rounded-md" style="max-height:120px; object-fit:cover">
       </div>
       <div>
