@@ -190,13 +190,38 @@ const EP = (() => {
 
   // Creates a real login via the admin-create-user Edge Function (needs the
   // service role key server-side — see supabase/functions/admin-create-user).
-  async function addUser({ name, role, courseId }) {
+  // Email is now supplied by the admin (visible, editable in the form)
+  // instead of silently auto-generated — a removed user is deactivated, not
+  // deleted (their homework/grades history stays intact), so their original
+  // email stays permanently taken in Supabase Auth. Silent generation gave
+  // the admin no way to see or work around that collision.
+  async function addUser({ name, email, role, courseId }) {
     const client = await db();
-    const email = name.toLowerCase().replace(/[^a-z]+/g, '.') + '@europass.demo';
     const { error } = await client.functions.invoke('admin-create-user', {
       body: { email, password: 'Welcome2026!', full_name: name, role, course_id: courseId },
     });
-    if (error) throw error;
+    if (error) throw await unwrapFunctionError(error);
+  }
+  function suggestEmail(name) {
+    return name.toLowerCase().replace(/[^a-z]+/g, '.').replace(/^\.|\.$/g, '') + '@europass.demo';
+  }
+
+  // The Supabase client's default error for a failed Edge Function call is
+  // just "Edge Function returned a non-2xx status code" — the actual reason
+  // (missing env var, duplicate email, RLS rejection, etc.) is sitting in
+  // the function's own response body and never gets read. This pulls it out
+  // so errors are actually diagnosable instead of always showing the same
+  // generic message regardless of what really went wrong.
+  async function unwrapFunctionError(error) {
+    try {
+      if (error && error.context && typeof error.context.json === 'function') {
+        const body = await error.context.clone().json();
+        if (body && (body.error || body.message)) {
+          return new Error(body.error || body.message);
+        }
+      }
+    } catch (_) { /* body wasn't JSON or already consumed — fall through */ }
+    return error;
   }
   async function removeUser(id) {
     const client = await db();
@@ -521,7 +546,7 @@ const EP = (() => {
   return {
     KEYS, timeAgo,
     getSession, requireRole, login, signup, logout,
-    users, courses, addUser, removeUser, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
+    users, courses, addUser, removeUser, suggestEmail, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
     posts, postById, savePost, deletePost,
     categories, addCategory, deleteCategory,
     resources, addResource, deleteResource,

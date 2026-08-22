@@ -214,8 +214,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const teacherSelect = document.getElementById('res-target-teacher');
     if (!teachersCache.length) {
       teachersCache = (await EP.users()).filter(u => u.role === 'teacher');
-      teacherSelect.innerHTML = '<option value="">All Teachers</option>' + teachersCache.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
     }
+    // Always rebuild the dropdown's options here, even when teachersCache
+    // was already populated by something else (renderResources() fills it
+    // on every dashboard load) — the fetch is what's worth caching, not
+    // this cheap, idempotent HTML population. Skipping it when the cache
+    // was already warm was the actual bug: the select silently kept only
+    // its static default option and never showed any teacher names.
+    teacherSelect.innerHTML = '<option value="">All Teachers</option>' + teachersCache.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
     teacherSelect.value = '';
     document.getElementById('res-submit-btn').textContent = 'Send to All Teachers';
     document.getElementById('resource-modal').classList.remove('hidden');
@@ -484,19 +490,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     const courseSel = document.getElementById('user-course');
     courseSel.innerHTML = (await EP.courses()).map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
     document.getElementById('user-form').reset();
+    document.getElementById('user-email').dataset.autofilled = 'true';
     document.getElementById('user-modal').classList.remove('hidden');
   };
+  // Auto-suggests an email as the admin types a name, but stops the moment
+  // they edit the email field directly — so a deliberate fix for a
+  // collision is never silently overwritten by the next keystroke in Name.
+  document.getElementById('user-name').addEventListener('input', (e) => {
+    const emailField = document.getElementById('user-email');
+    if (emailField.dataset.autofilled === 'true') {
+      emailField.value = EP.suggestEmail(e.target.value);
+    }
+  });
+  document.getElementById('user-email').addEventListener('input', (e) => {
+    e.target.dataset.autofilled = 'false';
+  });
   document.getElementById('user-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     try {
       await EP.addUser({
         name: document.getElementById('user-name').value,
+        email: document.getElementById('user-email').value,
         role: document.getElementById('user-role').value,
         courseId: document.getElementById('user-course').value,
       });
       closeModal('user-modal');
       await renderAll();
-      showToast('User added — check the browser console/Edge Function logs for their login email.');
+      showToast('User added \u2014 login email: ' + document.getElementById('user-email').value);
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
