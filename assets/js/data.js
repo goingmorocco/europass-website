@@ -68,12 +68,12 @@ const EP = (() => {
   // The chosen course becomes a pending enrollment request instead; an
   // admin must review and activate it before it grants real access. See
   // supabase/migrations/008_enrollments.sql.
-  async function signup({ email, password, fullName, courseId }) {
+  async function signup({ email, password, fullName, courseId, city, phone }) {
     const client = await db();
     const emailRedirectTo = new URL('login.html', window.location.href).href;
     const { data, error } = await client.auth.signUp({
       email, password,
-      options: { data: { full_name: fullName, desired_course_id: courseId || null }, emailRedirectTo },
+      options: { data: { full_name: fullName, desired_course_id: courseId || null, city: city || null, phone: phone || null }, emailRedirectTo },
     });
     if (error) throw error;
     if (data.session && courseId) {
@@ -145,7 +145,7 @@ const EP = (() => {
     if (error) throw error;
     return data.map(mapProfile);
   }
-  function mapProfile(p) { return { id: p.id, name: p.full_name, role: p.role, courseId: p.course_id, title: p.title }; }
+  function mapProfile(p) { return { id: p.id, name: p.full_name, role: p.role, courseId: p.course_id, title: p.title, city: p.city, phone: p.phone }; }
 
   async function courses() {
     const client = await db();

@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         password,
         fullName: document.getElementById('signup-name').value.trim(),
         courseId: courseSelect.value,
+        city: document.getElementById('signup-city').value.trim(),
+        phone: document.getElementById('signup-phone').value.trim(),
       });
       if (hasSession) {
         window.location.href = 'student-dashboard.html';

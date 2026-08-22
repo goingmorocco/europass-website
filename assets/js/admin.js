@@ -122,11 +122,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const [rows, courseList] = await Promise.all([EP.users(), EP.courses()]);
     const teachersAndStudents = rows.filter(u => u.role !== 'admin');
     document.getElementById('admin-users-list').innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
-      <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="px-5 py-3"></th></tr></thead><tbody>
       ${teachersAndStudents.map((u, i) => `<tr style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}">
         <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(u.name)}</td>
         <td class="px-5 py-3"><span class="badge ${u.role === 'teacher' ? 'badge-info' : 'badge-amber'}">${u.role}</span></td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(courseList.find(c => c.id === u.courseId)?.name || '\u2014')}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(u.city || '\u2014')}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)" dir="ltr">${escapeHtml(u.phone || '\u2014')}</td>
         <td class="px-5 py-3 text-right"><button onclick="removeUserConfirm('${u.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Remove</button></td>
       </tr>`).join('')}
     </tbody></table>`;
