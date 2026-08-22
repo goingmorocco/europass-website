@@ -113,6 +113,18 @@
 
 <main id="main">
 
+<div id="pending-approval-screen" class="hidden">
+  <div class="container-ep py-20 max-w-lg mx-auto text-center">
+    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style="background:var(--amber-100)">
+      <i data-lucide="clock" class="w-7 h-7" style="color:var(--amber-600)"></i>
+    </div>
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Waiting for Administration Approval</h1>
+    <p class="text-sm mt-3" style="color:var(--text-secondary)">Thanks for signing up! Your enrollment request is being reviewed by our team. You'll get full access to your course, homework, and messages here as soon as it's approved — usually within a day or two.</p>
+    <p class="text-xs mt-6" style="color:var(--text-disabled)">Questions in the meantime? Reach out at <a href="mailto:hello@europassacademy.com" class="hover:underline" style="color:var(--red-600)">hello@europassacademy.com</a> or <a href="https://wa.me/212664463723" target="_blank" rel="noopener" class="hover:underline" style="color:var(--red-600)">WhatsApp</a>.</p>
+    <button id="pending-logout" class="btn btn-secondary mt-8">Log Out</button>
+  </div>
+</div>
+
 <div id="student-shell" class="flex min-h-[calc(100vh-4rem)]">
   <aside class="hidden lg:flex flex-col w-64 border-r shrink-0 p-4 gap-1" style="border-color:var(--border-default)">
     

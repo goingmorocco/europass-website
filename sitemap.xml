@@ -7,7 +7,7 @@
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/about.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/about.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/about.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/about.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/bilan.html</loc>
@@ -22,7 +22,7 @@
     <priority>0.6</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/blog-post.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/blog-post.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/blog-post.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/blog-post.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/blog.html</loc>
@@ -31,7 +31,7 @@
     <priority>0.6</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/blog.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/blog.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/blog.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/blog.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/contact.html</loc>
@@ -40,7 +40,7 @@
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/contact.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/contact.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/contact.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/contact.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/course-business-english.html</loc>
@@ -49,7 +49,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/course-business-english.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/course-business-english.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/course-business-english.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/course-business-english.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/course-communication-english.html</loc>
@@ -58,7 +58,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/course-communication-english.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/course-communication-english.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/course-communication-english.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/course-communication-english.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/course-english-online.html</loc>
@@ -67,7 +67,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/course-english-online.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/course-english-online.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/course-english-online.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/course-english-online.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/course-ielts-toefl.html</loc>
@@ -76,7 +76,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/course-ielts-toefl.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/course-ielts-toefl.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/course-ielts-toefl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/course-ielts-toefl.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/course-kids-english.html</loc>
@@ -85,7 +85,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/course-kids-english.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/course-kids-english.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/course-kids-english.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/course-kids-english.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/courses.html</loc>
@@ -94,7 +94,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/courses.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/courses.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/courses.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/courses.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/index.html</loc>
@@ -103,7 +103,7 @@
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/index.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/index.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/index.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/index.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/pricing.html</loc>
@@ -124,7 +124,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-french-online.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-french-online.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-french-online.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-french-online.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/program-french.html</loc>
@@ -133,7 +133,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-french.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-french.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-french.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-french.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/program-german-online.html</loc>
@@ -142,7 +142,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-german-online.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-german-online.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-german-online.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-german-online.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/program-german.html</loc>
@@ -151,7 +151,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-german.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-german.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-german.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-german.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/program-nursing-ausbildung.html</loc>
@@ -160,7 +160,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-nursing-ausbildung.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-nursing-ausbildung.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-nursing-ausbildung.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-nursing-ausbildung.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/program-nursing.html</loc>
@@ -169,7 +169,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-nursing.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-nursing.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-nursing.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-nursing.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/terms.html</loc>
@@ -184,7 +184,7 @@
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/test-level.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/test-level.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/test-level.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/test-level.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/about.html</loc>
@@ -193,7 +193,7 @@
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/about.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/about.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/about.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/about.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/blog-post.html</loc>
@@ -202,7 +202,7 @@
     <priority>0.6</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/blog-post.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/blog-post.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/blog-post.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/blog-post.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/blog.html</loc>
@@ -211,7 +211,7 @@
     <priority>0.6</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/blog.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/blog.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/blog.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/blog.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/contact.html</loc>
@@ -220,7 +220,7 @@
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/contact.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/contact.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/contact.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/contact.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/course-business-english.html</loc>
@@ -229,7 +229,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/course-business-english.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/course-business-english.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/course-business-english.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/course-business-english.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/course-communication-english.html</loc>
@@ -238,7 +238,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/course-communication-english.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/course-communication-english.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/course-communication-english.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/course-communication-english.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/course-english-online.html</loc>
@@ -247,7 +247,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/course-english-online.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/course-english-online.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/course-english-online.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/course-english-online.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/course-ielts-toefl.html</loc>
@@ -256,7 +256,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/course-ielts-toefl.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/course-ielts-toefl.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/course-ielts-toefl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/course-ielts-toefl.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/course-kids-english.html</loc>
@@ -265,7 +265,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/course-kids-english.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/course-kids-english.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/course-kids-english.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/course-kids-english.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/courses.html</loc>
@@ -274,7 +274,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/courses.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/courses.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/courses.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/courses.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/index.html</loc>
@@ -283,7 +283,7 @@
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/index.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/index.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/index.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/index.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/program-french-online.html</loc>
@@ -292,7 +292,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-french-online.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-french-online.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-french-online.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-french-online.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/program-french.html</loc>
@@ -301,7 +301,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-french.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-french.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-french.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-french.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/program-german-online.html</loc>
@@ -310,7 +310,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-german-online.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-german-online.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-german-online.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-german-online.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/program-german.html</loc>
@@ -319,7 +319,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-german.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-german.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-german.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-german.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/program-nursing-ausbildung.html</loc>
@@ -328,7 +328,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-nursing-ausbildung.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-nursing-ausbildung.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-nursing-ausbildung.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-nursing-ausbildung.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/program-nursing.html</loc>
@@ -337,7 +337,7 @@
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/program-nursing.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/program-nursing.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/program-nursing.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/program-nursing.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/ar/test-level.html</loc>
@@ -346,6 +346,6 @@
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/test-level.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/test-level.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/test-level.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/test-level.html"/>
   </url>
 </urlset>
