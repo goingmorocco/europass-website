@@ -203,18 +203,21 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', onScroll, { passive: true });
   }
 
-  // Language preference — default to Arabic for browsers set to Arabic
-  // (the best available signal on a static site with no server-side geo
-  // detection), but only ever redirect once and only from the homepage,
-  // and never override a choice the visitor already made.
+  // Language preference — Arabic is now the default landing experience for
+  // every first-time visitor (this business targets Moroccan traffic, and
+  // many Moroccan users browse with French or English as their device
+  // language despite being Arabic readers, so gating the default purely on
+  // navigator.language would under-serve exactly the audience being
+  // targeted). English remains one click away via the language switcher,
+  // and once a visitor picks either language explicitly, that choice is
+  // remembered and never overridden again.
   //
   // isHomepage must explicitly exclude anything already under /ar/ — the
   // redirect target below ('ar/index.html') is a relative path that's only
   // correct starting from the root. Without this check, the same script
   // running on the Arabic homepage itself would try to redirect to a
   // relative 'ar/index.html' from inside /ar/, resolving to the
-  // non-existent /ar/ar/index.html — a real bug that was very likely the
-  // cause of Search Console's "Redirect error" on the Arabic homepage.
+  // non-existent /ar/ar/index.html — a real bug fixed here previously.
   const langSwitchAr = document.getElementById('lang-switch-ar');
   if (langSwitchAr) {
     langSwitchAr.addEventListener('click', () => localStorage.setItem('europass_lang_pref', 'ar'));
@@ -223,11 +226,15 @@ document.addEventListener('DOMContentLoaded', () => {
     el.addEventListener('click', () => localStorage.setItem('europass_lang_pref', 'en'));
   });
   const isHomepage = !/\/ar\//.test(window.location.pathname) && /\/(index\.html)?$/.test(window.location.pathname);
-  if (isHomepage && !localStorage.getItem('europass_lang_pref')) {
-    const prefersArabic = (navigator.languages || [navigator.language || '']).some((l) => l.toLowerCase().startsWith('ar'));
-    if (prefersArabic) {
-      localStorage.setItem('europass_lang_pref', 'ar');
-      window.location.href = 'ar/index.html';
-    }
+  // Search engine crawlers must see this page directly, not get redirected —
+  // Google generally runs JavaScript while crawling, so an unguarded
+  // redirect here would make Google treat this page as redirecting to the
+  // Arabic version rather than as its own independent, indexable page,
+  // which directly conflicts with the hreflang setup (that setup assumes
+  // both language versions are separately crawlable).
+  const isCrawler = /bot|crawl|spider|slurp|googlebot|bingbot|yandex|baiduspider|duckduckbot/i.test(navigator.userAgent);
+  if (isHomepage && !isCrawler && !localStorage.getItem('europass_lang_pref')) {
+    localStorage.setItem('europass_lang_pref', 'ar');
+    window.location.href = 'ar/index.html';
   }
 });

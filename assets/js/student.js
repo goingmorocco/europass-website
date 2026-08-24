@@ -1,6 +1,31 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const user = await EP.requireRole('student');
   if (!user) return;
+
+  // A student with no course assigned yet either has a pending enrollment
+  // request or, in rare cases, none at all (e.g. an admin created the login
+  // directly without an enrollment) — either way there's nothing useful to
+  // show them yet, so stop before any dashboard UI initializes.
+  if (!user.courseId) {
+    const enrollments = await EP.myEnrollments(user.id).catch(() => []);
+    const isPending = enrollments.length === 0 || enrollments.some((e) => e.status === 'pending');
+    if (isPending) {
+      document.getElementById('student-shell').classList.add('hidden');
+      const screen = document.getElementById('pending-approval-screen');
+      screen.classList.remove('hidden');
+      document.getElementById('pending-logout').addEventListener('click', async () => {
+        await EP.logout();
+        window.location.href = 'login.html';
+      });
+      // If an admin approves this enrollment while the student happens to
+      // have this tab open, refresh automatically instead of leaving them
+      // stuck on a stale waiting screen until they manually reload.
+      EP.onChange([EP.KEYS.enrollments], () => window.location.reload());
+      if (window.lucide) lucide.createIcons();
+      return;
+    }
+  }
+
   initPortalChrome(user, 'student-shell');
   initCommunity(user, 'student-shell');
   wireTabs('student-shell', 'overview');
