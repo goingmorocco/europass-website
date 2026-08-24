@@ -643,21 +643,27 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="flex items-center gap-2 mb-1">
             <span class="badge ${statusBadge[e.status] || 'badge-info'}">${e.status}</span>
             <span class="badge ${e.paymentStatus === 'paid' ? 'badge-success' : e.paymentStatus === 'waived' ? 'badge-info' : 'badge-warning'}">${e.paymentStatus}</span>
+            ${!e.courseId ? `<span class="badge badge-warning">Course undecided</span>` : ''}
           </div>
-          <p class="font-semibold truncate" style="color:var(--navy-700)">${escapeHtml(userById2[e.studentId] || 'Unknown student')} \u2192 ${escapeHtml(courseById[e.courseId] || 'Unknown course')}</p>
+          <p class="font-semibold truncate" style="color:var(--navy-700)">${escapeHtml(userById2[e.studentId] || 'Unknown student')} \u2192 ${e.courseId ? escapeHtml(courseById[e.courseId] || 'Unknown course') : 'Not yet decided'}</p>
           <p class="text-xs mt-1" style="color:var(--text-secondary)">Requested ${EP.timeAgo(e.requestedAt)}${e.priceMad ? ` \u00b7 ${e.priceMad} MAD` : ''}</p>
         </div>
         ${e.status === 'pending' ? `
         <div class="flex gap-2 shrink-0">
-          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(courseById[e.courseId] || '')})' class="btn btn-primary btn-sm">Approve</button>
+          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')})' class="btn btn-primary btn-sm">Approve</button>
           <button onclick="rejectEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm" style="color:var(--danger-600); border-color:var(--danger-600)">Reject</button>
         </div>` : ''}
       </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No ${enrollmentFilter === 'all' ? '' : enrollmentFilter + ' '}enrollments.</p></div>`;
   }
-  window.openActivateModal = (id, studentName, courseName) => {
+  window.openActivateModal = async (id, studentName, courseId) => {
     document.getElementById('activate-enrollment-id').value = id;
-    document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(studentName)}</strong> \u2192 ${escapeHtml(courseName)}`;
+    document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(studentName)}</strong>`;
     document.getElementById('activate-enrollment-form').reset();
+    const courseSelect = document.getElementById('activate-course');
+    const courseList = await EP.courses();
+    courseSelect.innerHTML = courseList.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+    document.getElementById('activate-course-hint').classList.toggle('hidden', !!courseId);
+    if (courseId) courseSelect.value = courseId;
     document.getElementById('activate-enrollment-modal').classList.remove('hidden');
   };
   window.rejectEnrollmentConfirm = async (id) => {
@@ -671,6 +677,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       await EP.activateEnrollment(document.getElementById('activate-enrollment-id').value, {
         priceMad: document.getElementById('activate-price').value,
         paymentStatus: document.getElementById('activate-payment-status').value,
+        courseId: document.getElementById('activate-course').value,
       });
       document.getElementById('activate-enrollment-modal').classList.add('hidden');
       await renderEnrollments();

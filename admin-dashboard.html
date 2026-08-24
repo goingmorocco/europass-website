@@ -446,6 +446,11 @@
     <form id="activate-enrollment-form" class="space-y-4">
       <input type="hidden" id="activate-enrollment-id">
       <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course</label>
+        <select id="activate-course" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
+        <p id="activate-course-hint" class="text-xs mt-1 hidden" style="color:var(--amber-600)">This student hadn't chosen a course at signup — pick one to activate their enrollment.</p>
+      </div>
+      <div>
         <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Agreed price (MAD)</label>
         <input id="activate-price" type="number" min="0" step="1" placeholder="e.g. 890" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
       </div>
