@@ -143,6 +143,8 @@ textarea:focus-visible, [tabindex]:focus-visible{
 
 /* Section rhythm */
 .section{ padding:4rem 0; }
+/* Reduced spacing between sections, used only on program pages */
+.section-tight{ padding:2rem 0; }
 @media(min-width:1024px){ .section{ padding:6rem 0; } }
 
 /* Nav link underline */
