@@ -132,16 +132,99 @@ document.addEventListener('DOMContentLoaded', async () => {
   const T_RES_TYPE_ICON = { pdf: 'file-text', video: 'youtube', link: 'link' };
   const T_RES_TYPE_LABEL = { pdf: 'PDF', video: 'Video', link: 'Link' };
 
+  // ---- Attendance ----
+  let attendanceDraft = {}; // studentId -> status, for the currently-selected date, before saving
+  function todayISO() { return new Date().toISOString().slice(0, 10); }
+  document.getElementById('attendance-date').value = todayISO();
+
+  async function renderAttendance() {
+    const dateInput = document.getElementById('attendance-date');
+    const classDate = dateInput.value || todayISO();
+    let existing = [];
+    try { existing = await EP.attendanceFor(myCourseId, classDate); } catch (e) { console.warn('Could not load attendance:', e); }
+    const existingByStudent = Object.fromEntries(existing.map((a) => [a.studentId, a.status]));
+    attendanceDraft = { ...existingByStudent };
+    renderAttendanceList();
+  }
+  function renderAttendanceList() {
+    const statusOptions = [['present', 'Present', 'success'], ['late', 'Late', 'warning'], ['absent', 'Absent', 'danger']];
+    document.getElementById('attendance-list').innerHTML = `<table class="w-full text-sm"><tbody>
+      ${myStudents.map((s, i) => `<tr style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}">
+        <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(s.name)}</td>
+        <td class="px-5 py-3 text-right">
+          ${statusOptions.map(([val, label, color]) => `<button type="button" data-attendance-student="${s.id}" data-attendance-status="${val}" class="attendance-pill px-3 py-1.5 rounded-full text-xs font-semibold mx-0.5" style="${attendanceDraft[s.id] === val ? `background:var(--${color}-50);color:var(--${color}-600)` : 'background:var(--bg-subtle);color:var(--text-secondary)'}">${label}</button>`).join('')}
+        </td>
+      </tr>`).join('')}
+    </tbody></table>` || `<p class="text-sm text-center py-8" style="color:var(--text-secondary)">No students in this course yet.</p>`;
+    document.querySelectorAll('[data-attendance-student]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        attendanceDraft[btn.dataset.attendanceStudent] = btn.dataset.attendanceStatus;
+        renderAttendanceList();
+      });
+    });
+  }
+  document.getElementById('attendance-date').addEventListener('change', renderAttendance);
+  document.getElementById('attendance-mark-all-present').addEventListener('click', () => {
+    myStudents.forEach((s) => { attendanceDraft[s.id] = 'present'; });
+    renderAttendanceList();
+  });
+  document.getElementById('attendance-save').addEventListener('click', async () => {
+    const classDate = document.getElementById('attendance-date').value || todayISO();
+    const records = Object.entries(attendanceDraft).map(([studentId, status]) => ({ studentId, status }));
+    if (!records.length) { showToast('Mark at least one student first', 'danger'); return; }
+    try {
+      await EP.markAttendance(myCourseId, user.id, classDate, records);
+      showToast('Attendance saved');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
+
+  // ---- Announcements ----
+  async function renderAnnouncements() {
+    let list = [];
+    try { list = await EP.announcementsFor(myCourseId); } catch (e) { console.warn('Could not load announcements:', e); }
+    document.getElementById('teacher-announcements-list').innerHTML = list.map((a) => `
+      <div class="card p-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-semibold" style="color:var(--navy-700)">${escapeHtml(a.title)}</p>
+            <p class="text-sm mt-1" style="color:var(--text-secondary)">${escapeHtml(a.body)}</p>
+            <p class="text-xs mt-2" style="color:var(--text-disabled)">${EP.timeAgo(a.createdAt)}</p>
+          </div>
+          <button onclick="deleteAnnouncementConfirm('${a.id}')" aria-label="Delete" class="shrink-0"><i data-lucide="trash-2" class="w-4 h-4" style="color:var(--danger-600)"></i></button>
+        </div>
+      </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No announcements posted yet.</p></div>`;
+    lucide.createIcons();
+  }
+  window.deleteAnnouncementConfirm = async (id) => {
+    if (!confirm('Delete this announcement? Students will no longer see it.')) return;
+    try { await EP.deleteAnnouncement(id); await renderAnnouncements(); showToast('Announcement deleted', 'info'); }
+    catch (err) { showToast(err.message, 'danger'); }
+  };
+  document.getElementById('announcement-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await EP.addAnnouncement({
+        courseId: myCourseId, teacherId: user.id,
+        title: document.getElementById('announcement-title').value,
+        body: document.getElementById('announcement-body').value,
+      });
+      document.getElementById('announcement-modal').classList.add('hidden');
+      document.getElementById('announcement-form').reset();
+      await renderAnnouncements();
+      showToast('Posted to your class');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
+
   async function renderAll() {
     myStudents = await EP.studentsOf(myCourseId);
     if (!activeThreadStudentId && myStudents.length) activeThreadStudentId = myStudents[0].id;
-    await Promise.all([renderKPIs(), renderPending(), renderStudents(), renderHwList(), renderGradeList(), renderTeacherResources()]);
+    await Promise.all([renderKPIs(), renderPending(), renderStudents(), renderHwList(), renderGradeList(), renderTeacherResources(), renderAttendance(), renderAnnouncements()]);
     renderThreads();
     await renderChat();
     lucide.createIcons();
   }
   await renderAll();
-  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.messages, EP.KEYS.resources], renderAll);
+  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.messages, EP.KEYS.resources, EP.KEYS.attendance, EP.KEYS.announcements], renderAll);
 
   async function renderTeacherResources() {
     const list = document.getElementById('teacher-resources-list');

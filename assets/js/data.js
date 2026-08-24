@@ -28,7 +28,7 @@ const EP = (() => {
     notifications: 'notifications', notification_reads: 'notification_reads', messages: 'messages',
     groups: 'groups', group_posts: 'group_posts', group_post_likes: 'group_post_likes',
     group_post_comments: 'group_post_comments', group_messages: 'group_messages', group_post_reports: 'group_post_reports',
-    enrollments: 'enrollments', resources: 'resources',
+    enrollments: 'enrollments', resources: 'resources', attendance: 'attendance', announcements: 'announcements',
   };
 
   function timeAgo(iso) {
@@ -563,6 +563,52 @@ const EP = (() => {
     channels.push(channel);
   }
 
+  // ---- Attendance ----
+  async function attendanceFor(courseId, classDate) {
+    const client = await db();
+    const { data, error } = await client.from('attendance').select('*').eq('course_id', courseId).eq('class_date', classDate);
+    if (error) throw error;
+    return data.map(mapAttendance);
+  }
+  async function myAttendance(studentId) {
+    const client = await db();
+    const { data, error } = await client.from('attendance').select('*').eq('student_id', studentId).order('class_date', { ascending: false });
+    if (error) throw error;
+    return data.map(mapAttendance);
+  }
+  async function markAttendance(courseId, teacherId, classDate, records) {
+    // records: [{ studentId, status }] — upsert so re-saving the same date
+    // just overwrites, instead of erroring on the unique constraint.
+    const client = await db();
+    const rows = records.map((r) => ({ course_id: courseId, teacher_id: teacherId, student_id: r.studentId, class_date: classDate, status: r.status }));
+    const { error } = await client.from('attendance').upsert(rows, { onConflict: 'course_id,student_id,class_date' });
+    if (error) throw error;
+  }
+  function mapAttendance(a) { return { id: a.id, courseId: a.course_id, studentId: a.student_id, teacherId: a.teacher_id, classDate: a.class_date, status: a.status }; }
+
+  // ---- Announcements ----
+  async function announcementsFor(courseId) {
+    const client = await db();
+    const { data, error } = await client.from('announcements').select('*').eq('course_id', courseId).order('created_at', { ascending: false });
+    if (error) throw error;
+    return data.map(mapAnnouncement);
+  }
+  async function myAnnouncements(courseId) {
+    if (!courseId) return [];
+    return announcementsFor(courseId);
+  }
+  async function addAnnouncement({ courseId, teacherId, title, body }) {
+    const client = await db();
+    const { error } = await client.from('announcements').insert({ course_id: courseId, teacher_id: teacherId, title, body });
+    if (error) throw error;
+  }
+  async function deleteAnnouncement(id) {
+    const client = await db();
+    const { error } = await client.from('announcements').delete().eq('id', id);
+    if (error) throw error;
+  }
+  function mapAnnouncement(a) { return { id: a.id, courseId: a.course_id, teacherId: a.teacher_id, title: a.title, body: a.body, createdAt: a.created_at }; }
+
   return {
     KEYS, timeAgo,
     getSession, requireRole, login, signup, logout,
@@ -570,6 +616,8 @@ const EP = (() => {
     posts, postById, savePost, deletePost,
     categories, addCategory, deleteCategory,
     resources, addResource, deleteResource, uploadPostCover,
+    attendanceFor, myAttendance, markAttendance,
+    announcementsFor, myAnnouncements, addAnnouncement, deleteAnnouncement,
     homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,

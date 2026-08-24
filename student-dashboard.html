@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem('europass_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Dashboard | EuroPass Khemisset</title>
 <meta name="description" content="EuroPass student dashboard — homework, grades, messages, and notifications.">
@@ -88,6 +89,7 @@
           <a href="#" class="is-active">EN</a>
           <a href="ar/index.html" id="lang-switch-ar">AR</a>
         </div>
+        <button class="theme-toggle" aria-label="Toggle dark mode"><i data-lucide="sun" class="icon-sun w-4 h-4"></i><i data-lucide="moon" class="icon-moon w-4 h-4"></i></button>
         <a href="login.html" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium">
           <i data-lucide="log-in" class="w-4 h-4" style="color:var(--navy-700)"></i> Portal Login
         </a>
@@ -108,6 +110,7 @@
       </div>
       <button onclick="switchTab('student-shell','overview'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
       <button onclick="switchTab('student-shell','homework'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-list" class="w-4 h-4"></i> My Homework</button>
+      <button onclick="switchTab('student-shell','announcements'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="megaphone" class="w-4 h-4"></i> Announcements</button>
       <button onclick="switchTab('student-shell','messages'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="messages-square" class="w-4 h-4"></i> Messages</button>
       <button onclick="switchTab('student-shell','community'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users-round" class="w-4 h-4"></i> Community</button>
       <button onclick="switchTab('student-shell','notifications'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="bell" class="w-4 h-4"></i> Notifications</button>
@@ -138,6 +141,9 @@
     </button>
     <button data-tab-trigger="homework" onclick="switchTab('student-shell','homework')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="clipboard-list" class="w-4 h-4"></i>My Homework
+    </button>
+    <button data-tab-trigger="announcements" onclick="switchTab('student-shell','announcements')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="megaphone" class="w-4 h-4"></i>Announcements
     </button>
     <button data-tab-trigger="messages" onclick="switchTab('student-shell','messages')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="messages-square" class="w-4 h-4"></i>Messages
@@ -204,11 +210,29 @@
     <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">Homework Due</p><div id="student-hw-due" class="space-y-2 text-sm"></div></div>
     <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">Recent Grades</p><div id="student-recent-grades" class="space-y-2 text-sm"></div></div>
   </div>
+  <div class="grid md:grid-cols-2 gap-6 mt-6">
+    <div class="card p-6">
+      <p class="font-semibold mb-3" style="color:var(--navy-700)">My Attendance</p>
+      <div id="student-attendance-summary" class="flex items-center gap-6"></div>
+    </div>
+    <div class="card p-6 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style="background:var(--red-50)"><i data-lucide="flame" class="w-6 h-6" style="color:var(--red-600)"></i></div>
+      <div>
+        <p id="student-streak-count" class="font-serif text-2xl font-bold" style="color:var(--navy-700)">0</p>
+        <p class="text-xs" style="color:var(--text-secondary)">on-time homework streak</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div data-tab-panel="homework" class="hidden">
   <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">My Homework</h1>
-  <div id="student-hw-list" class="space-y-4"></div>
+  <div id="student-hw-list" class="space-y-4"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+</div>
+
+<div data-tab-panel="announcements" class="hidden">
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Announcements</h1>
+  <div id="student-announcements-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
 <div data-tab-panel="messages" class="hidden">

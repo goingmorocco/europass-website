@@ -1,5 +1,22 @@
 // EuroPass — shared front-end behavior (no backend; UI prototype only)
 document.addEventListener('DOMContentLoaded', () => {
+  // Dark mode toggle — the actual theme application on page load happens
+  // in a tiny inline script in <head> (before this file even loads), so
+  // there's no flash of the wrong theme while the page renders. This block
+  // only needs to wire up the click handler and keep the icon in sync.
+  document.querySelectorAll('.theme-toggle').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('europass_theme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('europass_theme', 'dark');
+      }
+    });
+  });
+
   // Mobile nav drawer
   const navToggle = document.getElementById('nav-toggle');
   const navDrawer = document.getElementById('nav-drawer');

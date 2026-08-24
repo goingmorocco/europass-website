@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem('europass_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Teacher Dashboard | EuroPass Khemisset</title>
 <meta name="description" content="EuroPass teacher dashboard — assign homework, grade submissions, message students.">
@@ -88,6 +89,7 @@
           <a href="#" class="is-active">EN</a>
           <a href="ar/index.html" id="lang-switch-ar">AR</a>
         </div>
+        <button class="theme-toggle" aria-label="Toggle dark mode"><i data-lucide="sun" class="icon-sun w-4 h-4"></i><i data-lucide="moon" class="icon-moon w-4 h-4"></i></button>
         <a href="login.html" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium">
           <i data-lucide="log-in" class="w-4 h-4" style="color:var(--navy-700)"></i> Portal Login
         </a>
@@ -108,6 +110,8 @@
       </div>
       <button onclick="switchTab('teacher-shell','overview'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
       <button onclick="switchTab('teacher-shell','students'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users" class="w-4 h-4"></i> My Students</button>
+      <button onclick="switchTab('teacher-shell','attendance'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="calendar-check" class="w-4 h-4"></i> Attendance</button>
+      <button onclick="switchTab('teacher-shell','announcements'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="megaphone" class="w-4 h-4"></i> Announcements</button>
       <button onclick="switchTab('teacher-shell','assign'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Assign Homework</button>
       <button onclick="switchTab('teacher-shell','grade'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="check-circle" class="w-4 h-4"></i> Grade Submissions</button>
       <button onclick="switchTab('teacher-shell','messages'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="messages-square" class="w-4 h-4"></i> Messages</button>
@@ -128,6 +132,12 @@
     </button>
     <button data-tab-trigger="students" onclick="switchTab('teacher-shell','students')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="users" class="w-4 h-4"></i>My Students
+    </button>
+    <button data-tab-trigger="attendance" onclick="switchTab('teacher-shell','attendance')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="calendar-check" class="w-4 h-4"></i>Attendance
+    </button>
+    <button data-tab-trigger="announcements" onclick="switchTab('teacher-shell','announcements')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="megaphone" class="w-4 h-4"></i>Announcements
     </button>
     <button data-tab-trigger="assign" onclick="switchTab('teacher-shell','assign')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="clipboard-list" class="w-4 h-4"></i>Assign Homework
@@ -190,7 +200,43 @@
 
 <div data-tab-panel="students" class="hidden">
   <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">My Students</h1>
-  <div id="teacher-students-list" class="card overflow-hidden"></div>
+  <div id="teacher-students-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+</div>
+
+<div data-tab-panel="attendance" class="hidden">
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Attendance</h1>
+    <div class="flex items-center gap-2">
+      <input id="attendance-date" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <button id="attendance-mark-all-present" type="button" class="btn btn-secondary btn-sm">Mark All Present</button>
+    </div>
+  </div>
+  <div id="attendance-list" class="card overflow-hidden"></div>
+  <button id="attendance-save" class="btn btn-primary mt-4">Save Attendance</button>
+</div>
+
+<div data-tab-panel="announcements" class="hidden">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Announcements</h1>
+    <button onclick="document.getElementById('announcement-modal').classList.remove('hidden')" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> New Announcement</button>
+  </div>
+  <div id="teacher-announcements-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+</div>
+
+<!-- New announcement modal -->
+<div id="announcement-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">New Announcement</p>
+      <button onclick="document.getElementById('announcement-modal').classList.add('hidden')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <p class="text-xs mb-4" style="color:var(--text-secondary)">Every student in your course will see this.</p>
+    <form id="announcement-form" class="space-y-4">
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="announcement-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Message</label><textarea id="announcement-body" required rows="4" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea></div>
+      <button type="submit" class="btn btn-primary w-full">Post to Class</button>
+    </form>
+  </div>
 </div>
 
 <div data-tab-panel="assign" class="hidden">
