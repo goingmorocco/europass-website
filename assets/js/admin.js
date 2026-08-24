@@ -372,17 +372,55 @@ document.addEventListener('DOMContentLoaded', async () => {
   // reasoning as the resources-cache fix from earlier in this project —
   // renderAll() calls renderAnalytics() immediately, and a `let` binding
   // isn't accessible until its own declaration line has actually executed.
-  let chartEnrollments = null, chartStatus = null, chartPrograms = null;
+  let chartEnrollments = null, chartStatus = null, chartPrograms = null, chartRevenue = null;
+  let analyticsSelectedYear = new Date().getFullYear();
 
   async function renderAnalytics() {
     if (!document.getElementById('analytics-chart-enrollments') || !window.Chart) return;
     const [allEnr, courseList] = await Promise.all([EP.allEnrollments(), EP.courses()]);
 
     const active = allEnr.filter((e) => e.status === 'active' || e.status === 'completed');
-    const revenue = active.reduce((sum, e) => sum + (Number(e.priceMad) || 0), 0);
-    document.getElementById('analytics-revenue').textContent = revenue.toLocaleString() + ' MAD';
+    const now = new Date();
+
+    // Revenue is attributed to activatedAt (when an enrollment actually
+    // became a paying student), not requestedAt (when they first signed
+    // up) — those can be weeks apart, and revenue should reflect when the
+    // sale actually closed. Nothing here ever resets automatically; "This
+    // Month" and "This Year" are just filtered views over the same
+    // permanent enrollment records, recalculated fresh on every load.
+    const revenueTotal = active.reduce((sum, e) => sum + (Number(e.priceMad) || 0), 0);
+    const revenueThisYear = active.filter((e) => e.activatedAt && new Date(e.activatedAt).getFullYear() === now.getFullYear())
+      .reduce((sum, e) => sum + (Number(e.priceMad) || 0), 0);
+    const revenueThisMonth = active.filter((e) => e.activatedAt && new Date(e.activatedAt).getFullYear() === now.getFullYear() && new Date(e.activatedAt).getMonth() === now.getMonth())
+      .reduce((sum, e) => sum + (Number(e.priceMad) || 0), 0);
+
+    document.getElementById('analytics-revenue-month').textContent = revenueThisMonth.toLocaleString() + ' MAD';
+    document.getElementById('analytics-revenue-year').textContent = revenueThisYear.toLocaleString() + ' MAD';
+    document.getElementById('analytics-revenue-total').textContent = revenueTotal.toLocaleString() + ' MAD';
     document.getElementById('analytics-active-students').textContent = String(active.length);
     document.getElementById('analytics-conversion').textContent = allEnr.length ? Math.round((active.length / allEnr.length) * 100) + '%' : '\u2014';
+
+    // Year selector for the Revenue by Month chart — populated from the
+    // actual years that appear in your activated enrollments, so it never
+    // shows a year with nothing in it.
+    const yearsWithRevenue = [...new Set(active.filter((e) => e.activatedAt).map((e) => new Date(e.activatedAt).getFullYear()))].sort((a, b) => b - a);
+    if (!yearsWithRevenue.includes(now.getFullYear())) yearsWithRevenue.unshift(now.getFullYear());
+    const yearSelect = document.getElementById('analytics-revenue-year-select');
+    if (!yearSelect.dataset.populated) {
+      yearSelect.innerHTML = yearsWithRevenue.map((y) => `<option value="${y}">${y}</option>`).join('');
+      yearSelect.value = String(analyticsSelectedYear);
+      yearSelect.addEventListener('change', () => { analyticsSelectedYear = Number(yearSelect.value); renderAnalytics(); });
+      yearSelect.dataset.populated = '1';
+    }
+
+    // Revenue by month, for the selected year specifically
+    const revenueByMonth = Array(12).fill(0);
+    active.forEach((e) => {
+      if (!e.activatedAt) return;
+      const d = new Date(e.activatedAt);
+      if (d.getFullYear() === analyticsSelectedYear) revenueByMonth[d.getMonth()] += Number(e.priceMad) || 0;
+    });
+    const monthNames = Array.from({ length: 12 }, (_, i) => new Date(2000, i, 1).toLocaleDateString(undefined, { month: 'short' }));
 
     // Enrollments over time — group by month of request
     const byMonth = {};
@@ -408,6 +446,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const programEntries = Object.entries(programCounts).sort((a, b) => b[1] - a[1]);
 
     const navy = '#0B1D3A', red = '#DC2626', teal = '#0D9488', amber = '#C77D14', grey = '#94A3B8';
+
+    if (chartRevenue) chartRevenue.destroy();
+    chartRevenue = new Chart(document.getElementById('analytics-chart-revenue'), {
+      type: 'bar',
+      data: { labels: monthNames, datasets: [{ label: 'Revenue (MAD)', data: revenueByMonth, backgroundColor: teal }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
+    });
 
     if (chartEnrollments) chartEnrollments.destroy();
     chartEnrollments = new Chart(document.getElementById('analytics-chart-enrollments'), {

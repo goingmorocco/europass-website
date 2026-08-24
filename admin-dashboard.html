@@ -211,10 +211,22 @@
   <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Analytics</h1>
   <div class="grid sm:grid-cols-3 gap-4 mb-6">
     <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Total Revenue</p>
-      <p id="analytics-revenue" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">\u2014</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">From active enrollments</p>
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue \u2014 This Month</p>
+      <p id="analytics-revenue-month" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">\u2014</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Enrollments activated this month</p>
     </div>
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue \u2014 This Year</p>
+      <p id="analytics-revenue-year" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">\u2014</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Enrollments activated this year</p>
+    </div>
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue \u2014 All Time</p>
+      <p id="analytics-revenue-total" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">\u2014</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Never resets \u2014 running total</p>
+    </div>
+  </div>
+  <div class="grid sm:grid-cols-2 gap-4 mb-6">
     <div class="card p-5">
       <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Active Students</p>
       <p id="analytics-active-students" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">\u2014</p>
@@ -227,6 +239,13 @@
     </div>
   </div>
   <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <p class="font-semibold" style="color:var(--navy-700)">Revenue by Month</p>
+        <select id="analytics-revenue-year-select" class="px-2 py-1 rounded-md border text-xs" style="border-color:var(--border-default)"></select>
+      </div>
+      <canvas id="analytics-chart-revenue" height="220"></canvas>
+    </div>
     <div class="card p-5">
       <p class="font-semibold mb-4" style="color:var(--navy-700)">Enrollments Over Time</p>
       <canvas id="analytics-chart-enrollments" height="220"></canvas>
