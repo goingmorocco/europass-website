@@ -107,6 +107,7 @@
         <button id="nav-close" aria-label="Close menu" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <button onclick="switchTab('admin-shell','overview'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
+      <button onclick="switchTab('admin-shell','analytics'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Analytics</button>
       <button onclick="switchTab('admin-shell','enrollments'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-check" class="w-4 h-4"></i> Enrollments</button>
       <button onclick="switchTab('admin-shell','blog'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="newspaper" class="w-4 h-4"></i> Blog</button>
       <button onclick="switchTab('admin-shell','homework'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Homework &amp; Grades</button>
@@ -126,6 +127,9 @@
     
     <button data-tab-trigger="overview" onclick="switchTab('admin-shell','overview')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="layout-dashboard" class="w-4 h-4"></i>Overview
+    </button>
+    <button data-tab-trigger="analytics" onclick="switchTab('admin-shell','analytics')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="bar-chart-3" class="w-4 h-4"></i>Analytics
     </button>
     <button data-tab-trigger="enrollments" onclick="switchTab('admin-shell','enrollments')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="clipboard-check" class="w-4 h-4"></i>Enrollments
@@ -203,6 +207,60 @@
   </div>
 </div>
 
+<div data-tab-panel="analytics" class="hidden">
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Analytics</h1>
+  <div class="grid sm:grid-cols-3 gap-4 mb-6">
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue \u2014 This Month</p>
+      <p id="analytics-revenue-month" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">\u2014</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Enrollments activated this month</p>
+    </div>
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue \u2014 This Year</p>
+      <p id="analytics-revenue-year" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">\u2014</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Enrollments activated this year</p>
+    </div>
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue \u2014 All Time</p>
+      <p id="analytics-revenue-total" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">\u2014</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Never resets \u2014 running total</p>
+    </div>
+  </div>
+  <div class="grid sm:grid-cols-2 gap-4 mb-6">
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Active Students</p>
+      <p id="analytics-active-students" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">\u2014</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">With a course assigned</p>
+    </div>
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Conversion Rate</p>
+      <p id="analytics-conversion" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">\u2014</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Signups that became active</p>
+    </div>
+  </div>
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <p class="font-semibold" style="color:var(--navy-700)">Revenue by Month</p>
+        <select id="analytics-revenue-year-select" class="px-2 py-1 rounded-md border text-xs" style="border-color:var(--border-default)"></select>
+      </div>
+      <canvas id="analytics-chart-revenue" height="220"></canvas>
+    </div>
+    <div class="card p-5">
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Enrollments Over Time</p>
+      <canvas id="analytics-chart-enrollments" height="220"></canvas>
+    </div>
+    <div class="card p-5">
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Enrollment Status</p>
+      <canvas id="analytics-chart-status" height="220"></canvas>
+    </div>
+    <div class="card p-5 lg:col-span-2">
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Most Popular Programs</p>
+      <canvas id="analytics-chart-programs" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
 <div data-tab-panel="blog" class="hidden">
   <div class="flex items-center justify-between mb-6">
     <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Blog &amp; Content</h1>
@@ -211,7 +269,7 @@
       <button onclick="openPostForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> New Post</button>
     </div>
   </div>
-  <div id="admin-posts-list" class="space-y-3"></div>
+  <div id="admin-posts-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
 <!-- Manage categories modal -->
@@ -245,7 +303,7 @@
       <option value="">All Teachers</option>
     </select>
   </div>
-  <div id="admin-homework-list" class="space-y-3"></div>
+  <div id="admin-homework-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
 <div data-tab-panel="resources" class="hidden">
@@ -258,7 +316,7 @@
       <option value="">All Categories</option>
     </select>
   </div>
-  <div id="admin-resources-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  <div id="admin-resources-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
 <!-- Add resource modal -->
@@ -348,9 +406,12 @@
 <div data-tab-panel="users" class="hidden">
   <div class="flex items-center justify-between mb-6">
     <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Teachers &amp; Students</h1>
-    <button onclick="openUserForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add User</button>
+    <div class="flex gap-2">
+      <button onclick="exportUsersCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export CSV</button>
+      <button onclick="openUserForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add User</button>
+    </div>
   </div>
-  <div id="admin-users-list" class="card overflow-hidden"></div>
+  <div id="admin-users-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
 <!-- Blog post modal -->
@@ -427,13 +488,16 @@
 </div>
 
 <div data-tab-panel="enrollments" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Enrollments</h1>
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Enrollments</h1>
+    <button onclick="exportEnrollmentsCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export CSV</button>
+  </div>
   <div class="flex flex-wrap gap-2 mb-6" id="enrollment-filter-tabs">
     <button data-enrollment-filter="pending" class="persona-tab" aria-selected="true">Pending</button>
     <button data-enrollment-filter="active" class="persona-tab" aria-selected="false">Active</button>
     <button data-enrollment-filter="all" class="persona-tab" aria-selected="false">All</button>
   </div>
-  <div id="admin-enrollments-list" class="space-y-3"></div>
+  <div id="admin-enrollments-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
 <div id="activate-enrollment-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
@@ -445,6 +509,11 @@
     <div id="activate-modal-summary" class="text-sm mb-4 p-3 rounded-lg" style="background:var(--bg-subtle); color:var(--text-secondary)"></div>
     <form id="activate-enrollment-form" class="space-y-4">
       <input type="hidden" id="activate-enrollment-id">
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course</label>
+        <select id="activate-course" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
+        <p id="activate-course-hint" class="text-xs mt-1 hidden" style="color:var(--amber-600)">This student hadn't chosen a course at signup — pick one to activate their enrollment.</p>
+      </div>
       <div>
         <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Agreed price (MAD)</label>
         <input id="activate-price" type="number" min="0" step="1" placeholder="e.g. 890" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
@@ -586,7 +655,7 @@ document.getElementById('avatar-settings-btn').addEventListener('click', () => {
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
 
 <script src="assets/js/main.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script><script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/admin.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/admin.js"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>

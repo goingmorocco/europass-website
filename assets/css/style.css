@@ -143,6 +143,8 @@ textarea:focus-visible, [tabindex]:focus-visible{
 
 /* Section rhythm */
 .section{ padding:4rem 0; }
+/* Reduced spacing between sections, used only on program pages */
+.section-tight{ padding:2rem 0; }
 @media(min-width:1024px){ .section{ padding:6rem 0; } }
 
 /* Nav link underline */
@@ -463,3 +465,9 @@ html, body{ overflow-x: hidden; max-width: 100vw; }
 /* Fullscreen editor toggle */
 #post-modal-card.is-fullscreen{ max-width:100vw !important; width:100vw; height:100vh; max-height:100vh; border-radius:0; }
 #post-modal-card.is-fullscreen #post-body-editor .ql-editor{ min-height:calc(100vh - 480px); }
+/* Loading skeletons — shown as a container's initial content before JS
+   populates it with real data, instead of a blank flash of nothing. */
+@keyframes skeleton-pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
+.skeleton-row{ height:3.25rem; border-radius:var(--r-md); background:var(--bg-subtle); animation:skeleton-pulse 1.4s ease-in-out infinite; }
+.skeleton-row + .skeleton-row{ margin-top:.5rem; }
+.skeleton-card{ height:7rem; border-radius:var(--r-lg); background:var(--bg-subtle); animation:skeleton-pulse 1.4s ease-in-out infinite; }

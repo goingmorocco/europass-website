@@ -28,7 +28,7 @@ const EP = (() => {
     notifications: 'notifications', notification_reads: 'notification_reads', messages: 'messages',
     groups: 'groups', group_posts: 'group_posts', group_post_likes: 'group_post_likes',
     group_post_comments: 'group_post_comments', group_messages: 'group_messages', group_post_reports: 'group_post_reports',
-    enrollments: 'enrollments', resources: 'resources',
+    enrollments: 'enrollments', resources: 'resources', attendance: 'attendance', announcements: 'announcements',
   };
 
   function timeAgo(iso) {
@@ -76,7 +76,7 @@ const EP = (() => {
       options: { data: { full_name: fullName, desired_course_id: courseId || null, city: city || null, phone: phone || null }, emailRedirectTo },
     });
     if (error) throw error;
-    if (data.session && courseId) {
+    if (data.session) {
       await ensurePendingEnrollment().catch((e) => console.warn('Could not create enrollment request:', e));
     }
     return { hasSession: !!data.session, user: data.user };
@@ -90,16 +90,20 @@ const EP = (() => {
     const client = await db();
     const { data: { user: authUser } } = await client.auth.getUser();
     if (!authUser) return;
-    const desiredCourseId = authUser.user_metadata?.desired_course_id;
-    if (!desiredCourseId) return;
-    const { data: existing } = await client.from('enrollments').select('id').eq('student_id', authUser.id).eq('course_id', desiredCourseId).limit(1);
+    // desiredCourseId may be empty ("I'm not sure yet" at signup) — that's
+    // still a real student who needs to show up for admin to follow up
+    // with, not a reason to skip creating a record entirely.
+    const desiredCourseId = authUser.user_metadata?.desired_course_id || null;
+    let existingQuery = client.from('enrollments').select('id').eq('student_id', authUser.id);
+    existingQuery = desiredCourseId ? existingQuery.eq('course_id', desiredCourseId) : existingQuery.is('course_id', null);
+    const { data: existing } = await existingQuery.limit(1);
     if (existing && existing.length) return;
     await requestEnrollment(desiredCourseId, authUser.id);
   }
 
   async function requestEnrollment(courseId, studentId) {
     const client = await db();
-    const { error } = await client.from('enrollments').insert({ course_id: courseId, student_id: studentId, status: 'pending', payment_status: 'unpaid' });
+    const { error } = await client.from('enrollments').insert({ course_id: courseId || null, student_id: studentId, status: 'pending', payment_status: 'unpaid' });
     if (error && error.code !== '23505') throw error; // 23505 = already has a pending request for this course, fine
   }
   async function myEnrollments(studentId) {
@@ -119,9 +123,11 @@ const EP = (() => {
     if (error) throw error;
     return data.map(mapEnrollment);
   }
-  async function activateEnrollment(id, { priceMad, paymentStatus }) {
+  async function activateEnrollment(id, { priceMad, paymentStatus, courseId }) {
     const client = await db();
-    const { error } = await client.from('enrollments').update({ status: 'active', price_mad: priceMad || null, payment_status: paymentStatus }).eq('id', id);
+    const update = { status: 'active', price_mad: priceMad || null, payment_status: paymentStatus };
+    if (courseId) update.course_id = courseId;
+    const { error } = await client.from('enrollments').update(update).eq('id', id);
     if (error) throw error;
   }
   async function rejectEnrollment(id) {
@@ -557,6 +563,52 @@ const EP = (() => {
     channels.push(channel);
   }
 
+  // ---- Attendance ----
+  async function attendanceFor(courseId, classDate) {
+    const client = await db();
+    const { data, error } = await client.from('attendance').select('*').eq('course_id', courseId).eq('class_date', classDate);
+    if (error) throw error;
+    return data.map(mapAttendance);
+  }
+  async function myAttendance(studentId) {
+    const client = await db();
+    const { data, error } = await client.from('attendance').select('*').eq('student_id', studentId).order('class_date', { ascending: false });
+    if (error) throw error;
+    return data.map(mapAttendance);
+  }
+  async function markAttendance(courseId, teacherId, classDate, records) {
+    // records: [{ studentId, status }] — upsert so re-saving the same date
+    // just overwrites, instead of erroring on the unique constraint.
+    const client = await db();
+    const rows = records.map((r) => ({ course_id: courseId, teacher_id: teacherId, student_id: r.studentId, class_date: classDate, status: r.status }));
+    const { error } = await client.from('attendance').upsert(rows, { onConflict: 'course_id,student_id,class_date' });
+    if (error) throw error;
+  }
+  function mapAttendance(a) { return { id: a.id, courseId: a.course_id, studentId: a.student_id, teacherId: a.teacher_id, classDate: a.class_date, status: a.status }; }
+
+  // ---- Announcements ----
+  async function announcementsFor(courseId) {
+    const client = await db();
+    const { data, error } = await client.from('announcements').select('*').eq('course_id', courseId).order('created_at', { ascending: false });
+    if (error) throw error;
+    return data.map(mapAnnouncement);
+  }
+  async function myAnnouncements(courseId) {
+    if (!courseId) return [];
+    return announcementsFor(courseId);
+  }
+  async function addAnnouncement({ courseId, teacherId, title, body }) {
+    const client = await db();
+    const { error } = await client.from('announcements').insert({ course_id: courseId, teacher_id: teacherId, title, body });
+    if (error) throw error;
+  }
+  async function deleteAnnouncement(id) {
+    const client = await db();
+    const { error } = await client.from('announcements').delete().eq('id', id);
+    if (error) throw error;
+  }
+  function mapAnnouncement(a) { return { id: a.id, courseId: a.course_id, teacherId: a.teacher_id, title: a.title, body: a.body, createdAt: a.created_at }; }
+
   return {
     KEYS, timeAgo,
     getSession, requireRole, login, signup, logout,
@@ -564,6 +616,8 @@ const EP = (() => {
     posts, postById, savePost, deletePost,
     categories, addCategory, deleteCategory,
     resources, addResource, deleteResource, uploadPostCover,
+    attendanceFor, myAttendance, markAttendance,
+    announcementsFor, myAnnouncements, addAnnouncement, deleteAnnouncement,
     homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,

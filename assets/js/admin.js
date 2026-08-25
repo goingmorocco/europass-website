@@ -118,6 +118,44 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>`).join('');
   }
 
+  // ---- CSV export — client-side only, no backend needed ----
+  function exportToCsv(filename, rows) {
+    if (!rows.length) { showToast('Nothing to export yet', 'danger'); return; }
+    const headers = Object.keys(rows[0]);
+    const escapeCell = (v) => {
+      const s = v == null ? '' : String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csv = [headers.join(','), ...rows.map((r) => headers.map((h) => escapeCell(r[h])).join(','))].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM so Excel opens Arabic names correctly
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  window.exportUsersCsv = async () => {
+    const [rows, courseList] = await Promise.all([EP.users(), EP.courses()]);
+    const courseById = Object.fromEntries(courseList.map((c) => [c.id, c.name]));
+    const data = rows.filter((u) => u.role !== 'admin').map((u) => ({
+      Name: u.name, Role: u.role, Course: u.courseId ? (courseById[u.courseId] || '') : '', City: u.city || '', Phone: u.phone || '',
+    }));
+    exportToCsv('europass-users.csv', data);
+  };
+  window.exportEnrollmentsCsv = async () => {
+    const [rows, courseList, roster] = await Promise.all([EP.allEnrollments(), EP.courses(), EP.users()]);
+    const courseById = Object.fromEntries(courseList.map((c) => [c.id, c.name]));
+    const userById3 = Object.fromEntries(roster.map((u) => [u.id, u.name]));
+    const data = rows.map((e) => ({
+      Student: userById3[e.studentId] || '', Course: e.courseId ? (courseById[e.courseId] || '') : 'Undecided',
+      Status: e.status, Payment: e.paymentStatus, PriceMAD: e.priceMad || '', Requested: e.requestedAt ? new Date(e.requestedAt).toISOString().slice(0, 10) : '',
+    }));
+    exportToCsv('europass-enrollments.csv', data);
+  };
+
   async function renderUsers() {
     const [rows, courseList] = await Promise.all([EP.users(), EP.courses()]);
     const teachersAndStudents = rows.filter(u => u.role !== 'admin');
@@ -329,6 +367,115 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // ---- Analytics ----
+  // Chart instances must be declared before renderAll() runs below, same
+  // reasoning as the resources-cache fix from earlier in this project —
+  // renderAll() calls renderAnalytics() immediately, and a `let` binding
+  // isn't accessible until its own declaration line has actually executed.
+  let chartEnrollments = null, chartStatus = null, chartPrograms = null, chartRevenue = null;
+  let analyticsSelectedYear = new Date().getFullYear();
+
+  async function renderAnalytics() {
+    if (!document.getElementById('analytics-chart-enrollments') || !window.Chart) return;
+    const [allEnr, courseList] = await Promise.all([EP.allEnrollments(), EP.courses()]);
+
+    const active = allEnr.filter((e) => e.status === 'active' || e.status === 'completed');
+    const now = new Date();
+
+    // Revenue is attributed to activatedAt (when an enrollment actually
+    // became a paying student), not requestedAt (when they first signed
+    // up) — those can be weeks apart, and revenue should reflect when the
+    // sale actually closed. Nothing here ever resets automatically; "This
+    // Month" and "This Year" are just filtered views over the same
+    // permanent enrollment records, recalculated fresh on every load.
+    const revenueTotal = active.reduce((sum, e) => sum + (Number(e.priceMad) || 0), 0);
+    const revenueThisYear = active.filter((e) => e.activatedAt && new Date(e.activatedAt).getFullYear() === now.getFullYear())
+      .reduce((sum, e) => sum + (Number(e.priceMad) || 0), 0);
+    const revenueThisMonth = active.filter((e) => e.activatedAt && new Date(e.activatedAt).getFullYear() === now.getFullYear() && new Date(e.activatedAt).getMonth() === now.getMonth())
+      .reduce((sum, e) => sum + (Number(e.priceMad) || 0), 0);
+
+    document.getElementById('analytics-revenue-month').textContent = revenueThisMonth.toLocaleString() + ' MAD';
+    document.getElementById('analytics-revenue-year').textContent = revenueThisYear.toLocaleString() + ' MAD';
+    document.getElementById('analytics-revenue-total').textContent = revenueTotal.toLocaleString() + ' MAD';
+    document.getElementById('analytics-active-students').textContent = String(active.length);
+    document.getElementById('analytics-conversion').textContent = allEnr.length ? Math.round((active.length / allEnr.length) * 100) + '%' : '\u2014';
+
+    // Year selector for the Revenue by Month chart — populated from the
+    // actual years that appear in your activated enrollments, so it never
+    // shows a year with nothing in it.
+    const yearsWithRevenue = [...new Set(active.filter((e) => e.activatedAt).map((e) => new Date(e.activatedAt).getFullYear()))].sort((a, b) => b - a);
+    if (!yearsWithRevenue.includes(now.getFullYear())) yearsWithRevenue.unshift(now.getFullYear());
+    const yearSelect = document.getElementById('analytics-revenue-year-select');
+    if (!yearSelect.dataset.populated) {
+      yearSelect.innerHTML = yearsWithRevenue.map((y) => `<option value="${y}">${y}</option>`).join('');
+      yearSelect.value = String(analyticsSelectedYear);
+      yearSelect.addEventListener('change', () => { analyticsSelectedYear = Number(yearSelect.value); renderAnalytics(); });
+      yearSelect.dataset.populated = '1';
+    }
+
+    // Revenue by month, for the selected year specifically
+    const revenueByMonth = Array(12).fill(0);
+    active.forEach((e) => {
+      if (!e.activatedAt) return;
+      const d = new Date(e.activatedAt);
+      if (d.getFullYear() === analyticsSelectedYear) revenueByMonth[d.getMonth()] += Number(e.priceMad) || 0;
+    });
+    const monthNames = Array.from({ length: 12 }, (_, i) => new Date(2000, i, 1).toLocaleDateString(undefined, { month: 'short' }));
+
+    // Enrollments over time — group by month of request
+    const byMonth = {};
+    allEnr.forEach((e) => {
+      const d = new Date(e.requestedAt);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      byMonth[key] = (byMonth[key] || 0) + 1;
+    });
+    const monthKeys = Object.keys(byMonth).sort();
+    const monthLabels = monthKeys.map((k) => new Date(k + '-01').toLocaleDateString(undefined, { month: 'short', year: '2-digit' }));
+
+    // Status breakdown
+    const statusCounts = { pending: 0, active: 0, completed: 0, cancelled: 0 };
+    allEnr.forEach((e) => { statusCounts[e.status] = (statusCounts[e.status] || 0) + 1; });
+
+    // Popular programs
+    const courseById = Object.fromEntries(courseList.map((c) => [c.id, c.name]));
+    const programCounts = {};
+    allEnr.forEach((e) => {
+      const name = e.courseId ? (courseById[e.courseId] || 'Unknown') : 'Undecided';
+      programCounts[name] = (programCounts[name] || 0) + 1;
+    });
+    const programEntries = Object.entries(programCounts).sort((a, b) => b[1] - a[1]);
+
+    const navy = '#0B1D3A', red = '#DC2626', teal = '#0D9488', amber = '#C77D14', grey = '#94A3B8';
+
+    if (chartRevenue) chartRevenue.destroy();
+    chartRevenue = new Chart(document.getElementById('analytics-chart-revenue'), {
+      type: 'bar',
+      data: { labels: monthNames, datasets: [{ label: 'Revenue (MAD)', data: revenueByMonth, backgroundColor: teal }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
+    });
+
+    if (chartEnrollments) chartEnrollments.destroy();
+    chartEnrollments = new Chart(document.getElementById('analytics-chart-enrollments'), {
+      type: 'line',
+      data: { labels: monthLabels, datasets: [{ label: 'Enrollment requests', data: monthKeys.map((k) => byMonth[k]), borderColor: navy, backgroundColor: navy + '22', tension: 0.3, fill: true }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+    });
+
+    if (chartStatus) chartStatus.destroy();
+    chartStatus = new Chart(document.getElementById('analytics-chart-status'), {
+      type: 'doughnut',
+      data: { labels: ['Pending', 'Active', 'Completed', 'Cancelled'], datasets: [{ data: [statusCounts.pending, statusCounts.active, statusCounts.completed, statusCounts.cancelled], backgroundColor: [amber, teal, navy, grey] }] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
+    });
+
+    if (chartPrograms) chartPrograms.destroy();
+    chartPrograms = new Chart(document.getElementById('analytics-chart-programs'), {
+      type: 'bar',
+      data: { labels: programEntries.map((p) => p[0]), datasets: [{ label: 'Enrollments', data: programEntries.map((p) => p[1]), backgroundColor: red }] },
+      options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } },
+    });
+  }
+
   async function renderAll() {
     const { allPosts, allNotifs } = await renderKPIs();
     await renderActivity(allNotifs, allPosts);
@@ -337,6 +484,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await renderUsers();
     await renderHomework();
     await renderResources();
+    await renderAnalytics();
     lucide.createIcons();
   }
   await renderAll();
@@ -643,21 +791,27 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="flex items-center gap-2 mb-1">
             <span class="badge ${statusBadge[e.status] || 'badge-info'}">${e.status}</span>
             <span class="badge ${e.paymentStatus === 'paid' ? 'badge-success' : e.paymentStatus === 'waived' ? 'badge-info' : 'badge-warning'}">${e.paymentStatus}</span>
+            ${!e.courseId ? `<span class="badge badge-warning">Course undecided</span>` : ''}
           </div>
-          <p class="font-semibold truncate" style="color:var(--navy-700)">${escapeHtml(userById2[e.studentId] || 'Unknown student')} \u2192 ${escapeHtml(courseById[e.courseId] || 'Unknown course')}</p>
+          <p class="font-semibold truncate" style="color:var(--navy-700)">${escapeHtml(userById2[e.studentId] || 'Unknown student')} \u2192 ${e.courseId ? escapeHtml(courseById[e.courseId] || 'Unknown course') : 'Not yet decided'}</p>
           <p class="text-xs mt-1" style="color:var(--text-secondary)">Requested ${EP.timeAgo(e.requestedAt)}${e.priceMad ? ` \u00b7 ${e.priceMad} MAD` : ''}</p>
         </div>
         ${e.status === 'pending' ? `
         <div class="flex gap-2 shrink-0">
-          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(courseById[e.courseId] || '')})' class="btn btn-primary btn-sm">Approve</button>
+          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')})' class="btn btn-primary btn-sm">Approve</button>
           <button onclick="rejectEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm" style="color:var(--danger-600); border-color:var(--danger-600)">Reject</button>
         </div>` : ''}
       </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No ${enrollmentFilter === 'all' ? '' : enrollmentFilter + ' '}enrollments.</p></div>`;
   }
-  window.openActivateModal = (id, studentName, courseName) => {
+  window.openActivateModal = async (id, studentName, courseId) => {
     document.getElementById('activate-enrollment-id').value = id;
-    document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(studentName)}</strong> \u2192 ${escapeHtml(courseName)}`;
+    document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(studentName)}</strong>`;
     document.getElementById('activate-enrollment-form').reset();
+    const courseSelect = document.getElementById('activate-course');
+    const courseList = await EP.courses();
+    courseSelect.innerHTML = courseList.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+    document.getElementById('activate-course-hint').classList.toggle('hidden', !!courseId);
+    if (courseId) courseSelect.value = courseId;
     document.getElementById('activate-enrollment-modal').classList.remove('hidden');
   };
   window.rejectEnrollmentConfirm = async (id) => {
@@ -671,6 +825,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       await EP.activateEnrollment(document.getElementById('activate-enrollment-id').value, {
         priceMad: document.getElementById('activate-price').value,
         paymentStatus: document.getElementById('activate-payment-status').value,
+        courseId: document.getElementById('activate-course').value,
       });
       document.getElementById('activate-enrollment-modal').classList.add('hidden');
       await renderEnrollments();

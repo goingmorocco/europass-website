@@ -161,13 +161,63 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 
+  async function renderAttendanceSummary() {
+    const el = document.getElementById('student-attendance-summary');
+    if (!el) return;
+    let records = [];
+    try { records = await EP.myAttendance(user.id); } catch (e) { console.warn('Could not load attendance:', e); }
+    if (!records.length) { el.innerHTML = `<p class="text-sm" style="color:var(--text-secondary)">No attendance recorded yet.</p>`; return; }
+    const counts = { present: 0, late: 0, absent: 0 };
+    records.forEach((r) => { counts[r.status] = (counts[r.status] || 0) + 1; });
+    const total = records.length;
+    const pct = Math.round((counts.present / total) * 100);
+    el.innerHTML = `
+      <div class="text-center"><p class="font-serif text-2xl font-bold" style="color:var(--navy-700)">${pct}%</p><p class="text-xs" style="color:var(--text-secondary)">present</p></div>
+      <div class="text-sm space-y-1" style="color:var(--text-secondary)">
+        <p><span class="font-semibold" style="color:var(--success-600)">${counts.present}</span> present</p>
+        <p><span class="font-semibold" style="color:var(--warning-600)">${counts.late}</span> late</p>
+        <p><span class="font-semibold" style="color:var(--danger-600)">${counts.absent}</span> absent</p>
+      </div>`;
+  }
+
+  async function renderStreak() {
+    const el = document.getElementById('student-streak-count');
+    if (!el) return;
+    const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
+    const mySubs = allSubs.filter(s => s.studentId === user.id);
+    // Sort assigned homework by due date, most recent first, and count how
+    // many in a row (starting from the most recent) were submitted on or
+    // before their due date — breaks on the first late-or-missing one.
+    const sorted = [...hw].sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+    let streak = 0;
+    for (const h of sorted) {
+      const sub = mySubs.find((s) => s.homeworkId === h.id);
+      if (sub && sub.submittedAt && new Date(sub.submittedAt) <= new Date(h.dueDate + 'T23:59:59')) streak++;
+      else break;
+    }
+    el.textContent = String(streak);
+  }
+
+  async function renderStudentAnnouncements() {
+    const el = document.getElementById('student-announcements-list');
+    if (!el) return;
+    let list = [];
+    try { list = await EP.myAnnouncements(user.courseId); } catch (e) { console.warn('Could not load announcements:', e); }
+    el.innerHTML = list.map((a) => `
+      <div class="card p-5">
+        <p class="font-semibold" style="color:var(--navy-700)">${escapeHtml(a.title)}</p>
+        <p class="text-sm mt-1" style="color:var(--text-secondary)">${escapeHtml(a.body)}</p>
+        <p class="text-xs mt-2" style="color:var(--text-disabled)">${EP.timeAgo(a.createdAt)}</p>
+      </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No announcements from your teacher yet.</p></div>`;
+  }
+
   async function renderAll() {
     renderCourseInfo();
-    await Promise.all([renderEnrollmentBanner(), renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat()]);
+    await Promise.all([renderEnrollmentBanner(), renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat(), renderAttendanceSummary(), renderStreak(), renderStudentAnnouncements()]);
     lucide.createIcons();
   }
   await renderAll();
-  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.notifications, EP.KEYS.messages, EP.KEYS.enrollments], renderAll);
+  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.notifications, EP.KEYS.messages, EP.KEYS.enrollments, EP.KEYS.attendance, EP.KEYS.announcements], renderAll);
 
   document.getElementById('submit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
