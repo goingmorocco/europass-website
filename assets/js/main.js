@@ -225,7 +225,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('#lang-switch-en, #lang-switch-en-mobile').forEach((el) => {
     el.addEventListener('click', () => localStorage.setItem('europass_lang_pref', 'en'));
   });
-  const isHomepage = !/\/ar\//.test(window.location.pathname) && /\/(index\.html)?$/.test(window.location.pathname);
+  document.querySelectorAll('#lang-switch-fr, #lang-switch-fr-mobile').forEach((el) => {
+    el.addEventListener('click', () => localStorage.setItem('europass_lang_pref', 'fr'));
+  });
+  const isHomepage = !/\/(ar|fr)\//.test(window.location.pathname) && /\/(index\.html)?$/.test(window.location.pathname);
   // Search engine crawlers must see this page directly, not get redirected —
   // Google generally runs JavaScript while crawling, so an unguarded
   // redirect here would make Google treat this page as redirecting to the
