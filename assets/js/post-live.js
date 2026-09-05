@@ -18,6 +18,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   try { post = await EP.postById(id); } catch (e) { console.warn('Could not load post:', e); }
   if (!post || post.status !== 'published') { showNotFound(); return; }
 
+  // This page template is shared by every blog post, distinguished only by
+  // ?id=. The canonical tag in <head> is a static fallback (used if this
+  // script never runs, or the id is invalid) — for a real, valid post, it
+  // must be overridden to this post's own exact URL. Leaving the static
+  // fallback in place for every post was telling Google every post is a
+  // duplicate of one generic URL, which blocked all of them from being
+  // indexed at all.
+  const canonicalLink = document.getElementById('canonical-link');
+  if (canonicalLink) {
+    canonicalLink.href = window.location.origin + window.location.pathname + window.location.search;
+  }
+
   try {
     document.getElementById('post-live-badge').textContent = post.category;
     document.getElementById('post-live-badge').classList.remove('hidden');
