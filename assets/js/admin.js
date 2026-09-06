@@ -160,17 +160,99 @@ document.addEventListener('DOMContentLoaded', async () => {
     const [rows, courseList] = await Promise.all([EP.users(), EP.courses()]);
     const teachersAndStudents = rows.filter(u => u.role !== 'admin');
     document.getElementById('admin-users-list').innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
-      <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="px-5 py-3"></th></tr></thead><tbody>
-      ${teachersAndStudents.map((u, i) => `<tr style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}">
+      <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="text-left px-5 py-3 text-white font-semibold">Joined</th><th class="text-left px-5 py-3 text-white font-semibold">Status</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      ${teachersAndStudents.map((u, i) => `<tr onclick="openUserDetailModal('${u.id}')" style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; cursor:pointer">
         <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(u.name)}</td>
         <td class="px-5 py-3"><span class="badge ${u.role === 'teacher' ? 'badge-info' : 'badge-amber'}">${u.role}</span></td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(courseList.find(c => c.id === u.courseId)?.name || '\u2014')}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(u.city || '\u2014')}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)" dir="ltr">${escapeHtml(u.phone || '\u2014')}</td>
-        <td class="px-5 py-3 text-right"><button onclick="removeUserConfirm('${u.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Remove</button></td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '\u2014'}</td>
+        <td class="px-5 py-3">${u.blockedAt ? '<span class="badge badge-danger">Blocked</span>' : '<span class="badge badge-success">Active</span>'}</td>
+        <td class="px-5 py-3 text-right"><button onclick="event.stopPropagation(); removeUserConfirm('${u.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Remove</button></td>
       </tr>`).join('')}
     </tbody></table>`;
   }
+
+  // ---- User detail modal — shared by both the Users table and the
+  // Enrollments list, so it's self-contained and fetches its own data
+  // rather than depending on whatever's cached in either view. ----
+  window.openUserDetailModal = async (userId) => {
+    let user, courseList;
+    try {
+      [user, courseList] = await Promise.all([EP.userById(userId), EP.courses()]);
+    } catch (err) { showToast(err.message, 'danger'); return; }
+    if (!user) { showToast('Could not find that user', 'danger'); return; }
+
+    document.getElementById('user-detail-name').textContent = user.name;
+    document.getElementById('user-detail-role').textContent = user.role;
+    document.getElementById('user-detail-course').textContent = user.courseId ? (courseList.find(c => c.id === user.courseId)?.name || 'Unknown course') : 'No course assigned';
+    document.getElementById('user-detail-city').textContent = user.city || 'Not provided';
+    document.getElementById('user-detail-email').textContent = user.email || 'Not available';
+    document.getElementById('user-detail-phone').textContent = user.phone || 'Not provided';
+    document.getElementById('user-detail-joined').textContent = user.createdAt ? `Joined ${new Date(user.createdAt).toLocaleDateString()}` : 'Join date unknown';
+
+    // Payment display — a plain informational marker the admin sets by
+    // hand, not an automated calculation of what's actually owed.
+    const paymentEl = document.getElementById('user-detail-payment');
+    if (user.lastPaymentAt) {
+      const daysSince = Math.floor((Date.now() - new Date(user.lastPaymentAt)) / 86400000);
+      paymentEl.textContent = `Last marked paid ${EP.timeAgo(user.lastPaymentAt)}`;
+      paymentEl.style.color = daysSince > 30 ? 'var(--danger-600)' : 'var(--text-primary)';
+    } else {
+      paymentEl.textContent = 'Never marked as paid';
+      paymentEl.style.color = 'var(--danger-600)';
+    }
+
+    const blockedBanner = document.getElementById('user-detail-blocked-banner');
+    const blockBtn = document.getElementById('user-detail-block-btn');
+    if (user.blockedAt) {
+      blockedBanner.classList.remove('hidden');
+      document.getElementById('user-detail-blocked-reason').textContent = user.blockedReason || 'No reason given.';
+      blockBtn.innerHTML = '<i data-lucide="unlock" class="w-4 h-4 mr-1"></i> Unblock Access';
+      blockBtn.style.background = 'var(--success-50)';
+      blockBtn.style.color = 'var(--success-600)';
+      blockBtn.onclick = async () => {
+        try { await EP.unblockUser(user.id); closeModal('user-detail-modal'); await renderUsers(); showToast('Access restored'); }
+        catch (err) { showToast(err.message, 'danger'); }
+      };
+    } else {
+      blockedBanner.classList.add('hidden');
+      blockBtn.innerHTML = '<i data-lucide="lock" class="w-4 h-4 mr-1"></i> Block Access';
+      blockBtn.style.background = 'var(--danger-50)';
+      blockBtn.style.color = 'var(--danger-600)';
+      blockBtn.onclick = async () => {
+        const reason = prompt(`Block ${user.name}'s access? Optionally add a reason they'll see on their dashboard (e.g. "Payment overdue for October"):`);
+        if (reason === null) return; // cancelled
+        try { await EP.blockUser(user.id, reason || null); closeModal('user-detail-modal'); await renderUsers(); showToast(`${user.name}'s access has been blocked`); }
+        catch (err) { showToast(err.message, 'danger'); }
+      };
+    }
+
+    document.getElementById('user-detail-mark-paid').onclick = async () => {
+      try { await EP.markPaid(user.id); openUserDetailModal(user.id); showToast('Marked as paid'); }
+      catch (err) { showToast(err.message, 'danger'); }
+    };
+
+    const emailBtn = document.getElementById('user-detail-email-btn');
+    const waBtn = document.getElementById('user-detail-whatsapp-btn');
+    if (user.email) {
+      emailBtn.href = `mailto:${user.email}`;
+      emailBtn.classList.remove('hidden');
+    } else {
+      emailBtn.classList.add('hidden');
+    }
+    if (user.phone) {
+      const digitsOnly = user.phone.replace(/[^\d+]/g, '').replace(/^\+/, '');
+      waBtn.href = `https://wa.me/${digitsOnly}`;
+      waBtn.classList.remove('hidden');
+    } else {
+      waBtn.classList.add('hidden');
+    }
+
+    document.getElementById('user-detail-modal').classList.remove('hidden');
+    lucide.createIcons();
+  };
 
   // ---- Homework & Grades (admin view-only — grading itself stays with the
   // owning teacher; RLS only grants admins read access here, by design,
@@ -793,7 +875,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <span class="badge ${e.paymentStatus === 'paid' ? 'badge-success' : e.paymentStatus === 'waived' ? 'badge-info' : 'badge-warning'}">${e.paymentStatus}</span>
             ${!e.courseId ? `<span class="badge badge-warning">Course undecided</span>` : ''}
           </div>
-          <p class="font-semibold truncate" style="color:var(--navy-700)">${escapeHtml(userById2[e.studentId] || 'Unknown student')} \u2192 ${e.courseId ? escapeHtml(courseById[e.courseId] || 'Unknown course') : 'Not yet decided'}</p>
+          <p class="font-semibold truncate" style="color:var(--navy-700)"><a href="#" onclick="event.preventDefault(); openUserDetailModal('${e.studentId}')" class="hover:underline">${escapeHtml(userById2[e.studentId] || 'Unknown student')}</a> \u2192 ${e.courseId ? escapeHtml(courseById[e.courseId] || 'Unknown course') : 'Not yet decided'}</p>
           <p class="text-xs mt-1" style="color:var(--text-secondary)">Requested ${EP.timeAgo(e.requestedAt)}${e.priceMad ? ` \u00b7 ${e.priceMad} MAD` : ''}</p>
         </div>
         ${e.status === 'pending' ? `
@@ -801,8 +883,17 @@ document.addEventListener('DOMContentLoaded', async () => {
           <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')})' class="btn btn-primary btn-sm">Approve</button>
           <button onclick="rejectEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm" style="color:var(--danger-600); border-color:var(--danger-600)">Reject</button>
         </div>` : ''}
+        ${e.status === 'cancelled' ? `
+        <div class="flex gap-2 shrink-0">
+          <button onclick="revertEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm">Reinstate</button>
+        </div>` : ''}
       </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No ${enrollmentFilter === 'all' ? '' : enrollmentFilter + ' '}enrollments.</p></div>`;
   }
+  window.revertEnrollmentConfirm = async (id) => {
+    if (!confirm('Move this enrollment back to Pending? You\'ll be able to approve it again from the Pending list.')) return;
+    try { await EP.revertEnrollment(id); await renderEnrollments(); showToast('Enrollment reinstated to Pending'); }
+    catch (err) { showToast(err.message, 'danger'); }
+  };
   window.openActivateModal = async (id, studentName, courseId) => {
     document.getElementById('activate-enrollment-id').value = id;
     document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(studentName)}</strong>`;

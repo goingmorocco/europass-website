@@ -46,7 +46,7 @@ const EP = (() => {
     if (!session) return null;
     const { data: profile, error } = await client.from('profiles').select('*').eq('id', session.user.id).single();
     if (error || !profile || !profile.is_active) return null;
-    return { id: profile.id, name: profile.full_name, role: profile.role, courseId: profile.course_id, title: profile.title, email: session.user.email };
+    return { id: profile.id, name: profile.full_name, role: profile.role, courseId: profile.course_id, title: profile.title, email: session.user.email, blockedAt: profile.blocked_at, blockedReason: profile.blocked_reason };
   }
 
   async function requireRole(role, redirectTo = 'login.html') {
@@ -135,6 +135,15 @@ const EP = (() => {
     const { error } = await client.from('enrollments').update({ status: 'cancelled' }).eq('id', id);
     if (error) throw error;
   }
+  // Brings a cancelled enrollment back to pending — not straight to active,
+  // since that would skip the price/payment entry the normal approve flow
+  // requires. This just undoes the rejection so the admin can re-review it
+  // through the same Approve path as any other pending request.
+  async function revertEnrollment(id) {
+    const client = await db();
+    const { error } = await client.from('enrollments').update({ status: 'pending' }).eq('id', id);
+    if (error) throw error;
+  }
   function mapEnrollment(e) {
     return { id: e.id, studentId: e.student_id, courseId: e.course_id, status: e.status, paymentStatus: e.payment_status, priceMad: e.price_mad, requestedAt: e.requested_at, activatedAt: e.activated_at };
   }
@@ -151,7 +160,7 @@ const EP = (() => {
     if (error) throw error;
     return data.map(mapProfile);
   }
-  function mapProfile(p) { return { id: p.id, name: p.full_name, role: p.role, courseId: p.course_id, title: p.title, city: p.city, phone: p.phone }; }
+  function mapProfile(p) { return { id: p.id, name: p.full_name, role: p.role, courseId: p.course_id, title: p.title, city: p.city, phone: p.phone, email: p.email, createdAt: p.created_at, blockedAt: p.blocked_at, blockedReason: p.blocked_reason, lastPaymentAt: p.last_payment_at }; }
 
   async function courses() {
     const client = await db();
@@ -232,6 +241,25 @@ const EP = (() => {
   async function removeUser(id) {
     const client = await db();
     const { error } = await client.from('profiles').update({ is_active: false }).eq('id', id);
+    if (error) throw error;
+  }
+  // Blocking is deliberately separate from removeUser (is_active) — it's
+  // meant to be a temporary, reversible suspension (e.g. non-payment), not
+  // a deletion. A blocked user can still be found, still shows in lists,
+  // just can't get past their own dashboard's block screen.
+  async function blockUser(id, reason) {
+    const client = await db();
+    const { error } = await client.from('profiles').update({ blocked_at: new Date().toISOString(), blocked_reason: reason || null }).eq('id', id);
+    if (error) throw error;
+  }
+  async function unblockUser(id) {
+    const client = await db();
+    const { error } = await client.from('profiles').update({ blocked_at: null, blocked_reason: null }).eq('id', id);
+    if (error) throw error;
+  }
+  async function markPaid(id) {
+    const client = await db();
+    const { error } = await client.from('profiles').update({ last_payment_at: new Date().toISOString() }).eq('id', id);
     if (error) throw error;
   }
 
@@ -612,7 +640,7 @@ const EP = (() => {
   return {
     KEYS, timeAgo,
     getSession, requireRole, login, signup, logout,
-    users, courses, addUser, removeUser, suggestEmail, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
+    users, courses, addUser, removeUser, blockUser, unblockUser, markPaid, suggestEmail, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
     posts, postById, savePost, deletePost,
     categories, addCategory, deleteCategory,
     resources, addResource, deleteResource, uploadPostCover,
@@ -623,6 +651,6 @@ const EP = (() => {
     messagesFor, sendMessage, onChange,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
     groupMessages, sendGroupMessage, reportPost, reportsForGroup, dismissReport,
-    ensurePendingEnrollment, requestEnrollment, myEnrollments, cancelEnrollment, allEnrollments, activateEnrollment, rejectEnrollment,
+    ensurePendingEnrollment, requestEnrollment, myEnrollments, cancelEnrollment, allEnrollments, activateEnrollment, rejectEnrollment, revertEnrollment,
   };
 })();

@@ -1,6 +1,22 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const user = await EP.requireRole('teacher');
   if (!user) return;
+
+  if (user.blockedAt) {
+    document.getElementById('teacher-shell').classList.add('hidden');
+    const screen = document.getElementById('blocked-screen');
+    if (user.blockedReason) {
+      document.getElementById('blocked-reason-text').textContent = user.blockedReason;
+    }
+    screen.classList.remove('hidden');
+    document.getElementById('blocked-logout').addEventListener('click', async () => {
+      await EP.logout();
+      window.location.href = 'login.html';
+    });
+    if (window.lucide) lucide.createIcons();
+    return;
+  }
+
   initPortalChrome(user, 'teacher-shell');
   initCommunity(user, 'teacher-shell');
   wireTabs('teacher-shell', 'overview');

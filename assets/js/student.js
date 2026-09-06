@@ -2,6 +2,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   const user = await EP.requireRole('student');
   if (!user) return;
 
+  // A blocked account is checked before anything else — even before the
+  // pending-approval screen — since blocking should override every other
+  // dashboard state, including an otherwise-approved, active student.
+  if (user.blockedAt) {
+    document.getElementById('student-shell').classList.add('hidden');
+    const screen = document.getElementById('blocked-screen');
+    if (user.blockedReason) {
+      document.getElementById('blocked-reason-text').textContent = user.blockedReason;
+    }
+    screen.classList.remove('hidden');
+    document.getElementById('blocked-logout').addEventListener('click', async () => {
+      await EP.logout();
+      window.location.href = 'login.html';
+    });
+    if (window.lucide) lucide.createIcons();
+    return;
+  }
+
   // A student with no course assigned yet either has a pending enrollment
   // request or, in rare cases, none at all (e.g. an admin created the login
   // directly without an enrollment) — either way there's nothing useful to

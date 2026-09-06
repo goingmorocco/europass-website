@@ -415,6 +415,46 @@
   <div id="admin-users-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
+<!-- User detail modal -->
+<div id="user-detail-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">User Details</p>
+      <button onclick="closeModal('user-detail-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div id="user-detail-blocked-banner" class="hidden p-3 rounded-md text-sm mb-4" style="background:var(--danger-50); color:var(--danger-600)">
+      <p class="font-semibold">Access is currently blocked</p>
+      <p id="user-detail-blocked-reason" class="text-xs mt-1"></p>
+    </div>
+    <div class="flex items-center gap-3 mb-5">
+      <div class="w-14 h-14 rounded-full flex items-center justify-center shrink-0" style="background:var(--navy-50)"><i data-lucide="user" class="w-6 h-6" style="color:var(--navy-700)"></i></div>
+      <div class="min-w-0">
+        <p id="user-detail-name" class="font-serif font-semibold text-lg truncate" style="color:var(--navy-700)"></p>
+        <span id="user-detail-role" class="badge badge-info"></span>
+      </div>
+    </div>
+    <div class="space-y-3 text-sm">
+      <div class="flex items-center gap-3"><i data-lucide="book-open" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-course" style="color:var(--text-primary)">—</span></div>
+      <div class="flex items-center gap-3"><i data-lucide="map-pin" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-city" style="color:var(--text-primary)">—</span></div>
+      <div class="flex items-center gap-3"><i data-lucide="mail" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-email" dir="ltr" style="color:var(--text-primary)">—</span></div>
+      <div class="flex items-center gap-3"><i data-lucide="phone" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-phone" dir="ltr" style="color:var(--text-primary)">—</span></div>
+      <div class="flex items-center gap-3"><i data-lucide="calendar" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-joined" style="color:var(--text-primary)">—</span></div>
+      <div class="flex items-center gap-3"><i data-lucide="banknote" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-payment" style="color:var(--text-primary)">—</span></div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mt-6">
+      <a id="user-detail-email-btn" href="#" class="btn btn-secondary btn-sm justify-center"><i data-lucide="mail" class="w-4 h-4 mr-1"></i> Email</a>
+      <a id="user-detail-whatsapp-btn" href="#" target="_blank" rel="noopener" class="btn btn-secondary btn-sm justify-center"><i data-lucide="message-circle" class="w-4 h-4 mr-1"></i> WhatsApp</a>
+    </div>
+    <div class="border-t mt-5 pt-5" style="border-color:var(--border-default)">
+      <p class="text-xs font-semibold uppercase tracking-wide mb-3" style="color:var(--text-secondary)">Admin Controls</p>
+      <div class="grid grid-cols-1 gap-2">
+        <button id="user-detail-mark-paid" class="btn btn-secondary btn-sm justify-center"><i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> Mark Paid This Month</button>
+        <button id="user-detail-block-btn" class="btn btn-sm justify-center" style="background:var(--danger-50); color:var(--danger-600)"><i data-lucide="lock" class="w-4 h-4 mr-1"></i> Block Access</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Blog post modal -->
 <div id="post-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
   <div id="post-modal-card" class="card w-full max-w-3xl p-6 max-h-[92vh] overflow-y-auto transition-all">
@@ -497,6 +537,7 @@
   <div class="flex flex-wrap gap-2 mb-6" id="enrollment-filter-tabs">
     <button data-enrollment-filter="pending" class="persona-tab" aria-selected="true">Pending</button>
     <button data-enrollment-filter="active" class="persona-tab" aria-selected="false">Active</button>
+    <button data-enrollment-filter="cancelled" class="persona-tab" aria-selected="false">Cancelled</button>
     <button data-enrollment-filter="all" class="persona-tab" aria-selected="false">All</button>
   </div>
   <div id="admin-enrollments-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
