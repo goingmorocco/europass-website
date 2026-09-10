@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       <button onclick="openHomeworkDetail('${h.id}')" class="card card-hover p-5 flex items-center justify-between gap-4 w-full text-left">
         <div class="min-w-0">
           <p class="font-semibold truncate" style="color:var(--navy-700)">${escapeHtml(h.title)}</p>
-          <p class="text-xs mt-1" style="color:var(--text-secondary)">${escapeHtml(hwCourseName(h.courseId))} \u00b7 ${escapeHtml(hwUserName(h.teacherId))} \u00b7 Due ${h.dueDate ? new Date(h.dueDate).toLocaleDateString() : '\u2014'}</p>
+          <p class="text-xs mt-1" style="color:var(--text-secondary)">${escapeHtml(hwCourseName(h.courseId))} \u00b7 ${escapeHtml(hwUserName(h.teacherId))} \u00b7 Due ${h.dueDate ? new Date(h.dueDate).toLocaleString() : '\u2014'}</p>
         </div>
         <div class="shrink-0 text-right">
           <span class="badge ${graded === hwSubs.length && hwSubs.length ? 'badge-success' : 'badge-warning'}">${graded}/${hwSubs.length} graded</span>
@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const h = hwCache.homework.find(x => x.id === id);
     if (!h) return;
     document.getElementById('hw-detail-title').textContent = h.title;
-    document.getElementById('hw-detail-meta').textContent = `${hwCourseName(h.courseId)} \u00b7 Assigned by ${hwUserName(h.teacherId)} \u00b7 Due ${h.dueDate ? new Date(h.dueDate).toLocaleDateString() : 'no due date'}`;
+    document.getElementById('hw-detail-meta').textContent = `${hwCourseName(h.courseId)} \u00b7 Assigned by ${hwUserName(h.teacherId)} \u00b7 Due ${h.dueDate ? new Date(h.dueDate).toLocaleString() : 'no due date'}`;
     const subs = hwCache.submissions.filter(s => s.homeworkId === id);
     document.getElementById('hw-detail-submissions').innerHTML = subs.map(s => `
       <div class="p-4 rounded-lg" style="background:var(--bg-subtle)">

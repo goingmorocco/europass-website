@@ -387,13 +387,48 @@ const EP = (() => {
     if (error) throw error;
     return data.map(mapHomework);
   }
-  function mapHomework(h) { return { id: h.id, courseId: h.course_id, teacherId: h.teacher_id, title: h.title, instructions: h.instructions, dueDate: h.due_date, createdAt: h.created_at }; }
+  function mapHomework(h) {
+    return {
+      id: h.id, courseId: h.course_id, teacherId: h.teacher_id, title: h.title, instructions: h.instructions,
+      dueDate: h.due_date, createdAt: h.created_at, submissionMode: h.submission_mode,
+      attachmentUrl: h.attachment_url, attachmentName: h.attachment_name, maxPoints: h.max_points,
+    };
+  }
   async function homeworkByCourse(courseId) { return (await homework()).filter(h => h.courseId === courseId); }
 
-  async function addHomework({ courseId, teacherId, title, instructions, dueDate }) {
+  async function homeworkQuestions(homeworkId) {
     const client = await db();
-    const { error } = await client.from('homework').insert({ course_id: courseId, teacher_id: teacherId, title, instructions, due_date: dueDate });
+    const { data, error } = await client.from('homework_questions').select('*').eq('homework_id', homeworkId).order('position');
     if (error) throw error;
+    return data.map(q => ({ id: q.id, homeworkId: q.homework_id, questionText: q.question_text, options: q.options, correctIndex: q.correct_index, position: q.position }));
+  }
+
+  // questions is optional — an array of { questionText, options, correctIndex }
+  // for submissionMode 'quiz'. Ignored for 'text'/'file' assignments.
+  async function addHomework({ courseId, teacherId, title, instructions, dueDate, submissionMode = 'text', attachmentUrl, attachmentName, maxPoints = 100, questions }) {
+    const client = await db();
+    const { data, error } = await client.from('homework').insert({
+      course_id: courseId, teacher_id: teacherId, title, instructions, due_date: dueDate,
+      submission_mode: submissionMode, attachment_url: attachmentUrl || null, attachment_name: attachmentName || null, max_points: maxPoints,
+    }).select().single();
+    if (error) throw error;
+    if (submissionMode === 'quiz' && Array.isArray(questions) && questions.length) {
+      const rows = questions.map((q, i) => ({ homework_id: data.id, question_text: q.questionText, options: q.options, correct_index: q.correctIndex, position: i }));
+      const { error: qErr } = await client.from('homework_questions').insert(rows);
+      if (qErr) throw qErr;
+    }
+    return data.id;
+  }
+
+  const MAX_HOMEWORK_FILE_BYTES = 15 * 1024 * 1024;
+  async function uploadHomeworkFile(file) {
+    if (file.size > MAX_HOMEWORK_FILE_BYTES) throw new Error('File must be under 15MB.');
+    const client = await db();
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name}`.replace(/\s+/g, '_');
+    const { error } = await client.storage.from('homework-files').upload(path, file, { contentType: file.type });
+    if (error) throw error;
+    const { data } = client.storage.from('homework-files').getPublicUrl(path);
+    return { url: data.publicUrl, name: file.name };
   }
 
   async function submissions() {
@@ -402,13 +437,50 @@ const EP = (() => {
     if (error) throw error;
     return data.map(mapSubmission);
   }
-  function mapSubmission(s) { return { id: s.id, homeworkId: s.homework_id, studentId: s.student_id, content: s.content, status: s.status, grade: s.grade, feedback: s.feedback, submittedAt: s.submitted_at, gradedAt: s.graded_at }; }
+  function mapSubmission(s) {
+    return {
+      id: s.id, homeworkId: s.homework_id, studentId: s.student_id, content: s.content, status: s.status,
+      grade: s.grade, feedback: s.feedback, submittedAt: s.submitted_at, gradedAt: s.graded_at,
+      attachmentUrl: s.attachment_url, attachmentName: s.attachment_name, quizAnswers: s.quiz_answers, autoScore: s.auto_score,
+    };
+  }
   async function submissionFor(homeworkId, studentId) { return (await submissions()).find(s => s.homeworkId === homeworkId && s.studentId === studentId); }
 
-  async function submitHomework(homeworkId, studentId, content) {
+  // Handles all three submission modes. For a quiz, answers is an array of
+  // selected option indices (one per question, in the same order returned
+  // by homeworkQuestions) — the score is computed right here and the
+  // submission goes straight to 'graded', since there's nothing for a
+  // teacher to judge; a text/file submission always lands as 'submitted'
+  // and waits for the teacher.
+  async function submitHomework(homeworkId, studentId, { content, attachmentUrl, attachmentName, answers } = {}) {
+    const client = await db();
+    const row = {
+      homework_id: homeworkId, student_id: studentId, content: content || null,
+      attachment_url: attachmentUrl || null, attachment_name: attachmentName || null,
+      submitted_at: new Date().toISOString(),
+    };
+    if (Array.isArray(answers)) {
+      const questions = await homeworkQuestions(homeworkId);
+      const correct = answers.reduce((sum, a, i) => sum + (questions[i] && a === questions[i].correctIndex ? 1 : 0), 0);
+      const scorePct = questions.length ? Math.round((correct / questions.length) * 100) : 0;
+      row.quiz_answers = answers;
+      row.auto_score = scorePct;
+      row.status = 'graded';
+      row.grade = `${scorePct}%`;
+      row.graded_at = new Date().toISOString();
+    } else {
+      row.status = 'submitted';
+    }
+    const { error } = await client.from('submissions').upsert(row, { onConflict: 'homework_id,student_id' });
+    if (error) throw error;
+  }
+  // Lets a student save an in-progress text/file submission without
+  // finalizing it — same row, just parked at 'draft' instead of
+  // 'submitted' until they come back and actually submit.
+  async function saveDraft(homeworkId, studentId, { content, attachmentUrl, attachmentName } = {}) {
     const client = await db();
     const { error } = await client.from('submissions').upsert(
-      { homework_id: homeworkId, student_id: studentId, content, status: 'submitted', submitted_at: new Date().toISOString() },
+      { homework_id: homeworkId, student_id: studentId, content: content || null, attachment_url: attachmentUrl || null, attachment_name: attachmentName || null, status: 'draft', submitted_at: new Date().toISOString() },
       { onConflict: 'homework_id,student_id' }
     );
     if (error) throw error;
@@ -416,6 +488,13 @@ const EP = (() => {
   async function gradeSubmission(subId, grade, feedback) {
     const client = await db();
     const { error } = await client.from('submissions').update({ status: 'graded', grade, feedback, graded_at: new Date().toISOString() }).eq('id', subId);
+    if (error) throw error;
+  }
+  // Sends work back for another pass instead of grading it outright — the
+  // student sees the feedback and can resubmit through the same form.
+  async function requestRevision(subId, feedback) {
+    const client = await db();
+    const { error } = await client.from('submissions').update({ status: 'needs_revision', feedback, graded_at: new Date().toISOString() }).eq('id', subId);
     if (error) throw error;
   }
 
@@ -646,7 +725,7 @@ const EP = (() => {
     resources, addResource, deleteResource, uploadPostCover,
     attendanceFor, myAttendance, markAttendance,
     announcementsFor, myAnnouncements, addAnnouncement, deleteAnnouncement,
-    homework, homeworkByCourse, addHomework, submissions, submissionFor, submitHomework, gradeSubmission,
+    homework, homeworkByCourse, addHomework, homeworkQuestions, uploadHomeworkFile, submissions, submissionFor, submitHomework, saveDraft, gradeSubmission, requestRevision,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,

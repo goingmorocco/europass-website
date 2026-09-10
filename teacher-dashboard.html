@@ -252,12 +252,41 @@
 <div data-tab-panel="assign" class="hidden">
   <div class="grid lg:grid-cols-2 gap-6">
     <div class="card p-6">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">Assign New Homework</p>
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Assign New Exercise</p>
       <form id="hw-form" class="space-y-4">
         <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="hw-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Instructions</label><textarea id="hw-instructions" required rows="4" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea></div>
-        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Due date</label><input id="hw-due" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-        <button type="submit" class="btn btn-primary w-full">Assign Homework</button>
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Instructions</label><textarea id="hw-instructions" required rows="4" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)" placeholder="e.g. Listen to the attached clip, then answer the questions below."></textarea></div>
+
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">How should students respond?</label>
+          <div class="grid grid-cols-3 gap-2" id="hw-mode-tabs">
+            <button type="button" data-mode="text" class="persona-tab" aria-selected="true">Written Answer</button>
+            <button type="button" data-mode="file" class="persona-tab" aria-selected="false">File Upload</button>
+            <button type="button" data-mode="quiz" class="persona-tab" aria-selected="false">Quiz</button>
+          </div>
+          <input type="hidden" id="hw-mode" value="text">
+        </div>
+
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Attach a file <span class="font-normal" style="color:var(--text-secondary)">(optional — a worksheet, PDF, or audio clip for a listening exercise)</span></label>
+          <input id="hw-attachment" type="file" accept=".pdf,.doc,.docx,image/*,audio/*" class="w-full text-sm">
+          <p id="hw-attachment-status" class="text-xs mt-1" style="color:var(--text-secondary)"></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Due</label><input id="hw-due" required type="datetime-local" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+          <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Points</label><input id="hw-points" type="number" min="1" value="100" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+        </div>
+
+        <div id="hw-quiz-builder" class="hidden border-t pt-4" style="border-color:var(--border-default)">
+          <div class="flex items-center justify-between mb-3">
+            <label class="text-sm font-medium" style="color:var(--navy-700)">Quiz Questions</label>
+            <button type="button" id="hw-add-question" class="text-xs font-semibold" style="color:var(--teal-600)">+ Add Question</button>
+          </div>
+          <div id="hw-questions-list" class="space-y-4"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full">Assign Exercise</button>
       </form>
     </div>
     <div>
@@ -298,18 +327,20 @@
   </div>
 </div>
 
-<div id="grade-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-md p-6">
+<div id="grade-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-md p-6 my-8">
     <div class="flex items-center justify-between mb-4">
       <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Grade Submission</p>
       <button onclick="closeModal('grade-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div id="grade-modal-content" class="text-sm mb-4 p-3 rounded-lg" style="background:var(--bg-subtle); color:var(--text-secondary)"></div>
+    <div id="grade-modal-attachment" class="mb-4"></div>
     <form id="grade-form" class="space-y-4">
       <input type="hidden" id="grade-sub-id">
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Grade</label><input id="grade-value" required placeholder="e.g. B+ or 8/10" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label id="grade-value-label" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Grade</label><input id="grade-value" required placeholder="e.g. B+ or 8/10" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
       <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Feedback</label><textarea id="grade-feedback" required rows="3" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea></div>
       <button type="submit" class="btn btn-primary w-full">Save Grade &amp; Notify Student</button>
+      <button type="button" id="grade-revision-btn" class="btn btn-secondary w-full">Send Back for Revision Instead</button>
     </form>
   </div>
 </div>

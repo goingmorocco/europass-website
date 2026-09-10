@@ -130,20 +130,51 @@ document.addEventListener('DOMContentLoaded', async () => {
     const mySubs = allSubs.filter(s => s.studentId === user.id);
     document.getElementById('student-hw-list').innerHTML = hw.map(h => {
       const sub = mySubs.find(x => x.homeworkId === h.id);
+      const isPast = h.dueDate && new Date(h.dueDate) < new Date();
+      const modeLabel = { text: 'Written', file: 'File Upload', quiz: 'Quiz' }[h.submissionMode] || 'Written';
+      const statusBadge = !sub ? 'badge-danger'
+        : sub.status === 'graded' ? 'badge-success'
+        : sub.status === 'needs_revision' ? 'badge-warning'
+        : sub.status === 'draft' ? 'badge-info'
+        : 'badge-warning';
+      const statusLabel = !sub ? 'not started' : sub.status === 'needs_revision' ? 'needs revision' : sub.status;
+
+      const isAudio = h.attachmentUrl && /\.(mp3|wav|ogg|m4a)(\?|$)/i.test(h.attachmentUrl);
+      const attachmentHtml = h.attachmentUrl
+        ? isAudio
+          ? `<div class="mb-3"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">Listen:</p><audio controls class="w-full" src="${escapeHtml(h.attachmentUrl)}"></audio></div>`
+          : `<a href="${escapeHtml(h.attachmentUrl)}" target="_blank" rel="noopener" class="text-xs font-semibold inline-flex items-center gap-1 mb-3" style="color:var(--teal-600)"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i> ${escapeHtml(h.attachmentName || 'Download attachment')}</a>`
+        : '';
+
+      let actionHtml;
+      if (sub && sub.status === 'graded') {
+        actionHtml = `<div class="p-3 rounded-lg text-sm" style="background:var(--success-50)"><span class="font-semibold" style="color:var(--success-600)">Grade: ${escapeHtml(sub.grade)} ${h.maxPoints && h.submissionMode !== 'quiz' ? `/ ${h.maxPoints}` : ''}</span>${sub.feedback ? `<p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback)}</p>` : ''}</div>`;
+      } else if (sub && sub.status === 'needs_revision') {
+        actionHtml = `<div class="p-3 rounded-lg text-sm mb-3" style="background:var(--amber-100)"><span class="font-semibold" style="color:var(--amber-600)">Needs revision</span><p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback || '')}</p></div>
+          <button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">Resubmit</button>`;
+      } else if (sub && sub.status === 'draft') {
+        actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-secondary btn-sm">Continue Draft</button>`;
+      } else if (sub) {
+        actionHtml = `<p class="text-xs" style="color:var(--text-secondary)">Submitted ${EP.timeAgo(sub.submittedAt)} \u2014 waiting for your teacher to grade it.</p>`;
+      } else {
+        actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">${h.submissionMode === 'quiz' ? 'Take Quiz' : 'Submit'}</button>`;
+      }
+
       return `<div class="card p-5">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between mb-2 gap-2 flex-wrap">
           <p class="font-semibold" style="color:var(--navy-700)">${escapeHtml(h.title)}</p>
-          <span class="badge ${sub ? (sub.status === 'graded' ? 'badge-success' : 'badge-warning') : 'badge-danger'}">${sub ? sub.status : 'not started'}</span>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="badge badge-info">${modeLabel}</span>
+            <span class="badge ${statusBadge}">${statusLabel}</span>
+          </div>
         </div>
         <p class="text-sm mb-3" style="color:var(--text-secondary)">${escapeHtml(h.instructions)}</p>
-        <p class="text-xs mb-3" style="color:var(--text-disabled)">Due ${h.dueDate}</p>
-        ${sub && sub.status === 'graded'
-          ? `<div class="p-3 rounded-lg text-sm" style="background:var(--success-50)"><span class="font-semibold" style="color:var(--success-600)">Grade: ${escapeHtml(sub.grade)}</span><p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback)}</p></div>`
-          : sub
-          ? `<p class="text-xs" style="color:var(--text-secondary)">Submitted ${EP.timeAgo(sub.submittedAt)} \u2014 waiting for your teacher to grade it.</p>`
-          : `<button onclick='openSubmitModal(${JSON.stringify(h.id)}, ${JSON.stringify(h.title)}, ${JSON.stringify(h.instructions)})' class="btn btn-primary btn-sm">Submit Homework</button>`}
+        ${attachmentHtml}
+        <p class="text-xs mb-3" style="color:${isPast && !sub ? 'var(--danger-600)' : 'var(--text-disabled)'}">Due ${h.dueDate ? new Date(h.dueDate).toLocaleString() : '\u2014'}${isPast && !sub ? ' \u2014 overdue' : ''}</p>
+        ${actionHtml}
       </div>`;
     }).join('') || `<p style="color:var(--text-secondary)">No homework assigned yet.</p>`;
+    if (window.lucide) lucide.createIcons();
   }
 
   async function renderNotifications() {
@@ -170,11 +201,59 @@ document.addEventListener('DOMContentLoaded', async () => {
     msgsEl.scrollTop = msgsEl.scrollHeight;
   }
 
-  window.openSubmitModal = (hwId, title, instructions) => {
+  window.openSubmitModal = async (hwId) => {
+    const h = (await myHomework()).find(x => x.id === hwId);
+    if (!h) return;
+    const existing = await EP.submissionFor(hwId, user.id).catch(() => null);
+
     document.getElementById('submit-hw-id').value = hwId;
-    document.getElementById('submit-modal-title').textContent = title;
-    document.getElementById('submit-modal-instructions').textContent = instructions;
+    document.getElementById('submit-modal-title').textContent = h.title;
+    document.getElementById('submit-modal-instructions').textContent = h.instructions;
     document.getElementById('submit-form').reset();
+
+    const isAudio = h.attachmentUrl && /\.(mp3|wav|ogg|m4a)(\?|$)/i.test(h.attachmentUrl);
+    document.getElementById('submit-modal-attachment').innerHTML = h.attachmentUrl
+      ? isAudio
+        ? `<audio controls class="w-full mb-2" src="${escapeHtml(h.attachmentUrl)}"></audio>`
+        : `<a href="${escapeHtml(h.attachmentUrl)}" target="_blank" rel="noopener" class="text-xs font-semibold" style="color:var(--teal-600)">\u{1F4CE} ${escapeHtml(h.attachmentName || 'View attachment')}</a>`
+      : '';
+
+    const revisionNote = document.getElementById('submit-modal-revision-note');
+    if (existing && existing.status === 'needs_revision' && existing.feedback) {
+      revisionNote.textContent = `Your teacher asked for a revision: ${existing.feedback}`;
+      revisionNote.classList.remove('hidden');
+    } else {
+      revisionNote.classList.add('hidden');
+    }
+
+    const body = document.getElementById('submit-modal-body');
+    const draftBtn = document.getElementById('submit-draft-btn');
+
+    if (h.submissionMode === 'quiz') {
+      draftBtn.classList.add('hidden'); // quizzes auto-grade instantly — no draft concept
+      const questions = await EP.homeworkQuestions(hwId);
+      body.innerHTML = questions.map((q, qi) => `
+        <div class="mb-4">
+          <p class="text-sm font-semibold mb-2" style="color:var(--navy-700)">${qi + 1}. ${escapeHtml(q.questionText)}</p>
+          <div class="space-y-2">
+            ${q.options.map((opt, oi) => `
+              <label class="flex items-center gap-2 text-sm">
+                <input type="radio" name="quiz-q-${qi}" value="${oi}" required class="quiz-answer" data-question="${qi}">
+                ${escapeHtml(opt)}
+              </label>`).join('')}
+          </div>
+        </div>`).join('');
+    } else if (h.submissionMode === 'file') {
+      draftBtn.classList.remove('hidden');
+      body.innerHTML = `
+        <input id="submit-file" type="file" accept=".pdf,.doc,.docx,image/*,audio/*" class="w-full text-sm">
+        <p id="submit-file-status" class="text-xs mt-1" style="color:var(--text-secondary)">${existing?.attachmentName ? `Current: ${escapeHtml(existing.attachmentName)}` : ''}</p>
+        <textarea id="submit-content" rows="3" placeholder="Add a note (optional)" class="w-full px-4 py-3 rounded-md border text-sm mt-3" style="border-color:var(--border-default)">${escapeHtml(existing?.content || '')}</textarea>`;
+    } else {
+      draftBtn.classList.remove('hidden');
+      body.innerHTML = `<textarea id="submit-content" required rows="6" placeholder="Write or paste your answer here..." class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">${escapeHtml(existing?.content || '')}</textarea>`;
+    }
+
     document.getElementById('submit-modal').classList.remove('hidden');
   };
   window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
@@ -210,7 +289,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     let streak = 0;
     for (const h of sorted) {
       const sub = mySubs.find((s) => s.homeworkId === h.id);
-      if (sub && sub.submittedAt && new Date(sub.submittedAt) <= new Date(h.dueDate + 'T23:59:59')) streak++;
+      // A draft has submittedAt set (it's really "last saved at") but isn't
+      // a finished submission, so it must not count toward the streak —
+      // and due_date is now a full timestamp, not a bare date, so it
+      // compares directly with no string concatenation needed.
+      const isComplete = sub && sub.status !== 'draft' && sub.submittedAt;
+      if (isComplete && new Date(sub.submittedAt) <= new Date(h.dueDate)) streak++;
       else break;
     }
     el.textContent = String(streak);
@@ -237,13 +321,54 @@ document.addEventListener('DOMContentLoaded', async () => {
   await renderAll();
   EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.notifications, EP.KEYS.messages, EP.KEYS.enrollments, EP.KEYS.attendance, EP.KEYS.announcements], renderAll);
 
+  async function collectSubmissionPayload(hwId) {
+    const h = (await myHomework()).find(x => x.id === hwId);
+    if (h.submissionMode === 'quiz') {
+      const questions = await EP.homeworkQuestions(hwId);
+      const answers = questions.map((_, qi) => {
+        const checked = document.querySelector(`input[name="quiz-q-${qi}"]:checked`);
+        return checked ? parseInt(checked.value, 10) : -1;
+      });
+      if (answers.some((a) => a === -1)) throw new Error('Please answer every question.');
+      return { answers };
+    }
+    if (h.submissionMode === 'file') {
+      const fileInput = document.getElementById('submit-file');
+      const content = document.getElementById('submit-content')?.value || '';
+      const file = fileInput?.files[0];
+      if (file) {
+        const statusEl = document.getElementById('submit-file-status');
+        statusEl.textContent = 'Uploading...';
+        const uploaded = await EP.uploadHomeworkFile(file);
+        return { content, attachmentUrl: uploaded.url, attachmentName: uploaded.name };
+      }
+      const existing = await EP.submissionFor(hwId, user.id).catch(() => null);
+      if (!existing?.attachmentUrl && !content) throw new Error('Attach a file or add a note.');
+      return { content, attachmentUrl: existing?.attachmentUrl, attachmentName: existing?.attachmentName };
+    }
+    return { content: document.getElementById('submit-content').value };
+  }
+
   document.getElementById('submit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const hwId = document.getElementById('submit-hw-id').value;
     try {
-      await EP.submitHomework(document.getElementById('submit-hw-id').value, user.id, document.getElementById('submit-content').value);
+      const payload = await collectSubmissionPayload(hwId);
+      await EP.submitHomework(hwId, user.id, payload);
       closeModal('submit-modal');
       await renderAll();
-      showToast('Homework submitted!');
+      showToast('Submitted!');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
+
+  document.getElementById('submit-draft-btn').addEventListener('click', async () => {
+    const hwId = document.getElementById('submit-hw-id').value;
+    try {
+      const payload = await collectSubmissionPayload(hwId);
+      await EP.saveDraft(hwId, user.id, payload);
+      closeModal('submit-modal');
+      await renderAll();
+      showToast('Draft saved — come back anytime to finish it');
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
