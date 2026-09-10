@@ -90,6 +90,15 @@ const EP = (() => {
     const client = await db();
     const { data: { user: authUser } } = await client.auth.getUser();
     if (!authUser) return;
+    // Only students enroll in courses — this used to fire unconditionally
+    // for anyone logging in, which meant an admin-created teacher's first
+    // login silently created a phantom "pending enrollment" for them, with
+    // no course, showing up in the admin's approval queue as if they were
+    // a student waiting to be accepted. Checking the actual current role
+    // (not signup-time metadata, which can go stale after a role change)
+    // is what prevents that.
+    const { data: profile } = await client.from('profiles').select('role').eq('id', authUser.id).single();
+    if (!profile || profile.role !== 'student') return;
     // desiredCourseId may be empty ("I'm not sure yet" at signup) — that's
     // still a real student who needs to show up for admin to follow up
     // with, not a reason to skip creating a record entirely.
@@ -210,10 +219,10 @@ const EP = (() => {
   // deleted (their homework/grades history stays intact), so their original
   // email stays permanently taken in Supabase Auth. Silent generation gave
   // the admin no way to see or work around that collision.
-  async function addUser({ name, email, role, courseId }) {
+  async function addUser({ name, email, password, role, courseId }) {
     const client = await db();
     const { error } = await client.functions.invoke('admin-create-user', {
-      body: { email, password: 'Welcome2026!', full_name: name, role, course_id: courseId },
+      body: { email, password, full_name: name, role, course_id: courseId },
     });
     if (error) throw await unwrapFunctionError(error);
   }
@@ -241,6 +250,19 @@ const EP = (() => {
   async function removeUser(id) {
     const client = await db();
     const { error } = await client.from('profiles').update({ is_active: false }).eq('id', id);
+    if (error) throw error;
+  }
+  // Only an admin caller can actually succeed here — enforced server-side
+  // by both the profiles_update_admin RLS policy and the
+  // trg_prevent_role_escalation trigger, not just by hiding the control in
+  // the UI. course_id is cleared on any role change since it means two
+  // different things depending on role (the course a teacher teaches vs.
+  // the course a student is enrolled in) — carrying the old value across
+  // a role change would misrepresent it either way, so it's left for the
+  // admin to reassign afterward through the normal enrollment/course flow.
+  async function changeUserRole(id, newRole) {
+    const client = await db();
+    const { error } = await client.from('profiles').update({ role: newRole, course_id: null }).eq('id', id);
     if (error) throw error;
   }
   // Blocking is deliberately separate from removeUser (is_active) — it's
@@ -719,7 +741,7 @@ const EP = (() => {
   return {
     KEYS, timeAgo,
     getSession, requireRole, login, signup, logout,
-    users, courses, addUser, removeUser, blockUser, unblockUser, markPaid, suggestEmail, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
+    users, courses, addUser, removeUser, blockUser, unblockUser, markPaid, changeUserRole, suggestEmail, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
     posts, postById, savePost, deletePost,
     categories, addCategory, deleteCategory,
     resources, addResource, deleteResource, uploadPostCover,

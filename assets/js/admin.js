@@ -192,6 +192,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('user-detail-phone').textContent = user.phone || 'Not provided';
     document.getElementById('user-detail-joined').textContent = user.createdAt ? `Joined ${new Date(user.createdAt).toLocaleDateString()}` : 'Join date unknown';
 
+    const roleSelect = document.getElementById('user-detail-role-select');
+    roleSelect.value = user.role;
+    document.getElementById('user-detail-role-save').onclick = async () => {
+      const newRole = roleSelect.value;
+      if (newRole === user.role) { showToast('That\u2019s already their current role'); return; }
+      const warning = user.courseId
+        ? ` They're currently assigned to a course — changing their role will clear that assignment, since it means something different for each role.`
+        : '';
+      if (!confirm(`Change ${user.name}'s role from ${user.role} to ${newRole}?${warning}`)) return;
+      try {
+        await EP.changeUserRole(user.id, newRole);
+        closeModal('user-detail-modal');
+        await renderUsers();
+        showToast(`${user.name} is now a ${newRole}`);
+      } catch (err) { showToast(err.message, 'danger'); }
+    };
+
     // Payment display — a plain informational marker the admin sets by
     // hand, not an automated calculation of what's actually owed.
     const paymentEl = document.getElementById('user-detail-payment');
@@ -770,18 +787,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('user-email').addEventListener('input', (e) => {
     e.target.dataset.autofilled = 'false';
   });
+  window.generateUserPassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    let pwd = '';
+    for (let i = 0; i < 10; i++) pwd += chars[Math.floor(Math.random() * chars.length)];
+    document.getElementById('user-password').value = pwd;
+  };
   document.getElementById('user-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     try {
+      const email = document.getElementById('user-email').value;
+      const password = document.getElementById('user-password').value;
       await EP.addUser({
         name: document.getElementById('user-name').value,
-        email: document.getElementById('user-email').value,
+        email,
+        password,
         role: document.getElementById('user-role').value,
         courseId: document.getElementById('user-course').value,
       });
       closeModal('user-modal');
       await renderAll();
-      showToast('User added \u2014 login email: ' + document.getElementById('user-email').value);
+      alert(`User created successfully.\n\nLogin email: ${email}\nPassword: ${password}\n\nShare these with them directly — this won't be shown again.`);
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
