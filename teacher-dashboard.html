@@ -255,19 +255,26 @@
       <p class="font-semibold mb-4" style="color:var(--navy-700)">Assign New Exercise</p>
       <form id="hw-form" class="space-y-4">
         <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="hw-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Instructions</label><textarea id="hw-instructions" required rows="4" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)" placeholder="e.g. Listen to the attached clip, then answer the questions below."></textarea></div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-sm font-medium" style="color:var(--navy-700)">Instructions</label>
+            <label class="text-xs flex items-center gap-1" style="color:var(--text-secondary)"><input type="checkbox" id="hw-instructions-rtl"> Right-to-left (Arabic)</label>
+          </div>
+          <div id="hw-instructions-editor" style="min-height:120px"></div>
+        </div>
 
         <div>
           <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">How should students respond?</label>
-          <div class="grid grid-cols-3 gap-2" id="hw-mode-tabs">
+          <div class="grid grid-cols-2 gap-2" id="hw-mode-tabs">
             <button type="button" data-mode="text" class="persona-tab" aria-selected="true">Written Answer</button>
             <button type="button" data-mode="file" class="persona-tab" aria-selected="false">File Upload</button>
             <button type="button" data-mode="quiz" class="persona-tab" aria-selected="false">Quiz</button>
+            <button type="button" data-mode="multi" class="persona-tab" aria-selected="false">Multi-Task</button>
           </div>
           <input type="hidden" id="hw-mode" value="text">
         </div>
 
-        <div>
+        <div id="hw-single-attachment">
           <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Attach a file <span class="font-normal" style="color:var(--text-secondary)">(optional — a worksheet, PDF, or audio clip for a listening exercise)</span></label>
           <input id="hw-attachment" type="file" accept=".pdf,.doc,.docx,image/*,audio/*" class="w-full text-sm">
           <p id="hw-attachment-status" class="text-xs mt-1" style="color:var(--text-secondary)"></p>
@@ -284,6 +291,19 @@
             <button type="button" id="hw-add-question" class="text-xs font-semibold" style="color:var(--teal-600)">+ Add Question</button>
           </div>
           <div id="hw-questions-list" class="space-y-4"></div>
+        </div>
+
+        <div id="hw-multi-builder" class="hidden border-t pt-4" style="border-color:var(--border-default)">
+          <div class="flex items-center justify-between mb-3">
+            <label class="text-sm font-medium" style="color:var(--navy-700)">Tasks</label>
+            <div class="flex gap-2">
+              <button type="button" data-add-task="writing" class="text-xs font-semibold" style="color:var(--teal-600)">+ Writing</button>
+              <button type="button" data-add-task="quiz" class="text-xs font-semibold" style="color:var(--teal-600)">+ Quiz</button>
+              <button type="button" data-add-task="media" class="text-xs font-semibold" style="color:var(--teal-600)">+ Media</button>
+            </div>
+          </div>
+          <div id="hw-tasks-list" class="space-y-4"></div>
+          <p id="hw-tasks-empty" class="text-xs text-center py-4" style="color:var(--text-secondary)">No tasks yet — add a writing, quiz, or media task above.</p>
         </div>
 
         <button type="submit" class="btn btn-primary w-full">Assign Exercise</button>
@@ -545,6 +565,7 @@ document.getElementById('avatar-settings-btn').addEventListener('click', () => {
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
 
 <script src="assets/js/main.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
 <script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/teacher.js"></script><script src="assets/js/community.js"></script>
 <script>lucide.createIcons();</script>
 </body>

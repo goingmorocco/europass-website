@@ -418,7 +418,7 @@ const EP = (() => {
   function mapHomework(h) {
     return {
       id: h.id, courseId: h.course_id, teacherId: h.teacher_id, title: h.title, instructions: h.instructions,
-      dueDate: h.due_date, createdAt: h.created_at, submissionMode: h.submission_mode,
+      instructionsDirection: h.instructions_direction, dueDate: h.due_date, createdAt: h.created_at, submissionMode: h.submission_mode,
       attachmentUrl: h.attachment_url, attachmentName: h.attachment_name, maxPoints: h.max_points,
     };
   }
@@ -428,15 +428,36 @@ const EP = (() => {
     const client = await db();
     const { data, error } = await client.from('homework_questions').select('*').eq('homework_id', homeworkId).order('position');
     if (error) throw error;
-    return data.map(q => ({ id: q.id, homeworkId: q.homework_id, questionText: q.question_text, options: q.options, correctIndex: q.correct_index, position: q.position }));
+    return data.map(q => ({ id: q.id, homeworkId: q.homework_id, taskId: q.task_id, questionText: q.question_text, options: q.options, correctIndex: q.correct_index, position: q.position }));
+  }
+  async function questionsForTask(taskId) {
+    const client = await db();
+    const { data, error } = await client.from('homework_questions').select('*').eq('task_id', taskId).order('position');
+    if (error) throw error;
+    return data.map(q => ({ id: q.id, homeworkId: q.homework_id, taskId: q.task_id, questionText: q.question_text, options: q.options, correctIndex: q.correct_index, position: q.position }));
+  }
+  // For submission_mode='multi' exercises — returns each task with its
+  // quiz questions already attached where relevant, so the caller doesn't
+  // need a separate round trip per task.
+  async function homeworkTasks(homeworkId) {
+    const client = await db();
+    const { data, error } = await client.from('homework_tasks').select('*').eq('homework_id', homeworkId).order('position');
+    if (error) throw error;
+    const tasks = data.map(t => ({ id: t.id, homeworkId: t.homework_id, type: t.type, position: t.position, title: t.title, instructions: t.instructions, direction: t.direction, mediaItems: t.media_items || [] }));
+    await Promise.all(tasks.filter(t => t.type === 'quiz').map(async (t) => { t.questions = await questionsForTask(t.id); }));
+    return tasks;
   }
 
   // questions is optional — an array of { questionText, options, correctIndex }
   // for submissionMode 'quiz'. Ignored for 'text'/'file' assignments.
-  async function addHomework({ courseId, teacherId, title, instructions, dueDate, submissionMode = 'text', attachmentUrl, attachmentName, maxPoints = 100, questions }) {
+  // questions is optional — an array of { questionText, options, correctIndex }
+  // for submissionMode 'quiz'. tasks is optional — an array of
+  // { type, title, instructions, mediaItems, questions } for submissionMode
+  // 'multi', where a task's own questions follow the same shape as above.
+  async function addHomework({ courseId, teacherId, title, instructions, instructionsDirection = 'ltr', dueDate, submissionMode = 'text', attachmentUrl, attachmentName, maxPoints = 100, questions, tasks }) {
     const client = await db();
     const { data, error } = await client.from('homework').insert({
-      course_id: courseId, teacher_id: teacherId, title, instructions, due_date: dueDate,
+      course_id: courseId, teacher_id: teacherId, title, instructions, instructions_direction: instructionsDirection, due_date: dueDate,
       submission_mode: submissionMode, attachment_url: attachmentUrl || null, attachment_name: attachmentName || null, max_points: maxPoints,
     }).select().single();
     if (error) throw error;
@@ -444,6 +465,21 @@ const EP = (() => {
       const rows = questions.map((q, i) => ({ homework_id: data.id, question_text: q.questionText, options: q.options, correct_index: q.correctIndex, position: i }));
       const { error: qErr } = await client.from('homework_questions').insert(rows);
       if (qErr) throw qErr;
+    }
+    if (submissionMode === 'multi' && Array.isArray(tasks) && tasks.length) {
+      for (let i = 0; i < tasks.length; i++) {
+        const t = tasks[i];
+        const { data: taskRow, error: tErr } = await client.from('homework_tasks').insert({
+          homework_id: data.id, type: t.type, position: i, title: t.title || null,
+          instructions: t.instructions || null, direction: t.direction || 'ltr', media_items: t.type === 'media' ? (t.mediaItems || []) : null,
+        }).select().single();
+        if (tErr) throw tErr;
+        if (t.type === 'quiz' && Array.isArray(t.questions) && t.questions.length) {
+          const qRows = t.questions.map((q, qi) => ({ homework_id: data.id, task_id: taskRow.id, question_text: q.questionText, options: q.options, correct_index: q.correctIndex, position: qi }));
+          const { error: qErr } = await client.from('homework_questions').insert(qRows);
+          if (qErr) throw qErr;
+        }
+      }
     }
     return data.id;
   }
@@ -469,7 +505,7 @@ const EP = (() => {
     return {
       id: s.id, homeworkId: s.homework_id, studentId: s.student_id, content: s.content, status: s.status,
       grade: s.grade, feedback: s.feedback, submittedAt: s.submitted_at, gradedAt: s.graded_at,
-      attachmentUrl: s.attachment_url, attachmentName: s.attachment_name, quizAnswers: s.quiz_answers, autoScore: s.auto_score,
+      attachmentUrl: s.attachment_url, attachmentName: s.attachment_name, quizAnswers: s.quiz_answers, autoScore: s.auto_score, taskResponses: s.task_responses,
     };
   }
   async function submissionFor(homeworkId, studentId) { return (await submissions()).find(s => s.homeworkId === homeworkId && s.studentId === studentId); }
@@ -480,14 +516,44 @@ const EP = (() => {
   // submission goes straight to 'graded', since there's nothing for a
   // teacher to judge; a text/file submission always lands as 'submitted'
   // and waits for the teacher.
-  async function submitHomework(homeworkId, studentId, { content, attachmentUrl, attachmentName, answers } = {}) {
+  async function submitHomework(homeworkId, studentId, { content, attachmentUrl, attachmentName, answers, taskResponses } = {}) {
     const client = await db();
     const row = {
       homework_id: homeworkId, student_id: studentId, content: content || null,
       attachment_url: attachmentUrl || null, attachment_name: attachmentName || null,
       submitted_at: new Date().toISOString(),
     };
-    if (Array.isArray(answers)) {
+    if (Array.isArray(taskResponses)) {
+      // Score every quiz-type task's answers against its own questions.
+      // If literally every task in this exercise is a quiz, the whole
+      // submission can go straight to graded, same as a single-quiz
+      // exercise — otherwise a writing or media task still needs a
+      // teacher's eyes, so it waits at 'submitted' even though the quiz
+      // portions are already scored and visible for reference.
+      let allQuiz = true;
+      let quizScoreSum = 0;
+      let quizTaskCount = 0;
+      for (const tr of taskResponses) {
+        if (tr.type === 'quiz') {
+          const questions = await questionsForTask(tr.taskId);
+          const correct = (tr.answers || []).reduce((sum, a, i) => sum + (questions[i] && a === questions[i].correctIndex ? 1 : 0), 0);
+          tr.autoScore = questions.length ? Math.round((correct / questions.length) * 100) : 0;
+          quizScoreSum += tr.autoScore;
+          quizTaskCount++;
+        } else {
+          allQuiz = false;
+        }
+      }
+      row.task_responses = taskResponses;
+      if (allQuiz && quizTaskCount) {
+        const overall = Math.round(quizScoreSum / quizTaskCount);
+        row.status = 'graded';
+        row.grade = `${overall}%`;
+        row.graded_at = new Date().toISOString();
+      } else {
+        row.status = 'submitted';
+      }
+    } else if (Array.isArray(answers)) {
       const questions = await homeworkQuestions(homeworkId);
       const correct = answers.reduce((sum, a, i) => sum + (questions[i] && a === questions[i].correctIndex ? 1 : 0), 0);
       const scorePct = questions.length ? Math.round((correct / questions.length) * 100) : 0;
@@ -505,10 +571,10 @@ const EP = (() => {
   // Lets a student save an in-progress text/file submission without
   // finalizing it — same row, just parked at 'draft' instead of
   // 'submitted' until they come back and actually submit.
-  async function saveDraft(homeworkId, studentId, { content, attachmentUrl, attachmentName } = {}) {
+  async function saveDraft(homeworkId, studentId, { content, attachmentUrl, attachmentName, taskResponses } = {}) {
     const client = await db();
     const { error } = await client.from('submissions').upsert(
-      { homework_id: homeworkId, student_id: studentId, content: content || null, attachment_url: attachmentUrl || null, attachment_name: attachmentName || null, status: 'draft', submitted_at: new Date().toISOString() },
+      { homework_id: homeworkId, student_id: studentId, content: content || null, attachment_url: attachmentUrl || null, attachment_name: attachmentName || null, task_responses: taskResponses || null, status: 'draft', submitted_at: new Date().toISOString() },
       { onConflict: 'homework_id,student_id' }
     );
     if (error) throw error;
@@ -753,7 +819,7 @@ const EP = (() => {
     resources, addResource, deleteResource, uploadPostCover,
     attendanceFor, myAttendance, markAttendance,
     announcementsFor, myAnnouncements, addAnnouncement, deleteAnnouncement,
-    homework, homeworkByCourse, addHomework, homeworkQuestions, uploadHomeworkFile, submissions, submissionFor, submitHomework, saveDraft, gradeSubmission, requestRevision,
+    homework, homeworkByCourse, addHomework, homeworkQuestions, questionsForTask, homeworkTasks, uploadHomeworkFile, submissions, submissionFor, submitHomework, saveDraft, gradeSubmission, requestRevision,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,

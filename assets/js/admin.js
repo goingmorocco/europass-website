@@ -909,6 +909,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')})' class="btn btn-primary btn-sm">Approve</button>
           <button onclick="rejectEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm" style="color:var(--danger-600); border-color:var(--danger-600)">Reject</button>
         </div>` : ''}
+        ${e.status === 'active' ? `
+        <div class="flex gap-2 shrink-0">
+          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')}, ${JSON.stringify(e.priceMad || '')}, ${JSON.stringify(e.paymentStatus || 'unpaid')})' class="btn btn-secondary btn-sm">Edit</button>
+        </div>` : ''}
         ${e.status === 'cancelled' ? `
         <div class="flex gap-2 shrink-0">
           <button onclick="revertEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm">Reinstate</button>
@@ -920,17 +924,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     try { await EP.revertEnrollment(id); await renderEnrollments(); showToast('Enrollment reinstated to Pending'); }
     catch (err) { showToast(err.message, 'danger'); }
   };
-  window.openActivateModal = async (id, studentName, courseId) => {
+  window.openActivateModal = async (id, studentName, courseId, existingPrice, existingPaymentStatus) => {
+    const isEdit = existingPrice !== undefined;
     document.getElementById('activate-enrollment-id').value = id;
     document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(studentName)}</strong>`;
     document.getElementById('activate-enrollment-form').reset();
+    document.querySelector('#activate-enrollment-modal p.font-serif').textContent = isEdit ? 'Edit Enrollment' : 'Activate Enrollment';
+    document.querySelector('#activate-enrollment-form button[type="submit"]').textContent = isEdit ? 'Save Changes' : 'Activate Enrollment';
     const courseSelect = document.getElementById('activate-course');
     const courseList = await EP.courses();
     courseSelect.innerHTML = courseList.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
     document.getElementById('activate-course-hint').classList.toggle('hidden', !!courseId);
     if (courseId) courseSelect.value = courseId;
+    if (isEdit) {
+      document.getElementById('activate-price').value = existingPrice;
+      document.getElementById('activate-payment-status').value = existingPaymentStatus || 'unpaid';
+    }
+    document.getElementById('activate-cancel-link').classList.toggle('hidden', !isEdit);
     document.getElementById('activate-enrollment-modal').classList.remove('hidden');
   };
+  document.getElementById('activate-cancel-link').addEventListener('click', async () => {
+    const id = document.getElementById('activate-enrollment-id').value;
+    if (!confirm('Cancel this enrollment? Use this for duplicate or incorrect records — the student will lose access to this course.')) return;
+    try {
+      await EP.rejectEnrollment(id);
+      document.getElementById('activate-enrollment-modal').classList.add('hidden');
+      await renderEnrollments();
+      showToast('Enrollment cancelled');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
   window.rejectEnrollmentConfirm = async (id) => {
     if (!confirm('Reject this enrollment request?')) return;
     try { await EP.rejectEnrollment(id); await renderEnrollments(); showToast('Enrollment rejected', 'info'); }

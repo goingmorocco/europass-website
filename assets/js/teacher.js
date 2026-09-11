@@ -358,18 +358,60 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('pdf-viewer-modal').classList.remove('hidden');
   };
 
-  // ---- Exercise builder: mode tabs, dynamic quiz questions, file attach ----
+  // ---- Exercise builder: mode tabs, rich text, dynamic quiz questions, tasks ----
+  // Blog posts only ever need one Quill editor, so admin.js just keeps a
+  // single global instance. An exercise can have several rich text fields
+  // at once (the main instructions, plus one per writing task in a
+  // multi-task exercise), so this keeps a named collection instead.
+  const quillEditors = new Map();
+  function initQuillEditor(elementId, rtlCheckboxId) {
+    const el = document.getElementById(elementId);
+    if (!el || !window.Quill) return null;
+    const editor = new Quill(el, {
+      theme: 'snow',
+      placeholder: 'Write instructions...',
+      modules: { toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['blockquote', 'link', 'image'],
+        ['clean'],
+      ] },
+    });
+    quillEditors.set(elementId, editor);
+    if (rtlCheckboxId) {
+      const checkbox = document.getElementById(rtlCheckboxId);
+      checkbox.addEventListener('change', () => {
+        el.querySelector('.ql-editor').style.direction = checkbox.checked ? 'rtl' : 'ltr';
+        el.querySelector('.ql-editor').style.textAlign = checkbox.checked ? 'right' : 'left';
+      });
+    }
+    return editor;
+  }
+  function quillHtml(elementId) {
+    const editor = quillEditors.get(elementId);
+    if (!editor) return '';
+    return editor.getText().trim() ? editor.root.innerHTML : '';
+  }
+  initQuillEditor('hw-instructions-editor', 'hw-instructions-rtl');
+
   let hwQuestionCount = 0;
+  let hwTaskCount = 0;
   document.querySelectorAll('#hw-mode-tabs [data-mode]').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#hw-mode-tabs [data-mode]').forEach((b) => b.setAttribute('aria-selected', 'false'));
       btn.setAttribute('aria-selected', 'true');
-      document.getElementById('hw-mode').value = btn.dataset.mode;
-      document.getElementById('hw-quiz-builder').classList.toggle('hidden', btn.dataset.mode !== 'quiz');
+      const mode = btn.dataset.mode;
+      document.getElementById('hw-mode').value = mode;
+      document.getElementById('hw-quiz-builder').classList.toggle('hidden', mode !== 'quiz');
+      document.getElementById('hw-multi-builder').classList.toggle('hidden', mode !== 'multi');
+      // A multi-task exercise handles its own media per task, so the
+      // single whole-exercise attachment field doesn't apply there.
+      document.getElementById('hw-single-attachment').classList.toggle('hidden', mode === 'multi');
     });
   });
 
-  function addQuestionRow() {
+  function addQuestionRow(container) {
     const qId = ++hwQuestionCount;
     const row = document.createElement('div');
     row.className = 'p-4 rounded-md border';
@@ -389,9 +431,126 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>`).join('')}
       </div>
       <p class="text-xs mt-1" style="color:var(--text-secondary)">Select the radio button next to the correct answer.</p>`;
-    document.getElementById('hw-questions-list').appendChild(row);
+    container.appendChild(row);
   }
-  document.getElementById('hw-add-question').addEventListener('click', addQuestionRow);
+  document.getElementById('hw-add-question').addEventListener('click', () => addQuestionRow(document.getElementById('hw-questions-list')));
+
+  function collectQuestions(container) {
+    return [...container.querySelectorAll('[data-qrow]')].map((row) => {
+      const options = [...row.querySelectorAll('.hw-q-option')].map((i) => i.value.trim()).filter(Boolean);
+      const correctInput = row.querySelector('.hw-q-correct:checked');
+      return {
+        questionText: row.querySelector('.hw-q-text').value.trim(),
+        options,
+        correctIndex: correctInput ? parseInt(correctInput.value, 10) : 0,
+      };
+    });
+  }
+
+  // ---- Multi-task builder ----
+  function addMediaItemRow(container) {
+    const row = document.createElement('div');
+    row.className = 'flex items-start gap-2 p-3 rounded-md';
+    row.style.background = 'var(--bg-subtle)';
+    row.dataset.mediaRow = '1';
+    row.innerHTML = `
+      <div class="flex-1 space-y-2">
+        <select class="hw-media-kind w-full px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+          <option value="video">Video (paste a YouTube/video link)</option>
+          <option value="link">External Link</option>
+          <option value="pdf">Upload PDF</option>
+          <option value="audio">Upload Audio</option>
+          <option value="image">Upload Image</option>
+          <option value="file">Upload Other File</option>
+        </select>
+        <input class="hw-media-label w-full px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)" placeholder="Label (e.g. \u2018Listening clip\u2019)">
+        <input class="hw-media-url w-full px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)" placeholder="Paste URL">
+        <input class="hw-media-file hidden w-full text-sm" type="file">
+        <p class="hw-media-status text-xs" style="color:var(--text-secondary)"></p>
+      </div>
+      <button type="button" class="text-xs shrink-0" style="color:var(--danger-600)" onclick="this.closest('[data-media-row]').remove()">Remove</button>`;
+    const kindSelect = row.querySelector('.hw-media-kind');
+    const urlInput = row.querySelector('.hw-media-url');
+    const fileInput = row.querySelector('.hw-media-file');
+    const statusEl = row.querySelector('.hw-media-status');
+    function syncKind() {
+      const needsUpload = ['pdf', 'audio', 'image', 'file'].includes(kindSelect.value);
+      urlInput.classList.toggle('hidden', needsUpload);
+      fileInput.classList.toggle('hidden', !needsUpload);
+    }
+    kindSelect.addEventListener('change', syncKind);
+    syncKind();
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      statusEl.textContent = 'Uploading...';
+      try {
+        const uploaded = await EP.uploadHomeworkFile(file);
+        row.dataset.uploadedUrl = uploaded.url;
+        statusEl.textContent = `Uploaded: ${uploaded.name}`;
+        statusEl.style.color = 'var(--success-600)';
+      } catch (err) {
+        statusEl.textContent = err.message;
+        statusEl.style.color = 'var(--danger-600)';
+      }
+    });
+    container.appendChild(row);
+  }
+
+  function addTaskCard(type) {
+    const taskId = ++hwTaskCount;
+    const card = document.createElement('div');
+    card.className = 'p-4 rounded-md border';
+    card.style.borderColor = 'var(--border-default)';
+    card.dataset.taskCard = taskId;
+    card.dataset.taskType = type;
+    const typeLabel = { writing: 'Writing', quiz: 'Quiz', media: 'Media' }[type];
+    const bodyId = `hw-task-body-${taskId}`;
+    card.innerHTML = `
+      <div class="flex items-center justify-between mb-2">
+        <span class="badge badge-info">${typeLabel}</span>
+        <button type="button" class="text-xs" style="color:var(--danger-600)" onclick="this.closest('[data-task-card]').remove()">Remove Task</button>
+      </div>
+      <input class="hw-task-title w-full px-3 py-2 rounded-md border text-sm mb-3" style="border-color:var(--border-default)" placeholder="Task title (e.g. \u2018Part 1: Listening\u2019)">
+      <div id="${bodyId}"></div>`;
+    document.getElementById('hw-tasks-list').appendChild(card);
+    document.getElementById('hw-tasks-empty').classList.add('hidden');
+
+    const body = document.getElementById(bodyId);
+    if (type === 'writing') {
+      const editorId = `hw-task-editor-${taskId}`;
+      const rtlId = `hw-task-rtl-${taskId}`;
+      body.innerHTML = `
+        <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="${rtlId}"> Right-to-left (Arabic)</label>
+        <div id="${editorId}" style="min-height:100px"></div>`;
+      initQuillEditor(editorId, rtlId);
+      card.dataset.editorId = editorId;
+    } else if (type === 'quiz') {
+      body.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-semibold" style="color:var(--text-secondary)">Questions</label>
+          <button type="button" class="hw-task-add-question text-xs font-semibold" style="color:var(--teal-600)">+ Add Question</button>
+        </div>
+        <div class="hw-task-questions space-y-3"></div>`;
+      const list = body.querySelector('.hw-task-questions');
+      body.querySelector('.hw-task-add-question').addEventListener('click', () => addQuestionRow(list));
+      addQuestionRow(list);
+    } else if (type === 'media') {
+      body.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-semibold" style="color:var(--text-secondary)">Media Items</label>
+          <button type="button" class="hw-task-add-media text-xs font-semibold" style="color:var(--teal-600)">+ Add Item</button>
+        </div>
+        <div class="hw-task-media space-y-2"></div>`;
+      const list = body.querySelector('.hw-task-media');
+      body.querySelector('.hw-task-add-media').addEventListener('click', () => addMediaItemRow(list));
+      addMediaItemRow(list);
+    }
+  }
+  document.querySelectorAll('#hw-multi-builder [data-add-task]').forEach((btn) => {
+    btn.addEventListener('click', () => addTaskCard(btn.dataset.addTask));
+  });
+
 
   let pendingAttachment = null;
   document.getElementById('hw-attachment').addEventListener('change', async (e) => {
@@ -414,40 +573,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     const mode = document.getElementById('hw-mode').value;
     let questions;
+    let tasks;
     if (mode === 'quiz') {
-      const rows = [...document.querySelectorAll('#hw-questions-list [data-qrow]')];
-      if (!rows.length) { showToast('Add at least one question for a quiz exercise', 'danger'); return; }
-      questions = rows.map((row) => {
-        const options = [...row.querySelectorAll('.hw-q-option')].map((i) => i.value.trim()).filter(Boolean);
-        const correctInput = row.querySelector('.hw-q-correct:checked');
-        return {
-          questionText: row.querySelector('.hw-q-text').value.trim(),
-          options,
-          correctIndex: correctInput ? parseInt(correctInput.value, 10) : 0,
-        };
-      });
+      questions = collectQuestions(document.getElementById('hw-questions-list'));
+      if (!questions.length) { showToast('Add at least one question for a quiz exercise', 'danger'); return; }
       if (questions.some((q) => !q.questionText || q.options.length < 2)) {
         showToast('Every question needs text and at least 2 options', 'danger');
         return;
+      }
+    }
+    if (mode === 'multi') {
+      const cards = [...document.querySelectorAll('#hw-tasks-list [data-task-card]')];
+      if (!cards.length) { showToast('Add at least one task', 'danger'); return; }
+      tasks = [];
+      for (const card of cards) {
+        const type = card.dataset.taskType;
+        const title = card.querySelector('.hw-task-title').value.trim();
+        if (type === 'writing') {
+          const rtlChecked = document.getElementById(`hw-task-rtl-${card.dataset.taskCard}`)?.checked;
+          tasks.push({ type, title, instructions: quillHtml(card.dataset.editorId), direction: rtlChecked ? 'rtl' : 'ltr' });
+        } else if (type === 'quiz') {
+          const qs = collectQuestions(card.querySelector('.hw-task-questions'));
+          if (!qs.length || qs.some((q) => !q.questionText || q.options.length < 2)) {
+            showToast(`Fix the quiz task "${title || 'Untitled'}" \u2014 every question needs text and at least 2 options`, 'danger');
+            return;
+          }
+          tasks.push({ type, title, questions: qs });
+        } else if (type === 'media') {
+          const rows = [...card.querySelectorAll('[data-media-row]')];
+          const items = rows.map((row) => {
+            const kind = row.querySelector('.hw-media-kind').value;
+            const label = row.querySelector('.hw-media-label').value.trim();
+            const needsUpload = ['pdf', 'audio', 'image', 'file'].includes(kind);
+            const url = needsUpload ? row.dataset.uploadedUrl : row.querySelector('.hw-media-url').value.trim();
+            return url ? { kind, url, name: label } : null;
+          }).filter(Boolean);
+          if (!items.length) { showToast(`Add at least one working media item to "${title || 'Untitled'}"`, 'danger'); return; }
+          tasks.push({ type, title, mediaItems: items });
+        }
       }
     }
     try {
       await EP.addHomework({
         courseId: myCourseId, teacherId: user.id,
         title: document.getElementById('hw-title').value,
-        instructions: document.getElementById('hw-instructions').value,
+        instructions: quillHtml('hw-instructions-editor'),
+        instructionsDirection: document.getElementById('hw-instructions-rtl').checked ? 'rtl' : 'ltr',
         dueDate: document.getElementById('hw-due').value,
         submissionMode: mode,
         attachmentUrl: pendingAttachment?.url,
         attachmentName: pendingAttachment?.name,
         maxPoints: parseInt(document.getElementById('hw-points').value, 10) || 100,
         questions,
+        tasks,
       });
       e.target.reset();
       pendingAttachment = null;
       document.getElementById('hw-attachment-status').textContent = '';
       document.getElementById('hw-questions-list').innerHTML = '';
       document.getElementById('hw-quiz-builder').classList.add('hidden');
+      document.getElementById('hw-tasks-list').innerHTML = '';
+      document.getElementById('hw-tasks-empty').classList.remove('hidden');
+      document.getElementById('hw-multi-builder').classList.add('hidden');
+      document.getElementById('hw-single-attachment').classList.remove('hidden');
+      quillEditors.get('hw-instructions-editor')?.setText('');
+      quillEditors.forEach((editor, id) => { if (id !== 'hw-instructions-editor') quillEditors.delete(id); });
       document.querySelectorAll('#hw-mode-tabs [data-mode]').forEach((b) => b.setAttribute('aria-selected', b.dataset.mode === 'text'));
       document.getElementById('hw-mode').value = 'text';
       await renderAll();
