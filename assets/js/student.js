@@ -68,6 +68,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function renderEnrollmentBanner() {
     const el = document.getElementById('enrollment-status-banner');
+    // If the student already has a real course assignment, any lingering
+    // 'pending' record is a stale leftover, not something they still need
+    // to act on or be told about — showing it anyway is exactly the
+    // "enrollment pending" banner that kept appearing even after a
+    // student was already approved and looking at their actual course.
+    if (user.courseId) { el.innerHTML = ''; return; }
     const enrollments = await EP.myEnrollments(user.id);
     const pending = enrollments.filter(e => e.status === 'pending');
     if (!pending.length) { el.innerHTML = ''; return; }

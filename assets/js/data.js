@@ -99,14 +99,20 @@ const EP = (() => {
     // is what prevents that.
     const { data: profile } = await client.from('profiles').select('role').eq('id', authUser.id).single();
     if (!profile || profile.role !== 'student') return;
-    // desiredCourseId may be empty ("I'm not sure yet" at signup) — that's
-    // still a real student who needs to show up for admin to follow up
-    // with, not a reason to skip creating a record entirely.
-    const desiredCourseId = authUser.user_metadata?.desired_course_id || null;
-    let existingQuery = client.from('enrollments').select('id').eq('student_id', authUser.id);
-    existingQuery = desiredCourseId ? existingQuery.eq('course_id', desiredCourseId) : existingQuery.is('course_id', null);
-    const { data: existing } = await existingQuery.limit(1);
+    // This function only exists to bootstrap a FIRST enrollment record for
+    // a brand new student — it must never fire again once they have any
+    // record at all. The previous check matched on course_id = the
+    // signup-time desired_course_id, which broke the moment an admin
+    // approved the request: approval updates that same row's course_id to
+    // the real assigned course, so it stops matching, and this function
+    // would create a brand new duplicate "pending" row on the student's
+    // very next login — repeating indefinitely. Checking for the mere
+    // existence of any enrollment at all, regardless of its course_id or
+    // status, is what a bootstrap check should have been doing from the
+    // start.
+    const { data: existing } = await client.from('enrollments').select('id').eq('student_id', authUser.id).limit(1);
     if (existing && existing.length) return;
+    const desiredCourseId = authUser.user_metadata?.desired_course_id || null;
     await requestEnrollment(desiredCourseId, authUser.id);
   }
 
