@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('student-hw-list').innerHTML = hw.map(h => {
       const sub = mySubs.find(x => x.homeworkId === h.id);
       const isPast = h.dueDate && new Date(h.dueDate) < new Date();
-      const modeLabel = { text: 'Written', file: 'File Upload', quiz: 'Quiz' }[h.submissionMode] || 'Written';
+      const modeLabel = { text: 'Written', file: 'File Upload', quiz: 'Quiz', multi: 'Multi-Task' }[h.submissionMode] || 'Written';
       const statusBadge = !sub ? 'badge-danger'
         : sub.status === 'graded' ? 'badge-success'
         : sub.status === 'needs_revision' ? 'badge-warning'
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <span class="badge ${statusBadge}">${statusLabel}</span>
           </div>
         </div>
-        <p class="text-sm mb-3" style="color:var(--text-secondary)">${escapeHtml(h.instructions)}</p>
+        <div class="text-sm mb-3 post-body-rendered" dir="${h.instructionsDirection === 'rtl' ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">${h.instructions || ''}</div>
         ${attachmentHtml}
         <p class="text-xs mb-3" style="color:${isPast && !sub ? 'var(--danger-600)' : 'var(--text-disabled)'}">Due ${h.dueDate ? new Date(h.dueDate).toLocaleString() : '\u2014'}${isPast && !sub ? ' \u2014 overdue' : ''}</p>
         ${actionHtml}
@@ -207,6 +207,63 @@ document.addEventListener('DOMContentLoaded', async () => {
     msgsEl.scrollTop = msgsEl.scrollHeight;
   }
 
+  // Same reusable Quill manager as the teacher side — a multi-task
+  // exercise can have more than one writing response open at once, so
+  // this can't be a single global editor the way the old plain textarea
+  // was.
+  const quillEditors = new Map();
+  function initQuillEditor(elementId, rtlCheckboxId, initialHtml) {
+    const el = document.getElementById(elementId);
+    if (!el || !window.Quill) return null;
+    const editor = new Quill(el, {
+      theme: 'snow',
+      placeholder: 'Write your answer...',
+      modules: { toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        [{ size: ['small', false, 'large', 'huge'] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['blockquote', 'link'],
+        ['clean'],
+      ] },
+    });
+    if (initialHtml) editor.root.innerHTML = initialHtml;
+    quillEditors.set(elementId, editor);
+    if (rtlCheckboxId) {
+      const checkbox = document.getElementById(rtlCheckboxId);
+      checkbox.addEventListener('change', () => {
+        el.querySelector('.ql-editor').style.direction = checkbox.checked ? 'rtl' : 'ltr';
+        el.querySelector('.ql-editor').style.textAlign = checkbox.checked ? 'right' : 'left';
+      });
+    }
+    return editor;
+  }
+  function quillHtml(elementId) {
+    const editor = quillEditors.get(elementId);
+    if (!editor) return '';
+    return editor.getText().trim() ? editor.root.innerHTML : '';
+  }
+
+  function youtubeEmbedUrl(url) {
+    const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
+    return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+  }
+  function renderMediaItem(item) {
+    if (item.kind === 'video') {
+      const embed = youtubeEmbedUrl(item.url);
+      return embed
+        ? `<div class="mb-2"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">${escapeHtml(item.name || 'Video')}</p><iframe src="${escapeHtml(embed)}" class="w-full rounded-lg" style="aspect-ratio:16/9" allowfullscreen></iframe></div>`
+        : `<div class="mb-2"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">${escapeHtml(item.name || 'Video')}</p><video controls class="w-full rounded-lg" src="${escapeHtml(item.url)}"></video></div>`;
+    }
+    if (item.kind === 'audio') {
+      return `<div class="mb-2"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">${escapeHtml(item.name || 'Audio')}</p><audio controls class="w-full" src="${escapeHtml(item.url)}"></audio></div>`;
+    }
+    if (item.kind === 'image') {
+      return `<div class="mb-2"><img src="${escapeHtml(item.url)}" alt="${escapeHtml(item.name || '')}" class="w-full rounded-lg"></div>`;
+    }
+    return `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" class="text-sm font-semibold inline-flex items-center gap-1 mb-2" style="color:var(--teal-600)">\u{1F4CE} ${escapeHtml(item.name || (item.kind === 'pdf' ? 'View PDF' : item.kind === 'link' ? 'Open Link' : 'Open File'))}</a>`;
+  }
+
   window.openSubmitModal = async (hwId) => {
     const h = (await myHomework()).find(x => x.id === hwId);
     if (!h) return;
@@ -214,7 +271,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('submit-hw-id').value = hwId;
     document.getElementById('submit-modal-title').textContent = h.title;
-    document.getElementById('submit-modal-instructions').textContent = h.instructions;
+    document.getElementById('submit-modal-instructions').innerHTML = h.instructions || '';
+    document.getElementById('submit-modal-instructions').dir = h.instructionsDirection === 'rtl' ? 'rtl' : 'ltr';
+    document.getElementById('submit-modal-instructions').classList.add('post-body-rendered');
     document.getElementById('submit-form').reset();
 
     const isAudio = h.attachmentUrl && /\.(mp3|wav|ogg|m4a)(\?|$)/i.test(h.attachmentUrl);
@@ -235,7 +294,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     const body = document.getElementById('submit-modal-body');
     const draftBtn = document.getElementById('submit-draft-btn');
 
-    if (h.submissionMode === 'quiz') {
+    if (h.submissionMode === 'multi') {
+      draftBtn.classList.remove('hidden');
+      const tasks = await EP.homeworkTasks(hwId);
+      const savedByTask = new Map((existing?.taskResponses || []).map((tr) => [tr.taskId, tr]));
+      body.innerHTML = tasks.map((t, ti) => {
+        const saved = savedByTask.get(t.id);
+        const taskInstructions = t.instructions
+          ? `<div class="post-body-rendered text-sm mb-2" dir="${t.direction === 'rtl' ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">${t.instructions}</div>` : '';
+        let responseHtml;
+        if (t.type === 'writing') {
+          responseHtml = `
+            <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="task-rtl-${t.id}"> Right-to-left (Arabic)</label>
+            <div id="task-editor-${t.id}" data-writing-task="${t.id}"></div>`;
+        } else if (t.type === 'quiz') {
+          responseHtml = t.questions.map((q, qi) => `
+            <div class="mb-3">
+              <p class="text-sm font-medium mb-1" style="color:var(--navy-700)">${qi + 1}. ${escapeHtml(q.questionText)}</p>
+              <div class="space-y-1">
+                ${q.options.map((opt, oi) => `
+                  <label class="flex items-center gap-2 text-sm">
+                    <input type="radio" name="task-${t.id}-q-${qi}" value="${oi}" required class="task-quiz-answer" data-task-id="${t.id}" data-question="${qi}" ${saved?.answers?.[qi] === oi ? 'checked' : ''}>
+                    ${escapeHtml(opt)}
+                  </label>`).join('')}
+              </div>
+            </div>`).join('');
+        } else {
+          const mediaHtml = (t.mediaItems || []).map(renderMediaItem).join('');
+          responseHtml = `${mediaHtml}<textarea class="task-response w-full px-3 py-2 rounded-md border text-sm mt-2" data-task-id="${t.id}" data-task-type="media" rows="2" placeholder="Add a note (optional)">${escapeHtml(saved?.content || '')}</textarea>`;
+        }
+        return `<div class="p-4 rounded-lg border" style="border-color:var(--border-default)">
+          <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--teal-600)">${escapeHtml(t.title || `Task ${ti + 1}`)}</p>
+          ${taskInstructions}
+          ${responseHtml}
+        </div>`;
+      }).join('');
+      // Quill needs a real element in the DOM to bind to, so writing-task
+      // editors are created after the HTML above is actually inserted.
+      tasks.filter((t) => t.type === 'writing').forEach((t) => {
+        const saved = savedByTask.get(t.id);
+        initQuillEditor(`task-editor-${t.id}`, `task-rtl-${t.id}`, saved?.content || '');
+      });
+    } else if (h.submissionMode === 'quiz') {
       draftBtn.classList.add('hidden'); // quizzes auto-grade instantly — no draft concept
       const questions = await EP.homeworkQuestions(hwId);
       body.innerHTML = questions.map((q, qi) => `
@@ -257,7 +357,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         <textarea id="submit-content" rows="3" placeholder="Add a note (optional)" class="w-full px-4 py-3 rounded-md border text-sm mt-3" style="border-color:var(--border-default)">${escapeHtml(existing?.content || '')}</textarea>`;
     } else {
       draftBtn.classList.remove('hidden');
-      body.innerHTML = `<textarea id="submit-content" required rows="6" placeholder="Write or paste your answer here..." class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">${escapeHtml(existing?.content || '')}</textarea>`;
+      body.innerHTML = `
+        <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="submit-content-rtl"> Right-to-left (Arabic)</label>
+        <div id="submit-content-editor" data-writing-task="single"></div>`;
+      initQuillEditor('submit-content-editor', 'submit-content-rtl', existing?.content || '');
     }
 
     document.getElementById('submit-modal').classList.remove('hidden');
@@ -327,8 +430,30 @@ document.addEventListener('DOMContentLoaded', async () => {
   await renderAll();
   EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.notifications, EP.KEYS.messages, EP.KEYS.enrollments, EP.KEYS.attendance, EP.KEYS.announcements], renderAll);
 
-  async function collectSubmissionPayload(hwId) {
+  async function collectSubmissionPayload(hwId, isDraft = false) {
     const h = (await myHomework()).find(x => x.id === hwId);
+    if (h.submissionMode === 'multi') {
+      const tasks = await EP.homeworkTasks(hwId);
+      const taskResponses = [];
+      for (const t of tasks) {
+        if (t.type === 'quiz') {
+          const answers = t.questions.map((_, qi) => {
+            const checked = document.querySelector(`input[name="task-${t.id}-q-${qi}"]:checked`);
+            return checked ? parseInt(checked.value, 10) : -1;
+          });
+          if (!isDraft && answers.some((a) => a === -1)) throw new Error(`Answer every question in "${t.title || 'the quiz task'}".`);
+          taskResponses.push({ taskId: t.id, type: 'quiz', answers });
+        } else if (t.type === 'writing') {
+          const writingContent = quillHtml(`task-editor-${t.id}`);
+          if (!isDraft && !writingContent) throw new Error(`Write an answer for "${t.title || 'the writing task'}" before submitting.`);
+          taskResponses.push({ taskId: t.id, type: t.type, content: writingContent });
+        } else {
+          const textarea = document.querySelector(`.task-response[data-task-id="${t.id}"]`);
+          taskResponses.push({ taskId: t.id, type: t.type, content: textarea?.value || '' });
+        }
+      }
+      return { taskResponses };
+    }
     if (h.submissionMode === 'quiz') {
       const questions = await EP.homeworkQuestions(hwId);
       const answers = questions.map((_, qi) => {
@@ -352,7 +477,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!existing?.attachmentUrl && !content) throw new Error('Attach a file or add a note.');
       return { content, attachmentUrl: existing?.attachmentUrl, attachmentName: existing?.attachmentName };
     }
-    return { content: document.getElementById('submit-content').value };
+    const finalContent = quillHtml('submit-content-editor');
+    if (!isDraft && !finalContent) throw new Error('Write your answer before submitting.');
+    return { content: finalContent };
   }
 
   document.getElementById('submit-form').addEventListener('submit', async (e) => {
@@ -370,7 +497,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('submit-draft-btn').addEventListener('click', async () => {
     const hwId = document.getElementById('submit-hw-id').value;
     try {
-      const payload = await collectSubmissionPayload(hwId);
+      const payload = await collectSubmissionPayload(hwId, true);
       await EP.saveDraft(hwId, user.id, payload);
       closeModal('submit-modal');
       await renderAll();

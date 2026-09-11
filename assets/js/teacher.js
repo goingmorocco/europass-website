@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function renderHwList() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
     document.getElementById('teacher-hw-list').innerHTML = hw.map(h => `
-      <div class="card p-4">
+      <div class="card p-4" onclick="openViewExerciseModal('${h.id}')" style="cursor:pointer">
         <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(h.title)}</p>
         <p class="text-xs mt-1" style="color:var(--text-secondary)">Due ${h.dueDate ? new Date(h.dueDate).toLocaleString() : '\u2014'} \u00b7 ${allSubs.filter(s => s.homeworkId === h.id).length}/${myStudents.length} submitted</p>
       </div>`).join('') || `<p class="text-sm" style="color:var(--text-secondary)">No homework assigned yet.</p>`;
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>`;
       } else {
         const isAudio = s.attachmentUrl && /\.(mp3|wav|ogg|m4a)(\?|$)/i.test(s.attachmentUrl);
-        bodyHtml = `${s.content ? `<p class="text-sm p-3 rounded-lg" style="background:var(--bg-subtle); color:var(--text-secondary)">${escapeHtml(s.content)}</p>` : ''}
+        bodyHtml = `${s.content ? `<div class="text-sm p-3 rounded-lg post-body-rendered" style="background:var(--bg-subtle); color:var(--text-secondary)">${s.content}</div>` : ''}
           ${s.attachmentUrl ? (isAudio
             ? `<audio controls class="w-full mt-2" src="${escapeHtml(s.attachmentUrl)}"></audio>`
             : `<a href="${escapeHtml(s.attachmentUrl)}" target="_blank" rel="noopener" class="text-xs font-semibold inline-flex items-center gap-1 mt-2" style="color:var(--teal-600)">\u{1F4CE} ${escapeHtml(s.attachmentName || 'View file')}</a>`) : ''}`;
@@ -162,13 +162,71 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   window.selectThread = async (studentId) => { activeThreadStudentId = studentId; renderThreads(); await renderChat(); };
 
+  window.openViewExerciseModal = async (hwId) => {
+    const h = (await myHomework()).find(x => x.id === hwId);
+    if (!h) return;
+    const subs = (await EP.submissions()).filter(s => s.homeworkId === hwId);
+
+    document.getElementById('view-exercise-title').textContent = h.title;
+    const modeLabel = { text: 'Written Answer', file: 'File Upload', quiz: 'Quiz', multi: 'Multi-Task' }[h.submissionMode] || 'Written Answer';
+    document.getElementById('view-exercise-meta').innerHTML = `
+      <span class="badge badge-info">${modeLabel}</span>
+      <span class="badge badge-success">${h.maxPoints} pts</span>
+      <span class="text-xs" style="color:var(--text-secondary)">Due ${h.dueDate ? new Date(h.dueDate).toLocaleString() : '\u2014'}</span>
+      <span class="text-xs" style="color:var(--text-secondary)">\u00b7 ${subs.length}/${myStudents.length} submitted</span>`;
+
+    const body = document.getElementById('view-exercise-body');
+    let html = h.instructions
+      ? `<div class="post-body-rendered text-sm p-3 rounded-lg" dir="${h.instructionsDirection === 'rtl' ? 'rtl' : 'ltr'}" style="background:var(--bg-subtle); color:var(--text-primary)">${h.instructions}</div>`
+      : '';
+
+    if (h.attachmentUrl) {
+      const isAudio = /\.(mp3|wav|ogg|m4a)(\?|$)/i.test(h.attachmentUrl);
+      html += isAudio
+        ? `<audio controls class="w-full" src="${escapeHtml(h.attachmentUrl)}"></audio>`
+        : `<a href="${escapeHtml(h.attachmentUrl)}" target="_blank" rel="noopener" class="text-sm font-semibold inline-flex items-center gap-1" style="color:var(--teal-600)">\u{1F4CE} ${escapeHtml(h.attachmentName || 'View attachment')}</a>`;
+    }
+
+    if (h.submissionMode === 'quiz') {
+      const questions = await EP.homeworkQuestions(hwId);
+      html += questions.map((q, qi) => `
+        <div class="p-3 rounded-lg border" style="border-color:var(--border-default)">
+          <p class="text-sm font-medium mb-2" style="color:var(--navy-700)">${qi + 1}. ${escapeHtml(q.questionText)}</p>
+          ${q.options.map((opt, oi) => `<p class="text-xs pl-3 ${oi === q.correctIndex ? 'font-semibold' : ''}" style="color:${oi === q.correctIndex ? 'var(--success-600)' : 'var(--text-secondary)'}">${oi === q.correctIndex ? '\u2713' : '\u25cb'} ${escapeHtml(opt)}</p>`).join('')}
+        </div>`).join('');
+    } else if (h.submissionMode === 'multi') {
+      const tasks = await EP.homeworkTasks(hwId);
+      html += tasks.map((t, ti) => {
+        let inner = '';
+        if (t.type === 'writing') {
+          inner = t.instructions ? `<div class="post-body-rendered text-xs" dir="${t.direction === 'rtl' ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">${t.instructions}</div>` : `<p class="text-xs" style="color:var(--text-secondary)">Students write a free-form answer.</p>`;
+        } else if (t.type === 'quiz') {
+          inner = (t.questions || []).map((q, qi) => `
+            <p class="text-xs font-medium mt-2" style="color:var(--navy-700)">${qi + 1}. ${escapeHtml(q.questionText)}</p>
+            ${q.options.map((opt, oi) => `<p class="text-xs pl-3 ${oi === q.correctIndex ? 'font-semibold' : ''}" style="color:${oi === q.correctIndex ? 'var(--success-600)' : 'var(--text-secondary)'}">${oi === q.correctIndex ? '\u2713' : '\u25cb'} ${escapeHtml(opt)}</p>`).join('')}`).join('');
+        } else {
+          inner = (t.mediaItems || []).map((item) => `<p class="text-xs" style="color:var(--text-secondary)">\u2022 ${escapeHtml(item.kind)}: ${escapeHtml(item.name || item.url)}</p>`).join('');
+        }
+        return `<div class="p-3 rounded-lg border" style="border-color:var(--border-default)">
+          <p class="text-xs font-semibold uppercase tracking-wide mb-1" style="color:var(--teal-600)">${escapeHtml(t.title || `Task ${ti + 1}`)} \u00b7 ${t.type}</p>
+          ${inner}
+        </div>`;
+      }).join('');
+    }
+
+    body.innerHTML = html || `<p class="text-sm" style="color:var(--text-secondary)">No additional details.</p>`;
+    document.getElementById('view-exercise-modal').classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+  };
+
+
   window.openGradeModal = async (subId) => {
     const sub = (await EP.submissions()).find(s => s.id === subId);
     const h = (await myHomework()).find(x => x.id === sub?.homeworkId);
     const student = myStudents.find(x => x.id === sub?.studentId);
 
     document.getElementById('grade-sub-id').value = subId;
-    document.getElementById('grade-modal-content').innerHTML = `<strong>${escapeHtml(student?.name)}</strong> \u2014 ${escapeHtml(h?.title)}${sub?.content ? `<br><br>${escapeHtml(sub.content)}` : ''}`;
+    document.getElementById('grade-modal-content').innerHTML = `<strong>${escapeHtml(student?.name)}</strong> \u2014 ${escapeHtml(h?.title)}${sub?.content ? `<br><br><div class="post-body-rendered">${sub.content}</div>` : ''}`;
     document.getElementById('grade-value-label').textContent = h?.maxPoints ? `Grade (out of ${h.maxPoints})` : 'Grade';
     document.getElementById('grade-value').placeholder = h?.maxPoints ? `e.g. ${Math.round(h.maxPoints * 0.8)}` : 'e.g. B+ or 8/10';
 
@@ -372,6 +430,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       placeholder: 'Write instructions...',
       modules: { toolbar: [
         [{ header: [1, 2, 3, false] }],
+        [{ size: ['small', false, 'large', 'huge'] }],
         ['bold', 'italic', 'underline', 'strike'],
         [{ list: 'ordered' }, { list: 'bullet' }],
         ['blockquote', 'link', 'image'],
