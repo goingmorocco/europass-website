@@ -215,6 +215,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     body.innerHTML = html || `<p class="text-sm" style="color:var(--text-secondary)">No additional details.</p>`;
+    document.getElementById('view-exercise-edit-btn').onclick = () => {
+      closeModal('view-exercise-modal');
+      populateFormForEdit(hwId);
+    };
     document.getElementById('view-exercise-modal').classList.remove('hidden');
     if (window.lucide) lucide.createIcons();
   };
@@ -456,6 +460,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let hwQuestionCount = 0;
   let hwTaskCount = 0;
+  let editingHomeworkId = null;
   document.querySelectorAll('#hw-mode-tabs [data-mode]').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#hw-mode-tabs [data-mode]').forEach((b) => b.setAttribute('aria-selected', 'false'));
@@ -470,7 +475,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  function addQuestionRow(container) {
+  function addQuestionRow(container, existing) {
     const qId = ++hwQuestionCount;
     const row = document.createElement('div');
     row.className = 'p-4 rounded-md border';
@@ -485,11 +490,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="space-y-2">
         ${[0, 1, 2, 3].map(i => `
           <div class="flex items-center gap-2">
-            <input type="radio" name="hw-correct-${qId}" value="${i}" ${i === 0 ? 'checked' : ''} class="hw-q-correct">
+            <input type="radio" name="hw-correct-${qId}" value="${i}" ${(existing ? existing.correctIndex === i : i === 0) ? 'checked' : ''} class="hw-q-correct">
             <input class="hw-q-option flex-1 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)" placeholder="Option ${i + 1}${i >= 2 ? ' (optional)' : ''}" ${i < 2 ? 'required' : ''}>
           </div>`).join('')}
       </div>
       <p class="text-xs mt-1" style="color:var(--text-secondary)">Select the radio button next to the correct answer.</p>`;
+    if (existing) {
+      row.querySelector('.hw-q-text').value = existing.questionText || '';
+      const optionInputs = row.querySelectorAll('.hw-q-option');
+      (existing.options || []).forEach((opt, i) => { if (optionInputs[i]) optionInputs[i].value = opt; });
+    }
     container.appendChild(row);
   }
   document.getElementById('hw-add-question').addEventListener('click', () => addQuestionRow(document.getElementById('hw-questions-list')));
@@ -507,7 +517,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // ---- Multi-task builder ----
-  function addMediaItemRow(container) {
+  function addMediaItemRow(container, existing) {
     const row = document.createElement('div');
     row.className = 'flex items-start gap-2 p-3 rounded-md';
     row.style.background = 'var(--bg-subtle)';
@@ -538,6 +548,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       fileInput.classList.toggle('hidden', !needsUpload);
     }
     kindSelect.addEventListener('change', syncKind);
+    if (existing) {
+      kindSelect.value = existing.kind;
+      row.querySelector('.hw-media-label').value = existing.name || '';
+      if (['pdf', 'audio', 'image', 'file'].includes(existing.kind)) {
+        row.dataset.uploadedUrl = existing.url;
+        statusEl.textContent = `Current: ${existing.name || 'uploaded file'} (choose a new file to replace it)`;
+      } else {
+        urlInput.value = existing.url || '';
+      }
+    }
     syncKind();
     fileInput.addEventListener('change', async () => {
       const file = fileInput.files[0];
@@ -556,7 +576,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     container.appendChild(row);
   }
 
-  function addTaskCard(type) {
+  function addTaskCard(type, existing) {
     const taskId = ++hwTaskCount;
     const card = document.createElement('div');
     card.className = 'p-4 rounded-md border';
@@ -572,6 +592,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
       <input class="hw-task-title w-full px-3 py-2 rounded-md border text-sm mb-3" style="border-color:var(--border-default)" placeholder="Task title (e.g. \u2018Part 1: Listening\u2019)">
       <div id="${bodyId}"></div>`;
+    card.querySelector('.hw-task-title').value = existing?.title || '';
     document.getElementById('hw-tasks-list').appendChild(card);
     document.getElementById('hw-tasks-empty').classList.add('hidden');
 
@@ -580,9 +601,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       const editorId = `hw-task-editor-${taskId}`;
       const rtlId = `hw-task-rtl-${taskId}`;
       body.innerHTML = `
-        <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="${rtlId}"> Right-to-left (Arabic)</label>
+        <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="${rtlId}" ${existing?.direction === 'rtl' ? 'checked' : ''}> Right-to-left (Arabic)</label>
         <div id="${editorId}" style="min-height:100px"></div>`;
-      initQuillEditor(editorId, rtlId);
+      const editor = initQuillEditor(editorId, rtlId);
+      if (existing?.instructions && editor) {
+        editor.root.innerHTML = existing.instructions;
+        if (existing.direction === 'rtl') {
+          editor.root.style.direction = 'rtl';
+          editor.root.style.textAlign = 'right';
+        }
+      }
       card.dataset.editorId = editorId;
     } else if (type === 'quiz') {
       body.innerHTML = `
@@ -593,7 +621,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="hw-task-questions space-y-3"></div>`;
       const list = body.querySelector('.hw-task-questions');
       body.querySelector('.hw-task-add-question').addEventListener('click', () => addQuestionRow(list));
-      addQuestionRow(list);
+      if (existing?.questions?.length) {
+        existing.questions.forEach((q) => addQuestionRow(list, q));
+      } else {
+        addQuestionRow(list);
+      }
     } else if (type === 'media') {
       body.innerHTML = `
         <div class="flex items-center justify-between mb-2">
@@ -603,15 +635,70 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="hw-task-media space-y-2"></div>`;
       const list = body.querySelector('.hw-task-media');
       body.querySelector('.hw-task-add-media').addEventListener('click', () => addMediaItemRow(list));
-      addMediaItemRow(list);
+      if (existing?.mediaItems?.length) {
+        existing.mediaItems.forEach((item) => addMediaItemRow(list, item));
+      } else {
+        addMediaItemRow(list);
+      }
     }
   }
   document.querySelectorAll('#hw-multi-builder [data-add-task]').forEach((btn) => {
     btn.addEventListener('click', () => addTaskCard(btn.dataset.addTask));
   });
 
+  window.populateFormForEdit = async (homeworkId) => {
+    const h = (await myHomework()).find(x => x.id === homeworkId);
+    if (!h) return;
+    editingHomeworkId = homeworkId;
+    switchTab('teacher-shell', 'assign');
+    document.getElementById('hw-form-heading').textContent = 'Edit Exercise';
+    document.querySelector('#hw-form button[type="submit"]').textContent = 'Save Changes';
+
+    document.getElementById('hw-title').value = h.title;
+    if (h.dueDate) {
+      const d = new Date(h.dueDate);
+      const pad = (n) => String(n).padStart(2, '0');
+      document.getElementById('hw-due').value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+    document.getElementById('hw-points').value = h.maxPoints || 100;
+    document.getElementById('hw-instructions-rtl').checked = h.instructionsDirection === 'rtl';
+    const instrEditor = quillEditors.get('hw-instructions-editor');
+    if (instrEditor) {
+      instrEditor.root.innerHTML = h.instructions || '';
+      if (h.instructionsDirection === 'rtl') {
+        instrEditor.root.style.direction = 'rtl';
+        instrEditor.root.style.textAlign = 'right';
+      }
+    }
+
+    // Reset the builder areas before repopulating, same as after a fresh submit.
+    document.getElementById('hw-questions-list').innerHTML = '';
+    document.getElementById('hw-tasks-list').innerHTML = '';
+    document.getElementById('hw-tasks-empty').classList.remove('hidden');
+
+    document.querySelectorAll('#hw-mode-tabs [data-mode]').forEach((b) => b.setAttribute('aria-selected', b.dataset.mode === h.submissionMode));
+    document.getElementById('hw-mode').value = h.submissionMode;
+    document.getElementById('hw-quiz-builder').classList.toggle('hidden', h.submissionMode !== 'quiz');
+    document.getElementById('hw-multi-builder').classList.toggle('hidden', h.submissionMode !== 'multi');
+    document.getElementById('hw-single-attachment').classList.toggle('hidden', h.submissionMode === 'multi');
+
+    existingAttachment = h.attachmentUrl ? { url: h.attachmentUrl, name: h.attachmentName } : null;
+    document.getElementById('hw-attachment-status').textContent = existingAttachment ? `Current: ${existingAttachment.name || 'attached file'} (choose a new file to replace it)` : '';
+
+    if (h.submissionMode === 'quiz') {
+      const questions = await EP.homeworkQuestions(homeworkId);
+      const list = document.getElementById('hw-questions-list');
+      questions.forEach((q) => addQuestionRow(list, q));
+    } else if (h.submissionMode === 'multi') {
+      const tasks = await EP.homeworkTasks(homeworkId);
+      tasks.forEach((t) => addTaskCard(t.type, t));
+    }
+    document.getElementById('hw-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
 
   let pendingAttachment = null;
+  let existingAttachment = null; // set during populateFormForEdit — the attachment already on the exercise, kept unless a new file replaces it
   document.getElementById('hw-attachment').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     const statusEl = document.getElementById('hw-attachment-status');
@@ -673,21 +760,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
     try {
-      await EP.addHomework({
+      const payload = {
         courseId: myCourseId, teacherId: user.id,
         title: document.getElementById('hw-title').value,
         instructions: quillHtml('hw-instructions-editor'),
         instructionsDirection: document.getElementById('hw-instructions-rtl').checked ? 'rtl' : 'ltr',
         dueDate: document.getElementById('hw-due').value,
         submissionMode: mode,
-        attachmentUrl: pendingAttachment?.url,
-        attachmentName: pendingAttachment?.name,
+        // A teacher editing without touching the attachment field must not
+        // accidentally wipe out the existing one — only fall back to it
+        // when actually editing and no new file was chosen this time.
+        attachmentUrl: pendingAttachment?.url ?? (editingHomeworkId ? existingAttachment?.url : undefined),
+        attachmentName: pendingAttachment?.name ?? (editingHomeworkId ? existingAttachment?.name : undefined),
         maxPoints: parseInt(document.getElementById('hw-points').value, 10) || 100,
         questions,
         tasks,
-      });
+      };
+      if (editingHomeworkId) {
+        await EP.updateHomework(editingHomeworkId, payload);
+      } else {
+        await EP.addHomework(payload);
+      }
       e.target.reset();
       pendingAttachment = null;
+      existingAttachment = null;
       document.getElementById('hw-attachment-status').textContent = '';
       document.getElementById('hw-questions-list').innerHTML = '';
       document.getElementById('hw-quiz-builder').classList.add('hidden');
@@ -699,8 +795,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       quillEditors.forEach((editor, id) => { if (id !== 'hw-instructions-editor') quillEditors.delete(id); });
       document.querySelectorAll('#hw-mode-tabs [data-mode]').forEach((b) => b.setAttribute('aria-selected', b.dataset.mode === 'text'));
       document.getElementById('hw-mode').value = 'text';
+      const wasEditing = !!editingHomeworkId;
+      editingHomeworkId = null;
+      document.querySelector('#hw-form button[type="submit"]').textContent = 'Assign Exercise';
+      document.getElementById('hw-form-heading').textContent = 'Assign New Exercise';
       await renderAll();
-      showToast('Exercise assigned to all students in your course');
+      showToast(wasEditing ? 'Exercise updated' : 'Exercise assigned to all students in your course');
     } catch (err) { showToast(err.message, 'danger'); }
   });
 

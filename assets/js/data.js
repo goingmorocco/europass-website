@@ -454,15 +454,9 @@ const EP = (() => {
   // for submissionMode 'quiz'. tasks is optional — an array of
   // { type, title, instructions, mediaItems, questions } for submissionMode
   // 'multi', where a task's own questions follow the same shape as above.
-  async function addHomework({ courseId, teacherId, title, instructions, instructionsDirection = 'ltr', dueDate, submissionMode = 'text', attachmentUrl, attachmentName, maxPoints = 100, questions, tasks }) {
-    const client = await db();
-    const { data, error } = await client.from('homework').insert({
-      course_id: courseId, teacher_id: teacherId, title, instructions, instructions_direction: instructionsDirection, due_date: dueDate,
-      submission_mode: submissionMode, attachment_url: attachmentUrl || null, attachment_name: attachmentName || null, max_points: maxPoints,
-    }).select().single();
-    if (error) throw error;
+  async function insertQuestionsAndTasks(client, homeworkId, submissionMode, questions, tasks) {
     if (submissionMode === 'quiz' && Array.isArray(questions) && questions.length) {
-      const rows = questions.map((q, i) => ({ homework_id: data.id, question_text: q.questionText, options: q.options, correct_index: q.correctIndex, position: i }));
+      const rows = questions.map((q, i) => ({ homework_id: homeworkId, question_text: q.questionText, options: q.options, correct_index: q.correctIndex, position: i }));
       const { error: qErr } = await client.from('homework_questions').insert(rows);
       if (qErr) throw qErr;
     }
@@ -470,18 +464,53 @@ const EP = (() => {
       for (let i = 0; i < tasks.length; i++) {
         const t = tasks[i];
         const { data: taskRow, error: tErr } = await client.from('homework_tasks').insert({
-          homework_id: data.id, type: t.type, position: i, title: t.title || null,
+          homework_id: homeworkId, type: t.type, position: i, title: t.title || null,
           instructions: t.instructions || null, direction: t.direction || 'ltr', media_items: t.type === 'media' ? (t.mediaItems || []) : null,
         }).select().single();
         if (tErr) throw tErr;
         if (t.type === 'quiz' && Array.isArray(t.questions) && t.questions.length) {
-          const qRows = t.questions.map((q, qi) => ({ homework_id: data.id, task_id: taskRow.id, question_text: q.questionText, options: q.options, correct_index: q.correctIndex, position: qi }));
+          const qRows = t.questions.map((q, qi) => ({ homework_id: homeworkId, task_id: taskRow.id, question_text: q.questionText, options: q.options, correct_index: q.correctIndex, position: qi }));
           const { error: qErr } = await client.from('homework_questions').insert(qRows);
           if (qErr) throw qErr;
         }
       }
     }
+  }
+
+  async function addHomework({ courseId, teacherId, title, instructions, instructionsDirection = 'ltr', dueDate, submissionMode = 'text', attachmentUrl, attachmentName, maxPoints = 100, questions, tasks }) {
+    const client = await db();
+    const { data, error } = await client.from('homework').insert({
+      course_id: courseId, teacher_id: teacherId, title, instructions, instructions_direction: instructionsDirection, due_date: dueDate,
+      submission_mode: submissionMode, attachment_url: attachmentUrl || null, attachment_name: attachmentName || null, max_points: maxPoints,
+    }).select().single();
+    if (error) throw error;
+    await insertQuestionsAndTasks(client, data.id, submissionMode, questions, tasks);
     return data.id;
+  }
+
+  // Edits an existing exercise in place. Rather than trying to diff which
+  // individual questions/tasks changed (a teacher could add, remove, or
+  // reorder any of them), this clears everything under the homework and
+  // rebuilds it fresh from the current form state — the same shape
+  // addHomework already knows how to build, just reused here. Existing
+  // student submissions are untouched; they reference the homework, not
+  // its now-replaced questions/tasks, so nothing is lost for anyone who
+  // already submitted.
+  async function updateHomework(id, { title, instructions, instructionsDirection = 'ltr', dueDate, submissionMode = 'text', attachmentUrl, attachmentName, maxPoints = 100, questions, tasks }) {
+    const client = await db();
+    const { error } = await client.from('homework').update({
+      title, instructions, instructions_direction: instructionsDirection, due_date: dueDate,
+      submission_mode: submissionMode, attachment_url: attachmentUrl || null, attachment_name: attachmentName || null, max_points: maxPoints,
+    }).eq('id', id);
+    if (error) throw error;
+    // homework_tasks cascades its own linked homework_questions on delete;
+    // the old single-quiz-mode questions (task_id null) need their own
+    // explicit clear since they're not attached to any task row.
+    const { error: tDelErr } = await client.from('homework_tasks').delete().eq('homework_id', id);
+    if (tDelErr) throw tDelErr;
+    const { error: qDelErr } = await client.from('homework_questions').delete().eq('homework_id', id).is('task_id', null);
+    if (qDelErr) throw qDelErr;
+    await insertQuestionsAndTasks(client, id, submissionMode, questions, tasks);
   }
 
   const MAX_HOMEWORK_FILE_BYTES = 15 * 1024 * 1024;
@@ -819,7 +848,7 @@ const EP = (() => {
     resources, addResource, deleteResource, uploadPostCover,
     attendanceFor, myAttendance, markAttendance,
     announcementsFor, myAnnouncements, addAnnouncement, deleteAnnouncement,
-    homework, homeworkByCourse, addHomework, homeworkQuestions, questionsForTask, homeworkTasks, uploadHomeworkFile, submissions, submissionFor, submitHomework, saveDraft, gradeSubmission, requestRevision,
+    homework, homeworkByCourse, addHomework, updateHomework, homeworkQuestions, questionsForTask, homeworkTasks, uploadHomeworkFile, submissions, submissionFor, submitHomework, saveDraft, gradeSubmission, requestRevision,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,

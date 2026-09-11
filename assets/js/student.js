@@ -161,7 +161,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else if (sub && sub.status === 'draft') {
         actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-secondary btn-sm">Continue Draft</button>`;
       } else if (sub) {
-        actionHtml = `<p class="text-xs" style="color:var(--text-secondary)">Submitted ${EP.timeAgo(sub.submittedAt)} \u2014 waiting for your teacher to grade it.</p>`;
+        actionHtml = isPast || h.submissionMode === 'quiz'
+          ? `<p class="text-xs" style="color:var(--text-secondary)">Submitted ${EP.timeAgo(sub.submittedAt)} \u2014 waiting for your teacher to grade it.</p>`
+          : `<p class="text-xs mb-2" style="color:var(--text-secondary)">Submitted ${EP.timeAgo(sub.submittedAt)} \u2014 waiting for your teacher to grade it.</p>
+          <button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-secondary btn-sm">Edit Submission</button>`;
       } else {
         actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">${h.submissionMode === 'quiz' ? 'Take Quiz' : 'Submit'}</button>`;
       }
