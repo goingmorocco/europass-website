@@ -97,8 +97,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       let bodyHtml;
       if (h?.submissionMode === 'quiz') {
         const questions = await EP.homeworkQuestions(h.id);
+        // s.autoScore is a snapshot frozen at the moment the student
+        // submitted — if the teacher edits the quiz afterward (e.g. to
+        // fix a wrong answer key), that stored number goes stale and can
+        // disagree with the live, correct comparison right below it. This
+        // recomputes the percentage from the same per-question checks
+        // used for the breakdown, so the two can never contradict each
+        // other again.
+        const liveCorrect = questions.reduce((sum, q, qi) => {
+          const picked = Array.isArray(s.quizAnswers) ? s.quizAnswers[qi] : undefined;
+          return sum + (picked === q.correctIndex ? 1 : 0);
+        }, 0);
+        const livePct = questions.length ? Math.round((liveCorrect / questions.length) * 100) : 0;
         bodyHtml = `<div class="p-3 rounded-lg" style="background:var(--bg-subtle)">
-          <p class="text-sm font-semibold mb-2" style="color:var(--navy-700)">Auto-graded: ${s.autoScore}%</p>
+          <p class="text-sm font-semibold mb-2" style="color:var(--navy-700)">Auto-graded: ${livePct}%</p>
           <div class="space-y-2">
             ${questions.map((q, qi) => {
               const picked = Array.isArray(s.quizAnswers) ? s.quizAnswers[qi] : undefined;
@@ -121,12 +133,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           let inner;
           if (t.type === 'quiz') {
             const answers = tr?.answers || [];
+            const liveCorrect = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
+            const livePct = t.questions?.length ? Math.round((liveCorrect / t.questions.length) * 100) : 0;
             inner = (t.questions || []).map((q, qi) => {
               const picked = answers[qi];
               const isRight = picked === q.correctIndex;
               return `<p class="text-xs" style="color:var(--text-secondary)">${qi + 1}. ${escapeHtml(q.questionText)} \u2014 <span style="color:${isRight ? 'var(--success-600)' : 'var(--danger-600)'}">${picked != null ? escapeHtml(q.options[picked] || '?') : 'no answer'}</span>${!isRight ? ` (correct: ${escapeHtml(q.options[q.correctIndex])})` : ''}</p>`;
             }).join('');
-            inner = `${tr?.autoScore != null ? `<p class="text-xs font-semibold mb-1" style="color:var(--navy-700)">Auto-graded: ${tr.autoScore}%</p>` : ''}${inner || '<p class="text-xs" style="color:var(--text-secondary)">Not answered.</p>'}`;
+            inner = `${tr ? `<p class="text-xs font-semibold mb-1" style="color:var(--navy-700)">Auto-graded: ${livePct}%</p>` : ''}${inner || '<p class="text-xs" style="color:var(--text-secondary)">Not answered.</p>'}`;
           } else {
             // writing or media — both store their answer as HTML/plain
             // text in tr.content (rendered as HTML since student writing
@@ -272,12 +286,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         let inner;
         if (t.type === 'quiz') {
           const answers = tr?.answers || [];
+          const liveCorrect = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
+          const livePct = t.questions?.length ? Math.round((liveCorrect / t.questions.length) * 100) : 0;
           inner = (t.questions || []).map((q, qi) => {
             const picked = answers[qi];
             const isRight = picked === q.correctIndex;
             return `<p class="text-xs" style="color:var(--text-secondary)">${qi + 1}. ${escapeHtml(q.questionText)} \u2014 <span style="color:${isRight ? 'var(--success-600)' : 'var(--danger-600)'}">${picked != null ? escapeHtml(q.options[picked] || '?') : 'no answer'}</span>${!isRight ? ` (correct: ${escapeHtml(q.options[q.correctIndex])})` : ''}</p>`;
           }).join('');
-          inner = `${tr?.autoScore != null ? `<p class="text-xs font-semibold mb-1" style="color:var(--navy-700)">Auto-graded: ${tr.autoScore}%</p>` : ''}${inner || '<p class="text-xs" style="color:var(--text-secondary)">Not answered.</p>'}`;
+          inner = `${tr ? `<p class="text-xs font-semibold mb-1" style="color:var(--navy-700)">Auto-graded: ${livePct}%</p>` : ''}${inner || '<p class="text-xs" style="color:var(--text-secondary)">Not answered.</p>'}`;
         } else {
           inner = tr?.content ? `<div class="text-xs post-body-rendered" style="color:var(--text-secondary)">${tr.content}</div>` : '<p class="text-xs" style="color:var(--text-secondary)">No response.</p>';
         }
