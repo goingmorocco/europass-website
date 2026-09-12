@@ -579,6 +579,7 @@ const EP = (() => {
         row.status = 'graded';
         row.grade = `${overall}%`;
         row.graded_at = new Date().toISOString();
+        row.feedback = null; // a fresh auto-grade replaces any earlier "here's what to fix" note from a prior revision request
       } else {
         row.status = 'submitted';
       }
@@ -591,6 +592,7 @@ const EP = (() => {
       row.status = 'graded';
       row.grade = `${scorePct}%`;
       row.graded_at = new Date().toISOString();
+      row.feedback = null; // a fresh auto-grade replaces any earlier "here's what to fix" note from a prior revision request
     } else {
       row.status = 'submitted';
     }

@@ -208,7 +208,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const canGrade = h?.submissionMode !== 'quiz' && (s.status === 'submitted' || s.status === 'needs_revision');
       const displayGrade = liveGradeText ?? s.grade;
       const actionHtml = s.status === 'graded'
-        ? `<p class="text-sm mt-3"><span class="font-semibold" style="color:var(--navy-700)">Grade: ${escapeHtml(displayGrade)}${h?.maxPoints && h.submissionMode !== 'quiz' && liveGradeText == null ? ` / ${h.maxPoints}` : ''}</span>${s.feedback ? ` \u2014 ${escapeHtml(s.feedback)}` : ''}</p>`
+        ? `<p class="text-sm mt-3"><span class="font-semibold" style="color:var(--navy-700)">Grade: ${escapeHtml(displayGrade)}${h?.maxPoints && h.submissionMode !== 'quiz' && liveGradeText == null ? ` / ${h.maxPoints}` : ''}</span>${s.feedback ? ` \u2014 ${escapeHtml(s.feedback)}` : ''}</p>
+          <button onclick="giveAnotherChance('${s.id}')" class="btn btn-secondary btn-sm mt-2">Give Another Chance</button>`
         : s.status === 'needs_revision'
         ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">Sent back: ${escapeHtml(s.feedback || '')}</p>${canGrade ? `<button onclick="openGradeModal('${s.id}')" class="btn btn-secondary btn-sm mt-2">Grade Now</button>` : ''}`
         : canGrade
@@ -376,6 +377,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       showToast('Sent back to the student for revision');
     } catch (err) { showToast(err.message, 'danger'); }
   });
+
+  // Reopens an already-graded submission for another attempt — works the
+  // same way regardless of exercise type, including quiz (which can't be
+  // manually graded, so it never goes through the grade modal at all).
+  // Once back at 'needs_revision', the student's existing Resubmit flow
+  // already knows how to reopen any mode correctly, quiz included.
+  window.giveAnotherChance = async (subId) => {
+    const feedback = prompt('What should the student revisit or fix? This note will be shown to them.');
+    if (feedback === null) return; // cancelled
+    if (!feedback.trim()) { showToast('Add a note so the student knows what to fix', 'danger'); return; }
+    const sub = (await EP.submissions()).find(s => s.id === subId);
+    try {
+      await EP.requestRevision(subId, feedback);
+      if (sub) await EP.sendNotification({ fromId: user.id, audience: 'user', audienceId: sub.studentId, title: 'Another chance to revise', body: feedback }).catch(() => {});
+      await renderAll();
+      showToast('Student can now revise and resubmit');
+    } catch (err) { showToast(err.message, 'danger'); }
+  };
 
   // ---- Resources (materials the admin has shared) ----
   // These must be declared before renderAll() is called below — renderAll()
