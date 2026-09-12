@@ -107,6 +107,39 @@ document.addEventListener('DOMContentLoaded', async () => {
             }).join('')}
           </div>
         </div>`;
+      } else if (h?.submissionMode === 'multi') {
+        // Multi-task submissions store one response per task in
+        // task_responses, not the flat content/attachmentUrl fields those
+        // only apply to single-mode exercises — this was previously
+        // falling through to the generic branch below, which checks
+        // exactly those flat fields and found nothing, so the teacher saw
+        // no response at all for any multi-task exercise.
+        const tasks = await EP.homeworkTasks(h.id);
+        const responseByTask = new Map((s.taskResponses || []).map((tr) => [tr.taskId, tr]));
+        bodyHtml = tasks.map((t, ti) => {
+          const tr = responseByTask.get(t.id);
+          let inner;
+          if (t.type === 'quiz') {
+            const answers = tr?.answers || [];
+            inner = (t.questions || []).map((q, qi) => {
+              const picked = answers[qi];
+              const isRight = picked === q.correctIndex;
+              return `<p class="text-xs" style="color:var(--text-secondary)">${qi + 1}. ${escapeHtml(q.questionText)} \u2014 <span style="color:${isRight ? 'var(--success-600)' : 'var(--danger-600)'}">${picked != null ? escapeHtml(q.options[picked] || '?') : 'no answer'}</span>${!isRight ? ` (correct: ${escapeHtml(q.options[q.correctIndex])})` : ''}</p>`;
+            }).join('');
+            inner = `${tr?.autoScore != null ? `<p class="text-xs font-semibold mb-1" style="color:var(--navy-700)">Auto-graded: ${tr.autoScore}%</p>` : ''}${inner || '<p class="text-xs" style="color:var(--text-secondary)">Not answered.</p>'}`;
+          } else {
+            // writing or media — both store their answer as HTML/plain
+            // text in tr.content (rendered as HTML since student writing
+            // responses come from the same rich text editor as instructions).
+            inner = tr?.content
+              ? `<div class="text-xs post-body-rendered" style="color:var(--text-secondary)">${tr.content}</div>`
+              : '<p class="text-xs" style="color:var(--text-secondary)">No response.</p>';
+          }
+          return `<div class="p-3 rounded-lg border mb-2" style="border-color:var(--border-default)">
+            <p class="text-xs font-semibold uppercase tracking-wide mb-1" style="color:var(--teal-600)">${escapeHtml(t.title || `Task ${ti + 1}`)} \u00b7 ${t.type}</p>
+            ${inner}
+          </div>`;
+        }).join('');
       } else {
         const isAudio = s.attachmentUrl && /\.(mp3|wav|ogg|m4a)(\?|$)/i.test(s.attachmentUrl);
         bodyHtml = `${s.content ? `<div class="text-sm p-3 rounded-lg post-body-rendered" style="background:var(--bg-subtle); color:var(--text-secondary)">${s.content}</div>` : ''}
@@ -230,7 +263,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     const student = myStudents.find(x => x.id === sub?.studentId);
 
     document.getElementById('grade-sub-id').value = subId;
-    document.getElementById('grade-modal-content').innerHTML = `<strong>${escapeHtml(student?.name)}</strong> \u2014 ${escapeHtml(h?.title)}${sub?.content ? `<br><br><div class="post-body-rendered">${sub.content}</div>` : ''}`;
+    let contentPreview = sub?.content ? `<br><br><div class="post-body-rendered">${sub.content}</div>` : '';
+    if (h?.submissionMode === 'multi' && Array.isArray(sub?.taskResponses)) {
+      const tasks = await EP.homeworkTasks(h.id);
+      const responseByTask = new Map(sub.taskResponses.map((tr) => [tr.taskId, tr]));
+      contentPreview = '<br>' + tasks.map((t, ti) => {
+        const tr = responseByTask.get(t.id);
+        let inner;
+        if (t.type === 'quiz') {
+          const answers = tr?.answers || [];
+          inner = (t.questions || []).map((q, qi) => {
+            const picked = answers[qi];
+            const isRight = picked === q.correctIndex;
+            return `<p class="text-xs" style="color:var(--text-secondary)">${qi + 1}. ${escapeHtml(q.questionText)} \u2014 <span style="color:${isRight ? 'var(--success-600)' : 'var(--danger-600)'}">${picked != null ? escapeHtml(q.options[picked] || '?') : 'no answer'}</span>${!isRight ? ` (correct: ${escapeHtml(q.options[q.correctIndex])})` : ''}</p>`;
+          }).join('');
+          inner = `${tr?.autoScore != null ? `<p class="text-xs font-semibold mb-1" style="color:var(--navy-700)">Auto-graded: ${tr.autoScore}%</p>` : ''}${inner || '<p class="text-xs" style="color:var(--text-secondary)">Not answered.</p>'}`;
+        } else {
+          inner = tr?.content ? `<div class="text-xs post-body-rendered" style="color:var(--text-secondary)">${tr.content}</div>` : '<p class="text-xs" style="color:var(--text-secondary)">No response.</p>';
+        }
+        return `<div class="p-2 rounded-md mb-2" style="background:var(--bg-subtle)">
+          <p class="text-xs font-semibold uppercase tracking-wide mb-1" style="color:var(--teal-600)">${escapeHtml(t.title || `Task ${ti + 1}`)} \u00b7 ${t.type}</p>
+          ${inner}
+        </div>`;
+      }).join('');
+    }
+    document.getElementById('grade-modal-content').innerHTML = `<strong>${escapeHtml(student?.name)}</strong> \u2014 ${escapeHtml(h?.title)}${contentPreview}`;
     document.getElementById('grade-value-label').textContent = h?.maxPoints ? `Grade (out of ${h.maxPoints})` : 'Grade';
     document.getElementById('grade-value').placeholder = h?.maxPoints ? `e.g. ${Math.round(h.maxPoints * 0.8)}` : 'e.g. B+ or 8/10';
 
@@ -506,12 +563,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function collectQuestions(container) {
     return [...container.querySelectorAll('[data-qrow]')].map((row) => {
-      const options = [...row.querySelectorAll('.hw-q-option')].map((i) => i.value.trim()).filter(Boolean);
+      const optionInputs = [...row.querySelectorAll('.hw-q-option')];
       const correctInput = row.querySelector('.hw-q-correct:checked');
+      const correctSlot = correctInput ? parseInt(correctInput.value, 10) : 0;
+      // Building the options array and figuring out where the correct
+      // answer actually lands has to happen in the same pass — filtering
+      // blank slots first and looking up the original slot index
+      // afterward silently shifts everything once any slot before the
+      // correct one is left empty, which pointed the stored answer at the
+      // wrong option (this was a real, confirmed bug: leaving slot 0
+      // blank while marking slot 1 correct stored slot 1's *neighbor* as
+      // the correct answer instead).
+      const options = [];
+      let correctIndex = 0;
+      optionInputs.forEach((input, slotIndex) => {
+        const val = input.value.trim();
+        if (!val) return;
+        if (slotIndex === correctSlot) correctIndex = options.length;
+        options.push(val);
+      });
       return {
         questionText: row.querySelector('.hw-q-text').value.trim(),
         options,
-        correctIndex: correctInput ? parseInt(correctInput.value, 10) : 0,
+        correctIndex,
       };
     });
   }
