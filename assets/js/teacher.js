@@ -59,19 +59,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     }).join('') || `<p class="text-sm" style="color:var(--text-secondary)">Nothing pending \u2014 you\u2019re all caught up.</p>`;
   }
 
+  // Same staleness issue as renderGradeList's quiz displays — a
+  // quiz-derived grade is frozen at submission time and goes stale if the
+  // teacher fixes the quiz's answer key afterward. This recomputes it
+  // live for the Students overview table; falls back to the stored grade
+  // for anything manually entered (writing/file submissions).
+  async function computeLiveGradeText(h, s) {
+    if (!h) return s.grade;
+    if (h.submissionMode === 'quiz') {
+      const questions = await EP.homeworkQuestions(h.id);
+      if (!questions.length) return s.grade;
+      const correct = questions.reduce((sum, q, qi) => sum + ((Array.isArray(s.quizAnswers) ? s.quizAnswers[qi] : undefined) === q.correctIndex ? 1 : 0), 0);
+      return `${Math.round((correct / questions.length) * 100)}%`;
+    }
+    if (h.submissionMode === 'multi') {
+      const tasks = await EP.homeworkTasks(h.id);
+      if (tasks.length && tasks.every((t) => t.type === 'quiz')) {
+        const responseByTask = new Map((s.taskResponses || []).map((tr) => [tr.taskId, tr]));
+        const pcts = tasks.map((t) => {
+          const tr = responseByTask.get(t.id);
+          const answers = tr?.answers || [];
+          const correct = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
+          return t.questions?.length ? Math.round((correct / t.questions.length) * 100) : 0;
+        });
+        return pcts.length ? `${Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length)}%` : s.grade;
+      }
+    }
+    return s.grade;
+  }
+
   async function renderStudents() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
+    const rows = await Promise.all(myStudents.map(async (s, i) => {
+      const subs = allSubs.filter(x => x.studentId === s.id);
+      const graded = subs.filter(x => x.status === 'graded');
+      const gradeTexts = await Promise.all(graded.map((g) => computeLiveGradeText(hw.find((h) => h.id === g.homeworkId), g)));
+      return `<tr style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}">
+        <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(s.name)}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${subs.length} / ${hw.length}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${gradeTexts.length ? gradeTexts.map(escapeHtml).join(', ') : '\u2014'}</td>
+      </tr>`;
+    }));
     document.getElementById('teacher-students-list').innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
       <th class="text-left px-5 py-3 text-white font-semibold">Student</th><th class="text-left px-5 py-3 text-white font-semibold">Homework Submitted</th><th class="text-left px-5 py-3 text-white font-semibold">Avg. Grade</th></tr></thead><tbody>
-      ${myStudents.map((s, i) => {
-        const subs = allSubs.filter(x => x.studentId === s.id);
-        const graded = subs.filter(x => x.status === 'graded');
-        return `<tr style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}">
-          <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(s.name)}</td>
-          <td class="px-5 py-3" style="color:var(--text-secondary)">${subs.length} / ${hw.length}</td>
-          <td class="px-5 py-3" style="color:var(--text-secondary)">${graded.length ? graded.map(g => g.grade).join(', ') : '\u2014'}</td>
-        </tr>`;
-      }).join('')}
+      ${rows.join('')}
     </tbody></table>`;
   }
 
@@ -95,6 +126,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const statusLabel = s.status === 'needs_revision' ? 'needs revision' : s.status;
 
       let bodyHtml;
+      let liveGradeText = null; // overrides the frozen s.grade for display when a live percentage can be recomputed
       if (h?.submissionMode === 'quiz') {
         const questions = await EP.homeworkQuestions(h.id);
         // s.autoScore is a snapshot frozen at the moment the student
@@ -109,6 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           return sum + (picked === q.correctIndex ? 1 : 0);
         }, 0);
         const livePct = questions.length ? Math.round((liveCorrect / questions.length) * 100) : 0;
+        liveGradeText = `${livePct}%`;
         bodyHtml = `<div class="p-3 rounded-lg" style="background:var(--bg-subtle)">
           <p class="text-sm font-semibold mb-2" style="color:var(--navy-700)">Auto-graded: ${livePct}%</p>
           <div class="space-y-2">
@@ -128,6 +161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // no response at all for any multi-task exercise.
         const tasks = await EP.homeworkTasks(h.id);
         const responseByTask = new Map((s.taskResponses || []).map((tr) => [tr.taskId, tr]));
+        const liveTaskPcts = []; // only populated for quiz-type tasks, used below to recompute the overall grade live
         bodyHtml = tasks.map((t, ti) => {
           const tr = responseByTask.get(t.id);
           let inner;
@@ -135,6 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const answers = tr?.answers || [];
             const liveCorrect = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
             const livePct = t.questions?.length ? Math.round((liveCorrect / t.questions.length) * 100) : 0;
+            liveTaskPcts.push(livePct);
             inner = (t.questions || []).map((q, qi) => {
               const picked = answers[qi];
               const isRight = picked === q.correctIndex;
@@ -154,6 +189,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${inner}
           </div>`;
         }).join('');
+        // Matches the exact condition data.js uses when deciding whether
+        // to auto-grade the whole submission (every task is a quiz) — if
+        // so, the overall grade shown here needs the same live-recompute
+        // treatment as each individual task's percentage above it.
+        if (tasks.length && tasks.every((t) => t.type === 'quiz') && liveTaskPcts.length === tasks.length) {
+          const overall = Math.round(liveTaskPcts.reduce((a, b) => a + b, 0) / liveTaskPcts.length);
+          liveGradeText = `${overall}%`;
+        }
       } else {
         const isAudio = s.attachmentUrl && /\.(mp3|wav|ogg|m4a)(\?|$)/i.test(s.attachmentUrl);
         bodyHtml = `${s.content ? `<div class="text-sm p-3 rounded-lg post-body-rendered" style="background:var(--bg-subtle); color:var(--text-secondary)">${s.content}</div>` : ''}
@@ -163,8 +206,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       const canGrade = h?.submissionMode !== 'quiz' && (s.status === 'submitted' || s.status === 'needs_revision');
+      const displayGrade = liveGradeText ?? s.grade;
       const actionHtml = s.status === 'graded'
-        ? `<p class="text-sm mt-3"><span class="font-semibold" style="color:var(--navy-700)">Grade: ${escapeHtml(s.grade)}${h?.maxPoints && h.submissionMode !== 'quiz' ? ` / ${h.maxPoints}` : ''}</span>${s.feedback ? ` \u2014 ${escapeHtml(s.feedback)}` : ''}</p>`
+        ? `<p class="text-sm mt-3"><span class="font-semibold" style="color:var(--navy-700)">Grade: ${escapeHtml(displayGrade)}${h?.maxPoints && h.submissionMode !== 'quiz' && liveGradeText == null ? ` / ${h.maxPoints}` : ''}</span>${s.feedback ? ` \u2014 ${escapeHtml(s.feedback)}` : ''}</p>`
         : s.status === 'needs_revision'
         ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">Sent back: ${escapeHtml(s.feedback || '')}</p>${canGrade ? `<button onclick="openGradeModal('${s.id}')" class="btn btn-secondary btn-sm mt-2">Grade Now</button>` : ''}`
         : canGrade

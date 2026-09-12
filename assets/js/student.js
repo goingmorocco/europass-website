@@ -112,6 +112,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('student-progress-sub').textContent = total > 0 ? `${completed} of ${total} homework completed` : 'Your teacher hasn\u2019t assigned any yet';
   }
 
+  // Same staleness fix as the teacher side — a quiz-derived grade is
+  // frozen at submission time and goes stale if the teacher later fixes
+  // the quiz's answer key. Recomputes live; falls back to the stored
+  // grade for anything manually entered (writing/file submissions).
+  async function computeLiveGradeText(h, s) {
+    if (!h) return null;
+    if (h.submissionMode === 'quiz') {
+      const questions = await EP.homeworkQuestions(h.id);
+      if (!questions.length) return null;
+      const correct = questions.reduce((sum, q, qi) => sum + ((Array.isArray(s.quizAnswers) ? s.quizAnswers[qi] : undefined) === q.correctIndex ? 1 : 0), 0);
+      return `${Math.round((correct / questions.length) * 100)}%`;
+    }
+    if (h.submissionMode === 'multi') {
+      const tasks = await EP.homeworkTasks(h.id);
+      if (tasks.length && tasks.every((t) => t.type === 'quiz')) {
+        const responseByTask = new Map((s.taskResponses || []).map((tr) => [tr.taskId, tr]));
+        const pcts = tasks.map((t) => {
+          const tr = responseByTask.get(t.id);
+          const answers = tr?.answers || [];
+          const correct = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
+          return t.questions?.length ? Math.round((correct / t.questions.length) * 100) : 0;
+        });
+        return pcts.length ? `${Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length)}%` : null;
+      }
+    }
+    return null;
+  }
+
   async function renderOverviewLists() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
     const mySubs = allSubs.filter(s => s.studentId === user.id);
@@ -125,16 +153,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }).join('') || `<p style="color:var(--text-secondary)">You\u2019re all caught up!</p>`;
 
     const graded = mySubs.filter(s => s.status === 'graded');
-    document.getElementById('student-recent-grades').innerHTML = graded.map(s => {
+    const gradeRows = await Promise.all(graded.map(async (s) => {
       const h = hw.find(x => x.id === s.homeworkId);
-      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-left hover:opacity-70 transition"><span>${escapeHtml(h?.title)}</span><span class="badge badge-success">${escapeHtml(s.grade)}</span></button>`;
-    }).join('') || `<p style="color:var(--text-secondary)">No grades yet.</p>`;
+      const gradeText = (await computeLiveGradeText(h, s)) ?? s.grade;
+      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-left hover:opacity-70 transition"><span>${escapeHtml(h?.title)}</span><span class="badge badge-success">${escapeHtml(gradeText)}</span></button>`;
+    }));
+    document.getElementById('student-recent-grades').innerHTML = gradeRows.join('') || `<p style="color:var(--text-secondary)">No grades yet.</p>`;
   }
 
   async function renderHwList() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
     const mySubs = allSubs.filter(s => s.studentId === user.id);
-    document.getElementById('student-hw-list').innerHTML = hw.map(h => {
+    document.getElementById('student-hw-list').innerHTML = (await Promise.all(hw.map(async h => {
       const sub = mySubs.find(x => x.homeworkId === h.id);
       const isPast = h.dueDate && new Date(h.dueDate) < new Date();
       const modeLabel = { text: 'Written', file: 'File Upload', quiz: 'Quiz', multi: 'Multi-Task' }[h.submissionMode] || 'Written';
@@ -154,7 +184,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       let actionHtml;
       if (sub && sub.status === 'graded') {
-        actionHtml = `<div class="p-3 rounded-lg text-sm" style="background:var(--success-50)"><span class="font-semibold" style="color:var(--success-600)">Grade: ${escapeHtml(sub.grade)} ${h.maxPoints && h.submissionMode !== 'quiz' ? `/ ${h.maxPoints}` : ''}</span>${sub.feedback ? `<p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback)}</p>` : ''}</div>`;
+        const liveGrade = await computeLiveGradeText(h, sub);
+        const gradeText = liveGrade ?? sub.grade;
+        actionHtml = `<div class="p-3 rounded-lg text-sm" style="background:var(--success-50)"><span class="font-semibold" style="color:var(--success-600)">Grade: ${escapeHtml(gradeText)} ${h.maxPoints && h.submissionMode !== 'quiz' && liveGrade == null ? `/ ${h.maxPoints}` : ''}</span>${sub.feedback ? `<p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback)}</p>` : ''}</div>`;
       } else if (sub && sub.status === 'needs_revision') {
         actionHtml = `<div class="p-3 rounded-lg text-sm mb-3" style="background:var(--amber-100)"><span class="font-semibold" style="color:var(--amber-600)">Needs revision</span><p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback || '')}</p></div>
           <button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">Resubmit</button>`;
@@ -182,7 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <p class="text-xs mb-3" style="color:${isPast && !sub ? 'var(--danger-600)' : 'var(--text-disabled)'}">Due ${h.dueDate ? new Date(h.dueDate).toLocaleString() : '\u2014'}${isPast && !sub ? ' \u2014 overdue' : ''}</p>
         ${actionHtml}
       </div>`;
-    }).join('') || `<p style="color:var(--text-secondary)">No homework assigned yet.</p>`;
+    }))).join('') || `<p style="color:var(--text-secondary)">No homework assigned yet.</p>`;
     if (window.lucide) lucide.createIcons();
   }
 
