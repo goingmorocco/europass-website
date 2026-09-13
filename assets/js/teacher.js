@@ -115,6 +115,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>`).join('') || `<p class="text-sm" style="color:var(--text-secondary)">No homework assigned yet.</p>`;
   }
 
+  // Feedback is free text a teacher types with no language picker attached
+  // (a native prompt() for "Give Another Chance", a plain textarea for
+  // grading) — detecting Arabic script directly is simpler and more
+  // reliable here than adding an RTL toggle to every place feedback gets
+  // written, and it's how the rest of the site already infers direction
+  // for content that doesn't carry an explicit flag.
+  function isRtlText(str) { return /[\u0600-\u06FF]/.test(str || ''); }
+
   async function renderGradeList() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
     const hwIds = hw.map(h => h.id);
@@ -208,10 +216,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const canGrade = h?.submissionMode !== 'quiz' && (s.status === 'submitted' || s.status === 'needs_revision');
       const displayGrade = liveGradeText ?? s.grade;
       const actionHtml = s.status === 'graded'
-        ? `<p class="text-sm mt-3"><span class="font-semibold" style="color:var(--navy-700)">Grade: ${escapeHtml(displayGrade)}${h?.maxPoints && h.submissionMode !== 'quiz' && liveGradeText == null ? ` / ${h.maxPoints}` : ''}</span>${s.feedback ? ` \u2014 ${escapeHtml(s.feedback)}` : ''}</p>
+        ? `<p class="text-sm mt-3"><span class="font-semibold" style="color:var(--navy-700)">Grade: ${escapeHtml(displayGrade)}${h?.maxPoints && h.submissionMode !== 'quiz' && liveGradeText == null ? ` / ${h.maxPoints}` : ''}</span>${s.feedback ? ` \u2014 <span dir="${isRtlText(s.feedback) ? 'rtl' : 'ltr'}">${escapeHtml(s.feedback)}</span>` : ''}</p>
           <button onclick="giveAnotherChance('${s.id}')" class="btn btn-secondary btn-sm mt-2">Give Another Chance</button>`
         : s.status === 'needs_revision'
-        ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">Sent back: ${escapeHtml(s.feedback || '')}</p>${canGrade ? `<button onclick="openGradeModal('${s.id}')" class="btn btn-secondary btn-sm mt-2">Grade Now</button>` : ''}`
+        ? `<p class="text-xs mt-2" dir="${isRtlText(s.feedback) ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">Sent back: ${escapeHtml(s.feedback || '')}</p>${canGrade ? `<button onclick="openGradeModal('${s.id}')" class="btn btn-secondary btn-sm mt-2">Grade Now</button>` : ''}`
         : canGrade
         ? `<button onclick="openGradeModal('${s.id}')" class="btn btn-primary btn-sm mt-3">Grade This</button>`
         : '';
@@ -384,16 +392,53 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Once back at 'needs_revision', the student's existing Resubmit flow
   // already knows how to reopen any mode correctly, quiz included.
   window.giveAnotherChance = async (subId) => {
-    const feedback = prompt('What should the student revisit or fix? This note will be shown to them.');
-    if (feedback === null) return; // cancelled
-    if (!feedback.trim()) { showToast('Add a note so the student knows what to fix', 'danger'); return; }
     const sub = (await EP.submissions()).find(s => s.id === subId);
-    try {
-      await EP.requestRevision(subId, feedback);
-      if (sub) await EP.sendNotification({ fromId: user.id, audience: 'user', audienceId: sub.studentId, title: 'Another chance to revise', body: feedback }).catch(() => {});
-      await renderAll();
-      showToast('Student can now revise and resubmit');
-    } catch (err) { showToast(err.message, 'danger'); }
+    const h = (await myHomework()).find(x => x.id === sub?.homeworkId);
+    document.getElementById('revision-feedback').value = '';
+
+    const picker = document.getElementById('revision-tasks-picker');
+    const list = document.getElementById('revision-tasks-list');
+    if (h?.submissionMode === 'multi') {
+      const tasks = await EP.homeworkTasks(h.id);
+      const responseByTask = new Map((sub?.taskResponses || []).map((tr) => [tr.taskId, tr]));
+      list.innerHTML = tasks.map((t, ti) => {
+        let context = '';
+        if (t.type === 'quiz') {
+          const tr = responseByTask.get(t.id);
+          const answers = tr?.answers || [];
+          const correct = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
+          const pct = t.questions?.length ? Math.round((correct / t.questions.length) * 100) : 0;
+          context = ` \u2014 ${pct}%`;
+        }
+        return `<label class="flex items-center gap-2 text-sm p-2 rounded-md" style="background:var(--bg-subtle)">
+          <input type="checkbox" class="revision-task-check" value="${t.id}">
+          ${escapeHtml(t.title || `Task ${ti + 1}`)} <span style="color:var(--text-secondary)">(${t.type}${context})</span>
+        </label>`;
+      }).join('');
+      picker.classList.remove('hidden');
+    } else {
+      picker.classList.add('hidden');
+      list.innerHTML = '';
+    }
+
+    document.getElementById('revision-submit-btn').onclick = async () => {
+      const feedback = document.getElementById('revision-feedback').value.trim();
+      if (!feedback) { showToast('Add a note so the student knows what to fix', 'danger'); return; }
+      const checked = [...document.querySelectorAll('.revision-task-check:checked')].map((c) => c.value);
+      if (h?.submissionMode === 'multi' && !checked.length) {
+        showToast('Select at least one part that needs another attempt', 'danger');
+        return;
+      }
+      try {
+        await EP.requestRevision(subId, feedback, checked.length ? checked : undefined);
+        if (sub) await EP.sendNotification({ fromId: user.id, audience: 'user', audienceId: sub.studentId, title: 'Another chance to revise', body: feedback }).catch(() => {});
+        closeModal('revision-modal');
+        await renderAll();
+        showToast('Student can now revise and resubmit');
+      } catch (err) { showToast(err.message, 'danger'); }
+    };
+
+    document.getElementById('revision-modal').classList.remove('hidden');
   };
 
   // ---- Resources (materials the admin has shared) ----

@@ -534,7 +534,7 @@ const EP = (() => {
     return {
       id: s.id, homeworkId: s.homework_id, studentId: s.student_id, content: s.content, status: s.status,
       grade: s.grade, feedback: s.feedback, submittedAt: s.submitted_at, gradedAt: s.graded_at,
-      attachmentUrl: s.attachment_url, attachmentName: s.attachment_name, quizAnswers: s.quiz_answers, autoScore: s.auto_score, taskResponses: s.task_responses,
+      attachmentUrl: s.attachment_url, attachmentName: s.attachment_name, quizAnswers: s.quiz_answers, autoScore: s.auto_score, taskResponses: s.task_responses, revisionTaskIds: s.revision_task_ids,
     };
   }
   async function submissionFor(homeworkId, studentId) { return (await submissions()).find(s => s.homeworkId === homeworkId && s.studentId === studentId); }
@@ -617,9 +617,12 @@ const EP = (() => {
   }
   // Sends work back for another pass instead of grading it outright — the
   // student sees the feedback and can resubmit through the same form.
-  async function requestRevision(subId, feedback) {
+  async function requestRevision(subId, feedback, taskIds) {
     const client = await db();
-    const { error } = await client.from('submissions').update({ status: 'needs_revision', feedback, graded_at: new Date().toISOString() }).eq('id', subId);
+    const { error } = await client.from('submissions').update({
+      status: 'needs_revision', feedback, graded_at: new Date().toISOString(),
+      revision_task_ids: Array.isArray(taskIds) && taskIds.length ? taskIds : null,
+    }).eq('id', subId);
     if (error) throw error;
   }
 

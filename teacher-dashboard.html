@@ -359,6 +359,23 @@
   </div>
 </div>
 
+<div id="revision-modal" class="hidden fixed inset-0 z-40 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-lg p-6 my-8">
+    <div class="flex items-center justify-between mb-4">
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Give Another Chance</p>
+      <button onclick="closeModal('revision-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div id="revision-tasks-picker" class="hidden mb-4">
+      <p class="text-sm font-medium mb-2" style="color:var(--navy-700)">Which parts need another attempt?</p>
+      <p class="text-xs mb-3" style="color:var(--text-secondary)">Unchecked parts stay locked — the student won't be able to touch what's already correct.</p>
+      <div id="revision-tasks-list" class="space-y-2"></div>
+    </div>
+    <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Note to the student</label>
+    <textarea id="revision-feedback" rows="3" required class="w-full px-4 py-3 rounded-md border text-sm mb-4" style="border-color:var(--border-default)" placeholder="What should they fix?"></textarea>
+    <button id="revision-submit-btn" class="btn btn-primary w-full">Send Back for Revision</button>
+  </div>
+</div>
+
 <div id="grade-modal" class="hidden fixed inset-0 z-40 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
   <div class="card w-full max-w-xl p-6 my-8">
     <div class="flex items-center justify-between mb-4">

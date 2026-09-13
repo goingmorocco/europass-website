@@ -161,6 +161,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('student-recent-grades').innerHTML = gradeRows.join('') || `<p style="color:var(--text-secondary)">No grades yet.</p>`;
   }
 
+  function isRtlText(str) { return /[\u0600-\u06FF]/.test(str || ''); }
+
   async function renderHwList() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
     const mySubs = allSubs.filter(s => s.studentId === user.id);
@@ -186,9 +188,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (sub && sub.status === 'graded') {
         const liveGrade = await computeLiveGradeText(h, sub);
         const gradeText = liveGrade ?? sub.grade;
-        actionHtml = `<div class="p-3 rounded-lg text-sm" style="background:var(--success-50)"><span class="font-semibold" style="color:var(--success-600)">Grade: ${escapeHtml(gradeText)} ${h.maxPoints && h.submissionMode !== 'quiz' && liveGrade == null ? `/ ${h.maxPoints}` : ''}</span>${sub.feedback ? `<p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback)}</p>` : ''}</div>`;
+        actionHtml = `<div class="p-3 rounded-lg text-sm" style="background:var(--success-50)"><span class="font-semibold" style="color:var(--success-600)">Grade: ${escapeHtml(gradeText)} ${h.maxPoints && h.submissionMode !== 'quiz' && liveGrade == null ? `/ ${h.maxPoints}` : ''}</span>${sub.feedback ? `<p class="mt-1" dir="${isRtlText(sub.feedback) ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">${escapeHtml(sub.feedback)}</p>` : ''}</div>`;
       } else if (sub && sub.status === 'needs_revision') {
-        actionHtml = `<div class="p-3 rounded-lg text-sm mb-3" style="background:var(--amber-100)"><span class="font-semibold" style="color:var(--amber-600)">Needs revision</span><p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback || '')}</p></div>
+        actionHtml = `<div class="p-3 rounded-lg text-sm mb-3" style="background:var(--amber-100)"><span class="font-semibold" style="color:var(--amber-600)">Needs revision</span><p class="mt-1" dir="${isRtlText(sub.feedback) ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">${escapeHtml(sub.feedback || '')}</p></div>
           <button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">Resubmit</button>`;
       } else if (sub && sub.status === 'draft') {
         actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-secondary btn-sm">Continue Draft</button>`;
@@ -321,6 +323,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const revisionNote = document.getElementById('submit-modal-revision-note');
     if (existing && existing.status === 'needs_revision' && existing.feedback) {
       revisionNote.textContent = `Your teacher asked for a revision: ${existing.feedback}`;
+      revisionNote.dir = isRtlText(existing.feedback) ? 'rtl' : 'ltr';
       revisionNote.classList.remove('hidden');
     } else {
       revisionNote.classList.add('hidden');
@@ -333,12 +336,38 @@ document.addEventListener('DOMContentLoaded', async () => {
       draftBtn.classList.remove('hidden');
       const tasks = await EP.homeworkTasks(hwId);
       const savedByTask = new Map((existing?.taskResponses || []).map((tr) => [tr.taskId, tr]));
+      // When the teacher flags specific tasks for revision (rather than
+      // the whole exercise), everything else stays locked — this is what
+      // stops a student from accidentally touching a part that was
+      // already correct (e.g. a 100% quiz) while fixing the one part
+      // that actually needs work. An empty/missing list means the
+      // original, simpler behavior: the whole exercise is editable.
+      const revisionIds = Array.isArray(existing?.revisionTaskIds) ? existing.revisionTaskIds : null;
+      const isLocked = (taskId) => existing?.status === 'needs_revision' && revisionIds && !revisionIds.includes(taskId);
       body.innerHTML = tasks.map((t, ti) => {
         const saved = savedByTask.get(t.id);
+        const locked = isLocked(t.id);
         const taskInstructions = t.instructions
           ? `<div class="post-body-rendered text-sm mb-2" dir="${t.direction === 'rtl' ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">${t.instructions}</div>` : '';
         let responseHtml;
-        if (t.type === 'writing') {
+        if (locked) {
+          // Read-only summary of what was already submitted — no inputs
+          // at all, so there's nothing here to accidentally change.
+          if (t.type === 'writing') {
+            responseHtml = saved?.content
+              ? `<div class="post-body-rendered text-sm p-3 rounded-md" style="background:var(--bg-subtle); color:var(--text-secondary)">${saved.content}</div>`
+              : '<p class="text-sm" style="color:var(--text-secondary)">No response was submitted.</p>';
+          } else if (t.type === 'quiz') {
+            const answers = saved?.answers || [];
+            const correct = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
+            const pct = t.questions?.length ? Math.round((correct / t.questions.length) * 100) : 0;
+            responseHtml = `<p class="text-sm font-semibold" style="color:var(--success-600)">Already correct \u2014 ${pct}%. No changes needed here.</p>`;
+          } else {
+            const mediaHtml = (t.mediaItems || []).map(renderMediaItem).join('');
+            responseHtml = `${mediaHtml}${saved?.content ? `<p class="text-sm mt-2" style="color:var(--text-secondary)">Your note: ${escapeHtml(saved.content)}</p>` : ''}`;
+          }
+          responseHtml = `<div class="opacity-75">${responseHtml}</div><p class="text-xs mt-2 flex items-center gap-1" style="color:var(--text-disabled)"><i data-lucide="lock" class="w-3 h-3"></i> Locked \u2014 this part is already correct</p>`;
+        } else if (t.type === 'writing') {
           responseHtml = `
             <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="task-rtl-${t.id}"> Right-to-left (Arabic)</label>
             <div id="task-editor-${t.id}" data-writing-task="${t.id}"></div>`;
@@ -358,15 +387,19 @@ document.addEventListener('DOMContentLoaded', async () => {
           const mediaHtml = (t.mediaItems || []).map(renderMediaItem).join('');
           responseHtml = `${mediaHtml}<textarea class="task-response w-full px-3 py-2 rounded-md border text-sm mt-2" data-task-id="${t.id}" data-task-type="media" rows="2" placeholder="Add a note (optional)">${escapeHtml(saved?.content || '')}</textarea>`;
         }
-        return `<div class="p-4 rounded-lg border" style="border-color:var(--border-default)">
-          <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--teal-600)">${escapeHtml(t.title || `Task ${ti + 1}`)}</p>
+        const needsRevisionBadge = revisionIds && !locked && existing?.status === 'needs_revision'
+          ? `<span class="badge badge-warning ml-2">Needs revision</span>` : '';
+        return `<div class="p-4 rounded-lg border" style="border-color:${locked ? 'var(--border-default)' : 'var(--warning-600)'}; ${locked ? '' : 'background:var(--amber-100)'}">
+          <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--teal-600)">${escapeHtml(t.title || `Task ${ti + 1}`)}${needsRevisionBadge}</p>
           ${taskInstructions}
           ${responseHtml}
         </div>`;
       }).join('');
       // Quill needs a real element in the DOM to bind to, so writing-task
       // editors are created after the HTML above is actually inserted.
-      tasks.filter((t) => t.type === 'writing').forEach((t) => {
+      // Locked writing tasks never get an editor at all, since they have
+      // no editable element in the HTML above.
+      tasks.filter((t) => t.type === 'writing' && !isLocked(t.id)).forEach((t) => {
         const saved = savedByTask.get(t.id);
         initQuillEditor(`task-editor-${t.id}`, `task-rtl-${t.id}`, saved?.content || '');
       });
@@ -469,8 +502,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const h = (await myHomework()).find(x => x.id === hwId);
     if (h.submissionMode === 'multi') {
       const tasks = await EP.homeworkTasks(hwId);
+      const existing = await EP.submissionFor(hwId, user.id).catch(() => null);
+      const revisionIds = Array.isArray(existing?.revisionTaskIds) ? existing.revisionTaskIds : null;
+      const isLocked = (taskId) => existing?.status === 'needs_revision' && revisionIds && !revisionIds.includes(taskId);
+      const savedByTask = new Map((existing?.taskResponses || []).map((tr) => [tr.taskId, tr]));
       const taskResponses = [];
       for (const t of tasks) {
+        if (isLocked(t.id)) {
+          // No inputs were rendered for a locked task, so there's nothing
+          // on the page to read — carry its previous answer through
+          // unchanged instead of losing it.
+          const saved = savedByTask.get(t.id);
+          if (saved) taskResponses.push(saved);
+          continue;
+        }
         if (t.type === 'quiz') {
           const answers = t.questions.map((_, qi) => {
             const checked = document.querySelector(`input[name="task-${t.id}-q-${qi}"]:checked`);
