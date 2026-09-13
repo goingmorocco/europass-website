@@ -273,6 +273,21 @@ const EP = (() => {
     const { error } = await client.from('profiles').update({ role: newRole, course_id: null, teacher_id: null }).eq('id', id);
     if (error) throw error;
   }
+  // Assigns a teacher to several students at once — mainly for catching up
+  // students who were already active before per-teacher assignment existed.
+  // Updates both profiles (what everything actually filters by) and each
+  // student's active enrollment — the enrollment sync trigger would
+  // otherwise silently revert this the next time that enrollment is
+  // edited or re-activated, since it treats the enrollment as the source
+  // of truth for profiles.teacher_id.
+  async function bulkAssignTeacher(studentIds, teacherId) {
+    if (!studentIds.length) return;
+    const client = await db();
+    const { error: profileErr } = await client.from('profiles').update({ teacher_id: teacherId }).in('id', studentIds);
+    if (profileErr) throw profileErr;
+    const { error: enrollErr } = await client.from('enrollments').update({ teacher_id: teacherId }).in('student_id', studentIds).eq('status', 'active');
+    if (enrollErr) throw enrollErr;
+  }
   // Blocking is deliberately separate from removeUser (is_active) — it's
   // meant to be a temporary, reversible suspension (e.g. non-payment), not
   // a deletion. A blocked user can still be found, still shows in lists,
@@ -850,7 +865,7 @@ const EP = (() => {
   return {
     KEYS, timeAgo,
     getSession, requireRole, login, signup, logout,
-    users, courses, addUser, removeUser, blockUser, unblockUser, markPaid, changeUserRole, suggestEmail, studentsOf, teachersOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
+    users, courses, addUser, removeUser, blockUser, unblockUser, markPaid, changeUserRole, bulkAssignTeacher, suggestEmail, studentsOf, teachersOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
     posts, postById, savePost, deletePost,
     categories, addCategory, deleteCategory,
     resources, addResource, deleteResource, uploadPostCover,

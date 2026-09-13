@@ -412,6 +412,12 @@
       <button onclick="openUserForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add User</button>
     </div>
   </div>
+  <div id="bulk-assign-bar" class="hidden card p-3 mb-4 flex items-center gap-3 flex-wrap" style="background:var(--navy-50)">
+    <span id="bulk-assign-count" class="text-sm font-semibold" style="color:var(--navy-700)"></span>
+    <select id="bulk-assign-teacher-select" class="px-3 py-2 rounded-md border text-sm flex-1 min-w-[180px]" style="border-color:var(--border-default)"><option value="">Choose a teacher\u2026</option></select>
+    <button id="bulk-assign-btn" class="btn btn-primary btn-sm">Assign Teacher</button>
+    <button id="bulk-assign-clear" class="text-xs font-semibold" style="color:var(--text-secondary)">Clear selection</button>
+  </div>
   <div id="admin-users-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 

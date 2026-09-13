@@ -159,12 +159,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function renderUsers() {
     const [rows, courseList] = await Promise.all([EP.users(), EP.courses()]);
     const teachersAndStudents = rows.filter(u => u.role !== 'admin');
+    const teacherById = new Map(rows.filter(u => u.role === 'teacher').map(t => [t.id, t]));
     document.getElementById('admin-users-list').innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
-      <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="text-left px-5 py-3 text-white font-semibold">Joined</th><th class="text-left px-5 py-3 text-white font-semibold">Status</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      <th class="px-5 py-3"></th><th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">Teacher</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="text-left px-5 py-3 text-white font-semibold">Joined</th><th class="text-left px-5 py-3 text-white font-semibold">Status</th><th class="px-5 py-3"></th></tr></thead><tbody>
       ${teachersAndStudents.map((u, i) => `<tr onclick="openUserDetailModal('${u.id}')" style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; cursor:pointer">
+        <td class="px-5 py-3" onclick="event.stopPropagation()">${u.role === 'student' ? `<input type="checkbox" class="bulk-assign-check" value="${u.id}" data-course-id="${u.courseId || ''}">` : ''}</td>
         <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(u.name)}</td>
         <td class="px-5 py-3"><span class="badge ${u.role === 'teacher' ? 'badge-info' : 'badge-amber'}">${u.role}</span></td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(courseList.find(c => c.id === u.courseId)?.name || '\u2014')}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${u.role === 'student' ? escapeHtml(teacherById.get(u.teacherId)?.name || '\u2014') : '\u2014'}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(u.city || '\u2014')}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)" dir="ltr">${escapeHtml(u.phone || '\u2014')}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '\u2014'}</td>
@@ -172,6 +175,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td class="px-5 py-3 text-right"><button onclick="event.stopPropagation(); removeUserConfirm('${u.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Remove</button></td>
       </tr>`).join('')}
     </tbody></table>`;
+    document.querySelectorAll('.bulk-assign-check').forEach((cb) => cb.addEventListener('change', updateBulkAssignBar));
+    const teacherSelect = document.getElementById('bulk-assign-teacher-select');
+    const teacherList = rows.filter(u => u.role === 'teacher');
+    teacherSelect.innerHTML = '<option value="">Choose a teacher\u2026</option>' +
+      teacherList.map(t => `<option value="${t.id}">${escapeHtml(t.name)}${t.courseId ? ` (${escapeHtml(courseList.find(c => c.id === t.courseId)?.name || '')})` : ''}</option>`).join('');
+    updateBulkAssignBar();
+  }
+
+  function updateBulkAssignBar() {
+    const checked = [...document.querySelectorAll('.bulk-assign-check:checked')];
+    const bar = document.getElementById('bulk-assign-bar');
+    if (!checked.length) { bar.classList.add('hidden'); return; }
+    bar.classList.remove('hidden');
+    document.getElementById('bulk-assign-count').textContent = `${checked.length} student${checked.length === 1 ? '' : 's'} selected`;
   }
 
   // ---- User detail modal — shared by both the Users table and the
@@ -816,6 +833,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       closeModal('user-modal');
       await renderAll();
       alert(`User created successfully.\n\nLogin email: ${email}\nPassword: ${password}\n\nShare these with them directly — this won't be shown again.`);
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
+
+  document.getElementById('bulk-assign-clear').addEventListener('click', () => {
+    document.querySelectorAll('.bulk-assign-check:checked').forEach((cb) => { cb.checked = false; });
+    updateBulkAssignBar();
+  });
+  document.getElementById('bulk-assign-btn').addEventListener('click', async () => {
+    const checked = [...document.querySelectorAll('.bulk-assign-check:checked')];
+    const teacherId = document.getElementById('bulk-assign-teacher-select').value;
+    if (!teacherId) { showToast('Choose a teacher first', 'danger'); return; }
+    const teacherName = document.getElementById('bulk-assign-teacher-select').selectedOptions[0].textContent;
+    // Flag (without blocking) if any selected student's course doesn't
+    // match the chosen teacher's own course — the admin might have a good
+    // reason, but this is exactly the kind of mistake worth a second look
+    // before it's applied to a whole batch at once.
+    const teacherCourseId = (await EP.users()).find(u => u.id === teacherId)?.courseId;
+    const mismatched = checked.filter((cb) => cb.dataset.courseId && teacherCourseId && cb.dataset.courseId !== teacherCourseId).length;
+    const warning = mismatched ? `\n\nHeads up: ${mismatched} of these ${checked.length} students are in a different course than ${teacherName}'s.` : '';
+    if (!confirm(`Assign ${teacherName} to ${checked.length} student${checked.length === 1 ? '' : 's'}?${warning}`)) return;
+    try {
+      await EP.bulkAssignTeacher(checked.map((cb) => cb.value), teacherId);
+      await renderAll();
+      showToast(`${checked.length} student${checked.length === 1 ? '' : 's'} assigned to ${teacherName}`);
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
