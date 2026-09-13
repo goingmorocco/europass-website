@@ -17,16 +17,6 @@
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://europassacademy.com/blog-post.html</loc>
-    <lastmod>2026-08-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/blog-post.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://europassacademy.com/fr/blog-post.html"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/blog-post.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/blog-post.html"/>
-  </url>
-  <url>
     <loc>https://europassacademy.com/blog.html</loc>
     <lastmod>2026-08-22</lastmod>
     <changefreq>weekly</changefreq>
@@ -215,16 +205,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/about.html"/>
   </url>
   <url>
-    <loc>https://europassacademy.com/ar/blog-post.html</loc>
-    <lastmod>2026-08-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/blog-post.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://europassacademy.com/fr/blog-post.html"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/blog-post.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/blog-post.html"/>
-  </url>
-  <url>
     <loc>https://europassacademy.com/ar/blog.html</loc>
     <lastmod>2026-08-22</lastmod>
     <changefreq>weekly</changefreq>
@@ -403,16 +383,6 @@
     <xhtml:link rel="alternate" hreflang="fr" href="https://europassacademy.com/fr/blog.html"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/blog.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/blog.html"/>
-  </url>
-  <url>
-    <loc>https://europassacademy.com/fr/blog-post.html</loc>
-    <lastmod>2026-08-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://europassacademy.com/blog-post.html"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://europassacademy.com/fr/blog-post.html"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://europassacademy.com/ar/blog-post.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://europassacademy.com/ar/blog-post.html"/>
   </url>
   <url>
     <loc>https://europassacademy.com/fr/about.html</loc>
