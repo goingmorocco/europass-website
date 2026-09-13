@@ -187,6 +187,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('user-detail-name').textContent = user.name;
     document.getElementById('user-detail-role').textContent = user.role;
     document.getElementById('user-detail-course').textContent = user.courseId ? (courseList.find(c => c.id === user.courseId)?.name || 'Unknown course') : 'No course assigned';
+    const teacherRow = document.getElementById('user-detail-teacher-row');
+    if (user.role === 'student') {
+      const assignedTeacher = user.teacherId ? (await EP.users()).find(u => u.id === user.teacherId) : null;
+      document.getElementById('user-detail-teacher').textContent = assignedTeacher ? `Teacher: ${assignedTeacher.name}` : 'No teacher assigned yet';
+      teacherRow.classList.remove('hidden');
+    } else {
+      teacherRow.classList.add('hidden');
+    }
     document.getElementById('user-detail-city').textContent = user.city || 'Not provided';
     document.getElementById('user-detail-email').textContent = user.email || 'Not available';
     document.getElementById('user-detail-phone').textContent = user.phone || 'Not provided';
@@ -197,8 +205,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('user-detail-role-save').onclick = async () => {
       const newRole = roleSelect.value;
       if (newRole === user.role) { showToast('That\u2019s already their current role'); return; }
-      const warning = user.courseId
-        ? ` They're currently assigned to a course — changing their role will clear that assignment, since it means something different for each role.`
+      const warning = (user.courseId || user.teacherId)
+        ? ` They're currently assigned to a course${user.teacherId ? ' and teacher' : ''} — changing their role will clear that, since it means something different for each role.`
         : '';
       if (!confirm(`Change ${user.name}'s role from ${user.role} to ${newRole}?${warning}`)) return;
       try {
@@ -911,7 +919,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>` : ''}
         ${e.status === 'active' ? `
         <div class="flex gap-2 shrink-0">
-          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')}, ${JSON.stringify(e.priceMad || '')}, ${JSON.stringify(e.paymentStatus || 'unpaid')})' class="btn btn-secondary btn-sm">Edit</button>
+          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')}, ${JSON.stringify(e.priceMad || '')}, ${JSON.stringify(e.paymentStatus || 'unpaid')}, ${JSON.stringify(e.teacherId || '')})' class="btn btn-secondary btn-sm">Edit</button>
         </div>` : ''}
         ${e.status === 'cancelled' ? `
         <div class="flex gap-2 shrink-0">
@@ -924,7 +932,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     try { await EP.revertEnrollment(id); await renderEnrollments(); showToast('Enrollment reinstated to Pending'); }
     catch (err) { showToast(err.message, 'danger'); }
   };
-  window.openActivateModal = async (id, studentName, courseId, existingPrice, existingPaymentStatus) => {
+  async function populateTeacherOptions(courseId, selectedTeacherId) {
+    const teacherSelect = document.getElementById('activate-teacher');
+    if (!courseId) {
+      teacherSelect.innerHTML = '<option value="">Pick a course first</option>';
+      return;
+    }
+    const teachers = await EP.teachersOf(courseId);
+    teacherSelect.innerHTML = '<option value="">Not assigned yet</option>' +
+      teachers.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+    if (!teachers.length) {
+      document.getElementById('activate-teacher-hint').textContent = 'No teacher is assigned to this course yet — add one from Teachers & Students first.';
+    } else {
+      document.getElementById('activate-teacher-hint').textContent = 'Only teachers assigned to this course are shown.';
+    }
+    teacherSelect.value = selectedTeacherId || '';
+  }
+  document.getElementById('activate-course').addEventListener('change', (e) => {
+    populateTeacherOptions(e.target.value, null); // switching courses invalidates whichever teacher was picked for the old one
+  });
+
+  window.openActivateModal = async (id, studentName, courseId, existingPrice, existingPaymentStatus, existingTeacherId) => {
     const isEdit = existingPrice !== undefined;
     document.getElementById('activate-enrollment-id').value = id;
     document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(studentName)}</strong>`;
@@ -936,6 +964,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     courseSelect.innerHTML = courseList.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
     document.getElementById('activate-course-hint').classList.toggle('hidden', !!courseId);
     if (courseId) courseSelect.value = courseId;
+    await populateTeacherOptions(courseSelect.value, existingTeacherId || null);
     if (isEdit) {
       document.getElementById('activate-price').value = existingPrice;
       document.getElementById('activate-payment-status').value = existingPaymentStatus || 'unpaid';
@@ -965,6 +994,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         priceMad: document.getElementById('activate-price').value,
         paymentStatus: document.getElementById('activate-payment-status').value,
         courseId: document.getElementById('activate-course').value,
+        teacherId: document.getElementById('activate-teacher').value || null,
       });
       document.getElementById('activate-enrollment-modal').classList.add('hidden');
       await renderEnrollments();

@@ -270,7 +270,7 @@ const EP = (() => {
   // admin to reassign afterward through the normal enrollment/course flow.
   async function changeUserRole(id, newRole) {
     const client = await db();
-    const { error } = await client.from('profiles').update({ role: newRole, course_id: null }).eq('id', id);
+    const { error } = await client.from('profiles').update({ role: newRole, course_id: null, teacher_id: null }).eq('id', id);
     if (error) throw error;
   }
   // Blocking is deliberately separate from removeUser (is_active) — it's
