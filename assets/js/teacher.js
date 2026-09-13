@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let myStudents = [];
   let activeThreadStudentId = null;
 
-  async function myHomework() { return EP.homeworkByCourse(myCourseId); }
+  async function myHomework() { return EP.homeworkByTeacher(user.id); }
   async function pendingSubs() {
     const hw = await myHomework();
     const hwIds = hw.map(h => h.id);
@@ -460,7 +460,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dateInput = document.getElementById('attendance-date');
     const classDate = dateInput.value || todayISO();
     let existing = [];
-    try { existing = await EP.attendanceFor(myCourseId, classDate); } catch (e) { console.warn('Could not load attendance:', e); }
+    try { existing = await EP.attendanceFor(user.id, classDate); } catch (e) { console.warn('Could not load attendance:', e); }
     const existingByStudent = Object.fromEntries(existing.map((a) => [a.studentId, a.status]));
     attendanceDraft = { ...existingByStudent };
     renderAttendanceList();
@@ -500,7 +500,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ---- Announcements ----
   async function renderAnnouncements() {
     let list = [];
-    try { list = await EP.announcementsFor(myCourseId); } catch (e) { console.warn('Could not load announcements:', e); }
+    try { list = await EP.announcementsFor(user.id); } catch (e) { console.warn('Could not load announcements:', e); }
     document.getElementById('teacher-announcements-list').innerHTML = list.map((a) => `
       <div class="card p-5">
         <div class="flex items-start justify-between gap-3">
@@ -535,7 +535,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   async function renderAll() {
-    myStudents = await EP.studentsOf(myCourseId);
+    myStudents = await EP.studentsOf(user.id);
     if (!activeThreadStudentId && myStudents.length) activeThreadStudentId = myStudents[0].id;
     await Promise.all([renderKPIs(), renderPending(), renderStudents(), renderHwList(), renderGradeList(), renderTeacherResources(), renderAttendance(), renderAnnouncements()]);
     renderThreads();
@@ -1028,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     try {
       await EP.sendNotification({
-        fromId: user.id, audience: 'course', audienceId: myCourseId,
+        fromId: user.id, audience: 'teacher_class', audienceId: user.id,
         title: document.getElementById('announce-title').value,
         body: document.getElementById('announce-body').value,
       });

@@ -23,8 +23,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // A student with no course assigned yet either has a pending enrollment
   // request or, in rare cases, none at all (e.g. an admin created the login
   // directly without an enrollment) — either way there's nothing useful to
-  // show them yet, so stop before any dashboard UI initializes.
-  if (!user.courseId) {
+  // show them yet, so stop before any dashboard UI initializes. Homework
+  // and announcements are matched to a specific teacher now, not just the
+  // course, so a course assigned without a teacher yet is just as
+  // incomplete as no course at all — the student would see an empty
+  // dashboard either way.
+  if (!user.courseId || !user.teacherId) {
     const enrollments = await EP.myEnrollments(user.id).catch(() => []);
     const isPending = enrollments.length === 0 || enrollments.some((e) => e.status === 'pending');
     if (isPending) {
@@ -50,9 +54,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const [courseList, allUsers] = await Promise.all([EP.courses(), EP.users()]);
   const course = courseList.find(c => c.id === user.courseId);
-  const teacher = allUsers.find(u => u.id === course?.teacher_id);
+  const teacher = allUsers.find(u => u.id === user.teacherId);
 
-  async function myHomework() { return EP.homeworkByCourse(user.courseId); }
+  async function myHomework() { return EP.homeworkByTeacher(user.teacherId); }
 
   function renderCourseInfo() {
     if (!course) {
@@ -73,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // to act on or be told about — showing it anyway is exactly the
     // "enrollment pending" banner that kept appearing even after a
     // student was already approved and looking at their actual course.
-    if (user.courseId) { el.innerHTML = ''; return; }
+    if (user.courseId && user.teacherId) { el.innerHTML = ''; return; }
     const enrollments = await EP.myEnrollments(user.id);
     const pending = enrollments.filter(e => e.status === 'pending');
     if (!pending.length) { el.innerHTML = ''; return; }
@@ -481,7 +485,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const el = document.getElementById('student-announcements-list');
     if (!el) return;
     let list = [];
-    try { list = await EP.myAnnouncements(user.courseId); } catch (e) { console.warn('Could not load announcements:', e); }
+    try { list = await EP.myAnnouncements(user.teacherId); } catch (e) { console.warn('Could not load announcements:', e); }
     el.innerHTML = list.map((a) => `
       <div class="card p-5">
         <p class="font-semibold" style="color:var(--navy-700)">${escapeHtml(a.title)}</p>

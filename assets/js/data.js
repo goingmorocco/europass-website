@@ -46,7 +46,7 @@ const EP = (() => {
     if (!session) return null;
     const { data: profile, error } = await client.from('profiles').select('*').eq('id', session.user.id).single();
     if (error || !profile || !profile.is_active) return null;
-    return { id: profile.id, name: profile.full_name, role: profile.role, courseId: profile.course_id, title: profile.title, email: session.user.email, blockedAt: profile.blocked_at, blockedReason: profile.blocked_reason };
+    return { id: profile.id, name: profile.full_name, role: profile.role, courseId: profile.course_id, teacherId: profile.teacher_id, title: profile.title, email: session.user.email, blockedAt: profile.blocked_at, blockedReason: profile.blocked_reason };
   }
 
   async function requireRole(role, redirectTo = 'login.html') {
@@ -138,10 +138,11 @@ const EP = (() => {
     if (error) throw error;
     return data.map(mapEnrollment);
   }
-  async function activateEnrollment(id, { priceMad, paymentStatus, courseId }) {
+  async function activateEnrollment(id, { priceMad, paymentStatus, courseId, teacherId }) {
     const client = await db();
     const update = { status: 'active', price_mad: priceMad || null, payment_status: paymentStatus };
     if (courseId) update.course_id = courseId;
+    if (teacherId !== undefined) update.teacher_id = teacherId || null;
     const { error } = await client.from('enrollments').update(update).eq('id', id);
     if (error) throw error;
   }
@@ -160,7 +161,7 @@ const EP = (() => {
     if (error) throw error;
   }
   function mapEnrollment(e) {
-    return { id: e.id, studentId: e.student_id, courseId: e.course_id, status: e.status, paymentStatus: e.payment_status, priceMad: e.price_mad, requestedAt: e.requested_at, activatedAt: e.activated_at };
+    return { id: e.id, studentId: e.student_id, courseId: e.course_id, teacherId: e.teacher_id, status: e.status, paymentStatus: e.payment_status, priceMad: e.price_mad, requestedAt: e.requested_at, activatedAt: e.activated_at };
   }
 
   async function logout() {
@@ -175,7 +176,7 @@ const EP = (() => {
     if (error) throw error;
     return data.map(mapProfile);
   }
-  function mapProfile(p) { return { id: p.id, name: p.full_name, role: p.role, courseId: p.course_id, title: p.title, city: p.city, phone: p.phone, email: p.email, createdAt: p.created_at, blockedAt: p.blocked_at, blockedReason: p.blocked_reason, lastPaymentAt: p.last_payment_at }; }
+  function mapProfile(p) { return { id: p.id, name: p.full_name, role: p.role, courseId: p.course_id, teacherId: p.teacher_id, title: p.title, city: p.city, phone: p.phone, email: p.email, createdAt: p.created_at, blockedAt: p.blocked_at, blockedReason: p.blocked_reason, lastPaymentAt: p.last_payment_at }; }
 
   async function courses() {
     const client = await db();
@@ -185,7 +186,8 @@ const EP = (() => {
   }
 
   async function userById(id) { return (await users()).find(u => u.id === id); }
-  async function studentsOf(courseId) { return (await users()).filter(u => u.role === 'student' && u.courseId === courseId); }
+  async function studentsOf(teacherId) { return (await users()).filter(u => u.role === 'student' && u.teacherId === teacherId); }
+  async function teachersOf(courseId) { return (await users()).filter(u => u.role === 'teacher' && u.courseId === courseId); }
 
   // Self-service profile editing — any signed-in user can update their own name/password.
   async function updateProfile({ fullName }) {
@@ -422,7 +424,7 @@ const EP = (() => {
       attachmentUrl: h.attachment_url, attachmentName: h.attachment_name, maxPoints: h.max_points,
     };
   }
-  async function homeworkByCourse(courseId) { return (await homework()).filter(h => h.courseId === courseId); }
+  async function homeworkByTeacher(teacherId) { return (await homework()).filter(h => h.teacherId === teacherId); }
 
   async function homeworkQuestions(homeworkId) {
     const client = await db();
@@ -637,6 +639,7 @@ const EP = (() => {
         (n.audience_type === 'teachers' && user.role === 'teacher') ||
         (n.audience_type === 'students' && user.role === 'student') ||
         (n.audience_type === 'course' && n.audience_id === user.courseId) ||
+        (n.audience_type === 'teacher_class' && n.audience_id === user.teacherId) ||
         (n.audience_type === 'user' && n.audience_id === user.id) ||
         n.from_id === user.id
       )
@@ -799,9 +802,9 @@ const EP = (() => {
   }
 
   // ---- Attendance ----
-  async function attendanceFor(courseId, classDate) {
+  async function attendanceFor(teacherId, classDate) {
     const client = await db();
-    const { data, error } = await client.from('attendance').select('*').eq('course_id', courseId).eq('class_date', classDate);
+    const { data, error } = await client.from('attendance').select('*').eq('teacher_id', teacherId).eq('class_date', classDate);
     if (error) throw error;
     return data.map(mapAttendance);
   }
@@ -822,15 +825,15 @@ const EP = (() => {
   function mapAttendance(a) { return { id: a.id, courseId: a.course_id, studentId: a.student_id, teacherId: a.teacher_id, classDate: a.class_date, status: a.status }; }
 
   // ---- Announcements ----
-  async function announcementsFor(courseId) {
+  async function announcementsFor(teacherId) {
     const client = await db();
-    const { data, error } = await client.from('announcements').select('*').eq('course_id', courseId).order('created_at', { ascending: false });
+    const { data, error } = await client.from('announcements').select('*').eq('teacher_id', teacherId).order('created_at', { ascending: false });
     if (error) throw error;
     return data.map(mapAnnouncement);
   }
-  async function myAnnouncements(courseId) {
-    if (!courseId) return [];
-    return announcementsFor(courseId);
+  async function myAnnouncements(teacherId) {
+    if (!teacherId) return [];
+    return announcementsFor(teacherId);
   }
   async function addAnnouncement({ courseId, teacherId, title, body }) {
     const client = await db();
@@ -847,13 +850,13 @@ const EP = (() => {
   return {
     KEYS, timeAgo,
     getSession, requireRole, login, signup, logout,
-    users, courses, addUser, removeUser, blockUser, unblockUser, markPaid, changeUserRole, suggestEmail, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
+    users, courses, addUser, removeUser, blockUser, unblockUser, markPaid, changeUserRole, suggestEmail, studentsOf, teachersOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
     posts, postById, savePost, deletePost,
     categories, addCategory, deleteCategory,
     resources, addResource, deleteResource, uploadPostCover,
     attendanceFor, myAttendance, markAttendance,
     announcementsFor, myAnnouncements, addAnnouncement, deleteAnnouncement,
-    homework, homeworkByCourse, addHomework, updateHomework, homeworkQuestions, questionsForTask, homeworkTasks, uploadHomeworkFile, submissions, submissionFor, submitHomework, saveDraft, gradeSubmission, requestRevision,
+    homework, homeworkByTeacher, addHomework, updateHomework, homeworkQuestions, questionsForTask, homeworkTasks, uploadHomeworkFile, submissions, submissionFor, submitHomework, saveDraft, gradeSubmission, requestRevision,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
