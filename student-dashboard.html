@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student Dashboard | EuroPass Khemisset</title>
-<meta name="description" content="EuroPass student dashboard — homework, grades, messages, and notifications.">
+<title>لوحة تحكم الطالب | يوروباس الخميسات</title>
+<meta name="description" content="لوحة تحكم الطالب في يوروباس — الواجبات، الدرجات، الرسائل، والإشعارات.">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
@@ -43,7 +43,7 @@
             warning: {50:'#FDF3E7',600:'#B45309'},
             danger: {50:'#FDECEC',600:'#DC2626'}
           },
-          fontFamily: { serif: ['Baloo 2','Lora','Georgia','serif'], sans: ['Inter','system-ui','sans-serif'] },
+          fontFamily: { serif: ['Cairo','Baloo 2','Lora','Georgia','serif'], sans: ['Cairo','Inter','system-ui','sans-serif'] },
           borderRadius: { sm:'6px', md:'10px', lg:'16px', xl:'24px' }
         }
       }
@@ -55,45 +55,41 @@
 </head>
 <body>
 
-  <a href="#main" class="skip-link">Skip to main content</a>
+  <a href="#main" class="skip-link">الانتقال إلى المحتوى الرئيسي</a>
   <header id="site-header" class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b" style="border-color:var(--border-default)">
     <div class="container-ep flex items-center justify-between navbar-inner">
-      <a href="index.html" class="font-serif font-bold text-xl tracking-tight" style="color:var(--navy-700)">
+      <a href="ar/index.html" class="font-serif font-bold text-xl tracking-tight" style="color:var(--navy-700)">
         EURO<span style="color:var(--red-600)">PASS</span>
       </a>
-      <nav class="hidden lg:flex items-center gap-7" aria-label="Primary">
-        <a href="index.html" class="nav-link text-sm">Home</a>
-        
+      <nav class="hidden lg:flex items-center gap-7" aria-label="الرئيسية">
+        <a href="ar/index.html" class="nav-link text-sm">الرئيسية</a>
+
       <div class="relative group hidden lg:block">
         <button class="nav-link text-sm inline-flex items-center gap-1">
-          Programs <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          البرامج <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
         </button>
-        <div class="absolute left-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-30">
+        <div class="absolute start-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-30">
           <div class="card p-2 w-64">
-            <a href="program-german.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="landmark" class="w-4 h-4" style="color:var(--navy-500)"></i> German</a>
-            <a href="program-french.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="croissant" class="w-4 h-4" style="color:var(--navy-500)"></i> French</a>
-            <a href="courses.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="briefcase" class="w-4 h-4" style="color:var(--navy-500)"></i> English</a>
-            <a href="program-nursing.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="heart-pulse" class="w-4 h-4" style="color:var(--navy-500)"></i> Nursing Program</a>
-            <a href="program-nursing-ausbildung.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="plane" class="w-4 h-4" style="color:var(--navy-500)"></i> Ausbildung Training &amp; Placement</a>
+            <a href="ar/program-german.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="landmark" class="w-4 h-4" style="color:var(--navy-500)"></i> الألمانية</a>
+            <a href="ar/program-french.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="croissant" class="w-4 h-4" style="color:var(--navy-500)"></i> الفرنسية</a>
+            <a href="ar/courses.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="briefcase" class="w-4 h-4" style="color:var(--navy-500)"></i> الإنجليزية</a>
+            <a href="ar/program-nursing.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="heart-pulse" class="w-4 h-4" style="color:var(--navy-500)"></i> برنامج التمريض</a>
+            <a href="ar/program-nursing-ausbildung.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="plane" class="w-4 h-4" style="color:var(--navy-500)"></i> تدريب وتوظيف Ausbildung</a>
           </div>
         </div>
       </div>
-        <a href="test-level.html" class="nav-link text-sm">Level Test</a>
-        <a href="about.html" class="nav-link text-sm">About</a>
-        <a href="blog.html" class="nav-link text-sm">Blog</a>
-        <a href="contact.html" class="nav-link text-sm">Contact</a>
+        <a href="ar/test-level.html" class="nav-link text-sm">اختبار المستوى</a>
+        <a href="ar/about.html" class="nav-link text-sm">من نحن</a>
+        <a href="ar/blog.html" class="nav-link text-sm">المدونة</a>
+        <a href="ar/contact.html" class="nav-link text-sm">اتصل بنا</a>
       </nav>
       <div class="hidden lg:flex items-center gap-3">
-        <div class="lang-switch">
-          <a href="#" class="is-active">EN</a>
-          <a href="ar/index.html" id="lang-switch-ar">AR</a>
-        </div>
         <a href="login.html" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium">
-          <i data-lucide="log-in" class="w-4 h-4" style="color:var(--navy-700)"></i> Portal Login
+          <i data-lucide="log-in" class="w-4 h-4" style="color:var(--navy-700)"></i> تسجيل الدخول للبوابة
         </a>
-        <a href="signup.html" class="btn btn-primary btn-sm">Sign Up &amp; Start Learning</a>
+        <a href="signup.html" class="btn btn-primary btn-sm">إنشاء حساب وابدأ التعلم</a>
       </div>
-      <button id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" class="lg:hidden p-2 -mr-2" aria-label="Open menu">
+      <button id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" class="lg:hidden p-2 -me-2" aria-label="فتح القائمة">
         <i data-lucide="menu" class="w-6 h-6" style="color:var(--navy-700)"></i>
       </button>
     </div>
@@ -101,20 +97,20 @@
 
   <div id="nav-drawer" class="fixed inset-0 z-50 translate-x-full transition-transform duration-300 lg:hidden" aria-hidden="true">
     <div class="absolute inset-0 bg-navy-900/40" onclick="document.getElementById('nav-close').click()"></div>
-    <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl overflow-y-auto">
+    <div class="absolute end-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl overflow-y-auto">
       <div class="flex items-center justify-between mb-6">
-        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span> <span class="text-xs font-sans font-normal" style="color:var(--text-secondary)">Student</span></span>
-        <button id="nav-close" aria-label="Close menu" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span> <span class="text-xs font-sans font-normal" style="color:var(--text-secondary)">طالب</span></span>
+        <button id="nav-close" aria-label="إغلاق القائمة" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-      <button onclick="switchTab('student-shell','overview'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
-      <button onclick="switchTab('student-shell','homework'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-list" class="w-4 h-4"></i> My Homework</button>
-      <button onclick="switchTab('student-shell','announcements'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="megaphone" class="w-4 h-4"></i> Announcements</button>
-      <button onclick="switchTab('student-shell','messages'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="messages-square" class="w-4 h-4"></i> Messages</button>
-      <button onclick="switchTab('student-shell','community'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users-round" class="w-4 h-4"></i> Community</button>
-      <button onclick="switchTab('student-shell','classroom'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="graduation-cap" class="w-4 h-4"></i> Classroom</button>
-      <button onclick="switchTab('student-shell','notifications'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="bell" class="w-4 h-4"></i> Notifications</button>
-      <button onclick="switchTab('student-shell','settings'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="settings" class="w-4 h-4"></i> Settings</button>
-      <a href="index.html" class="flex items-center gap-3 py-3 mt-4 nav-link" style="color:var(--text-secondary)"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Website</a>
+      <button onclick="switchTab('student-shell','overview'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> نظرة عامة</button>
+      <button onclick="switchTab('student-shell','homework'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="clipboard-list" class="w-4 h-4"></i> واجباتي</button>
+      <button onclick="switchTab('student-shell','announcements'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="megaphone" class="w-4 h-4"></i> الإعلانات</button>
+      <button onclick="switchTab('student-shell','messages'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="messages-square" class="w-4 h-4"></i> الرسائل</button>
+      <button onclick="switchTab('student-shell','community'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="users-round" class="w-4 h-4"></i> المجتمع</button>
+      <button onclick="switchTab('student-shell','classroom'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="graduation-cap" class="w-4 h-4"></i> الفصل الدراسي</button>
+      <button onclick="switchTab('student-shell','notifications'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="bell" class="w-4 h-4"></i> الإشعارات</button>
+      <button onclick="switchTab('student-shell','settings'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="settings" class="w-4 h-4"></i> الإعدادات</button>
+      <a href="ar/index.html" class="flex items-center gap-3 py-3 mt-4 nav-link" style="color:var(--text-secondary)"><i data-lucide="arrow-left" class="w-4 h-4"></i> العودة إلى الموقع</a>
     </div>
   </div>
 
@@ -125,10 +121,10 @@
     <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style="background:var(--amber-100)">
       <i data-lucide="clock" class="w-7 h-7" style="color:var(--amber-600)"></i>
     </div>
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Waiting for Administration Approval</h1>
-    <p class="text-sm mt-3" style="color:var(--text-secondary)">Thanks for signing up! Your enrollment request is being reviewed by our team. You'll get full access to your course, homework, and messages here as soon as it's approved — usually within a day or two.</p>
-    <p class="text-xs mt-6" style="color:var(--text-disabled)">Questions in the meantime? Reach out at <a href="mailto:hello@europassacademy.com" class="hover:underline" style="color:var(--red-600)">hello@europassacademy.com</a> or <a href="https://wa.me/212664463723" target="_blank" rel="noopener" class="hover:underline" style="color:var(--red-600)">WhatsApp</a>.</p>
-    <button id="pending-logout" class="btn btn-secondary mt-8">Log Out</button>
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">بانتظار موافقة الإدارة</h1>
+    <p class="text-sm mt-3" style="color:var(--text-secondary)">شكرًا لتسجيلك! طلب تسجيلك قيد المراجعة من قبل فريقنا. ستحصل على وصول كامل إلى دورتك وواجباتك ورسائلك هنا بمجرد الموافقة عليه — عادةً خلال يوم أو يومين.</p>
+    <p class="text-xs mt-6" style="color:var(--text-disabled)">لديك أسئلة في هذه الأثناء؟ تواصل معنا عبر <a href="mailto:hello@europassacademy.com" class="hover:underline" style="color:var(--red-600)">hello@europassacademy.com</a> أو <a href="https://wa.me/212664463723" target="_blank" rel="noopener" class="hover:underline" style="color:var(--red-600)">واتساب</a>.</p>
+    <button id="pending-logout" class="btn btn-secondary mt-8">تسجيل الخروج</button>
   </div>
 </div>
 
@@ -137,74 +133,74 @@
     <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style="background:var(--danger-50)">
       <i data-lucide="lock" class="w-7 h-7" style="color:var(--danger-600)"></i>
     </div>
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Account Access Suspended</h1>
-    <p id="blocked-reason-text" class="text-sm mt-3" style="color:var(--text-secondary)">Your account access has been temporarily suspended. Please contact administration to resolve this.</p>
-    <p class="text-xs mt-6" style="color:var(--text-disabled)">Questions? Reach out at <a href="mailto:hello@europassacademy.com" class="hover:underline" style="color:var(--red-600)">hello@europassacademy.com</a> or <a href="https://wa.me/212664463723" target="_blank" rel="noopener" class="hover:underline" style="color:var(--red-600)">WhatsApp</a>.</p>
-    <button id="blocked-logout" class="btn btn-secondary mt-8">Log Out</button>
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">تم تعليق الوصول إلى الحساب</h1>
+    <p id="blocked-reason-text" class="text-sm mt-3" style="color:var(--text-secondary)">تم تعليق وصولك إلى الحساب مؤقتًا. يرجى التواصل مع الإدارة لحل هذا الأمر.</p>
+    <p class="text-xs mt-6" style="color:var(--text-disabled)">لديك أسئلة؟ تواصل معنا عبر <a href="mailto:hello@europassacademy.com" class="hover:underline" style="color:var(--red-600)">hello@europassacademy.com</a> أو <a href="https://wa.me/212664463723" target="_blank" rel="noopener" class="hover:underline" style="color:var(--red-600)">واتساب</a>.</p>
+    <button id="blocked-logout" class="btn btn-secondary mt-8">تسجيل الخروج</button>
   </div>
 </div>
 
 <div id="student-shell" class="flex min-h-[calc(100vh-4rem)]">
   <aside class="hidden lg:flex flex-col w-64 border-r shrink-0 p-4 gap-1" style="border-color:var(--border-default)">
-    
-    <button data-tab-trigger="overview" onclick="switchTab('student-shell','overview')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>Overview
+
+    <button data-tab-trigger="overview" onclick="switchTab('student-shell','overview')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
+      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>نظرة عامة
     </button>
-    <button data-tab-trigger="homework" onclick="switchTab('student-shell','homework')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="clipboard-list" class="w-4 h-4"></i>My Homework
+    <button data-tab-trigger="homework" onclick="switchTab('student-shell','homework')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
+      <i data-lucide="clipboard-list" class="w-4 h-4"></i>واجباتي
     </button>
-    <button data-tab-trigger="announcements" onclick="switchTab('student-shell','announcements')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="megaphone" class="w-4 h-4"></i>Announcements
+    <button data-tab-trigger="announcements" onclick="switchTab('student-shell','announcements')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
+      <i data-lucide="megaphone" class="w-4 h-4"></i>الإعلانات
     </button>
-    <button data-tab-trigger="messages" onclick="switchTab('student-shell','messages')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="messages-square" class="w-4 h-4"></i>Messages
+    <button data-tab-trigger="messages" onclick="switchTab('student-shell','messages')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
+      <i data-lucide="messages-square" class="w-4 h-4"></i>الرسائل
     </button>
-    <button data-tab-trigger="community" onclick="switchTab('student-shell','community')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="users-round" class="w-4 h-4"></i>Community
+    <button data-tab-trigger="community" onclick="switchTab('student-shell','community')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
+      <i data-lucide="users-round" class="w-4 h-4"></i>المجتمع
     </button>
-    <button data-tab-trigger="classroom" onclick="switchTab('student-shell','classroom')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="graduation-cap" class="w-4 h-4"></i>Classroom
+    <button data-tab-trigger="classroom" onclick="switchTab('student-shell','classroom')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
+      <i data-lucide="graduation-cap" class="w-4 h-4"></i>الفصل الدراسي
     </button>
-    <button data-tab-trigger="notifications" onclick="switchTab('student-shell','notifications')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="bell" class="w-4 h-4"></i>Notifications
+    <button data-tab-trigger="notifications" onclick="switchTab('student-shell','notifications')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
+      <i data-lucide="bell" class="w-4 h-4"></i>الإشعارات
     </button>
-    <button data-tab-trigger="settings" onclick="switchTab('student-shell','settings')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="settings" class="w-4 h-4"></i>Settings
+    <button data-tab-trigger="settings" onclick="switchTab('student-shell','settings')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
+      <i data-lucide="settings" class="w-4 h-4"></i>الإعدادات
     </button>
   </aside>
   <div class="flex-1 min-w-0">
     <div class="border-b" style="border-color:var(--border-default)">
       <div class="container-ep py-4 flex items-center justify-between">
         <div>
-          <p class="text-xs" style="color:var(--text-secondary)">Welcome back,</p>
+          <p class="text-xs" style="color:var(--text-secondary)">مرحبًا بعودتك،</p>
           <p id="portal-user-name" class="font-serif text-lg font-bold" style="color:var(--navy-700)">…</p>
         </div>
         <div class="flex items-center gap-3">
           <div class="relative">
-            <button class="relative p-2 rounded-full" style="background:var(--bg-subtle)" aria-label="Notifications" onclick="document.getElementById('bell-popover').classList.toggle('hidden'); event.stopPropagation();">
+            <button class="relative p-2 rounded-full" style="background:var(--bg-subtle)" aria-label="الإشعارات" onclick="document.getElementById('bell-popover').classList.toggle('hidden'); event.stopPropagation();">
               <i data-lucide="bell" class="w-5 h-5" style="color:var(--navy-700)"></i>
               <span id="portal-bell-dot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style="background:var(--red-600); display:none"></span>
             </button>
-            <div id="bell-popover" class="hidden absolute right-0 mt-2 w-80 card z-30 max-h-96 overflow-y-auto">
+            <div id="bell-popover" class="hidden absolute end-0 mt-2 w-80 card z-30 max-h-96 overflow-y-auto">
               <div id="portal-bell-list"></div>
             </div>
           </div>
           <div class="relative">
-            <button class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:var(--navy-700)" aria-label="Account menu" onclick="document.getElementById('avatar-popover').classList.toggle('hidden'); event.stopPropagation();">
+            <button class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:var(--navy-700)" aria-label="قائمة الحساب" onclick="document.getElementById('avatar-popover').classList.toggle('hidden'); event.stopPropagation();">
               <span id="portal-user-initials"></span>
             </button>
-            <div id="avatar-popover" class="hidden absolute right-0 mt-2 w-44 card z-30 p-1.5">
-              <button id="avatar-settings-btn" class="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--navy-700)"><i data-lucide="settings" class="w-4 h-4"></i> Settings</button>
-              <button id="portal-logout" class="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--danger-600)"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</button>
+            <div id="avatar-popover" class="hidden absolute end-0 mt-2 w-44 card z-30 p-1.5">
+              <button id="avatar-settings-btn" class="w-full text-start px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--navy-700)"><i data-lucide="settings" class="w-4 h-4"></i> الإعدادات</button>
+              <button id="portal-logout" class="w-full text-start px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--danger-600)"><i data-lucide="log-out" class="w-4 h-4"></i> تسجيل الخروج</button>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div class="container-ep py-8">
-      
+
 <div data-tab-panel="overview">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Overview</h1>
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">نظرة عامة</h1>
   <div id="enrollment-status-banner" class="mb-6"></div>
   <div class="grid md:grid-cols-3 gap-6 mb-6">
     <div class="card p-6 flex flex-col items-center justify-center text-center">
@@ -213,64 +209,52 @@
         <circle id="student-progress-ring-fg" cx="60" cy="60" r="52" fill="none" stroke="var(--red-600)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"></circle>
       </svg>
       <p id="student-progress-title" class="font-serif text-lg font-bold mt-2" style="color:var(--navy-700)">—</p>
-      <p id="student-progress-sub" class="text-xs" style="color:var(--text-secondary)">Loading…</p>
+      <p id="student-progress-sub" class="text-xs" style="color:var(--text-secondary)">جارٍ التحميل…</p>
     </div>
     <div class="card p-6 md:col-span-2">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">My Course</p>
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">دورتي</p>
       <div id="student-course-info"></div>
     </div>
   </div>
   <div class="grid md:grid-cols-2 gap-6">
-    <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">To Do</p><div id="student-hw-due" class="space-y-2 text-sm"></div></div>
-    <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">Recent Grades</p><div id="student-recent-grades" class="space-y-2 text-sm"></div></div>
+    <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">المهام</p><div id="student-hw-due" class="space-y-2 text-sm"></div></div>
+    <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">الدرجات الأخيرة</p><div id="student-recent-grades" class="space-y-2 text-sm"></div></div>
   </div>
-  <div class="grid md:grid-cols-2 gap-6 mt-6">
-    <div class="card p-6">
-      <p class="font-semibold mb-3" style="color:var(--navy-700)">My Attendance</p>
-      <div id="student-attendance-summary" class="flex items-center gap-6"></div>
-    </div>
-    <div class="card p-6 flex items-center gap-4">
-      <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style="background:var(--red-50)"><i data-lucide="flame" class="w-6 h-6" style="color:var(--red-600)"></i></div>
-      <div>
-        <p id="student-streak-count" class="font-serif text-2xl font-bold" style="color:var(--navy-700)">0</p>
-        <p class="text-xs" style="color:var(--text-secondary)">on-time homework streak</p>
-      </div>
-    </div>
-  </div>
+
 </div>
 
 <div data-tab-panel="homework" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">My Homework</h1>
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">واجباتي</h1>
   <div id="student-hw-list" class="space-y-4"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
 <div data-tab-panel="announcements" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Announcements</h1>
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">الإعلانات</h1>
   <div id="student-announcements-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
 <div data-tab-panel="messages" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Messages</h1>
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">الرسائل</h1>
   <div class="card p-0 flex flex-col max-w-2xl" style="min-height:26rem">
-    <div id="student-chat-header" class="p-4 border-b font-semibold" style="border-color:var(--border-default); color:var(--navy-700)">My Teacher</div>
+    <div id="student-chat-header" class="p-4 border-b font-semibold" style="border-color:var(--border-default); color:var(--navy-700)">معلمي</div>
     <div id="student-chat-messages" class="flex-1 p-4 space-y-3 overflow-y-auto" style="max-height:20rem"></div>
     <form id="student-chat-form" class="p-3 border-t flex gap-2" style="border-color:var(--border-default)">
-      <input id="student-chat-input" placeholder="Type a message..." class="flex-1 px-4 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <button type="submit" class="btn btn-primary btn-sm">Send</button>
+      <input id="student-chat-input" placeholder="اكتب رسالة..." class="flex-1 px-4 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <button type="submit" class="btn btn-primary btn-sm">إرسال</button>
     </form>
   </div>
 </div>
 
 <div data-tab-panel="notifications" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Notifications</h1>
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">الإشعارات</h1>
   <div id="student-notif-list" class="space-y-3 max-w-2xl"></div>
 </div>
 
 <div id="submit-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
   <div class="card w-full max-w-lg p-6 my-8">
     <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Submit Exercise</p>
-      <button onclick="closeModal('submit-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">تسليم التمرين</p>
+      <button onclick="closeModal('submit-modal')" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div id="submit-modal-title" class="text-sm font-semibold mb-1" style="color:var(--navy-700)"></div>
     <div id="submit-modal-instructions" class="text-sm mb-2" style="color:var(--text-secondary)"></div>
@@ -280,8 +264,8 @@
       <input type="hidden" id="submit-hw-id">
       <div id="submit-modal-body"></div>
       <div class="flex gap-3">
-        <button type="button" id="submit-draft-btn" class="btn btn-secondary flex-1">Save Draft</button>
-        <button type="submit" class="btn btn-primary flex-1">Submit</button>
+        <button type="button" id="submit-draft-btn" class="btn btn-secondary flex-1">حفظ كمسودة</button>
+        <button type="submit" class="btn btn-primary flex-1">تسليم</button>
       </div>
     </form>
   </div>
@@ -297,22 +281,22 @@
   </div>
 
   <div class="flex gap-2 mb-6">
-    <button data-community-subtab="feed" class="px-4 py-2 rounded-full text-sm font-medium" style="background:var(--teal-50); color:var(--navy-700)">Feed</button>
-    <button data-community-subtab="chat" class="px-4 py-2 rounded-full text-sm font-medium" style="color:var(--text-secondary)">Group Chat</button>
+    <button data-community-subtab="feed" class="px-4 py-2 rounded-full text-sm font-medium" style="background:var(--teal-50); color:var(--navy-700)">المنشورات</button>
+    <button data-community-subtab="chat" class="px-4 py-2 rounded-full text-sm font-medium" style="color:var(--text-secondary)">محادثة المجموعة</button>
   </div>
 
   <div id="community-feed-panel">
     <form id="community-post-form" class="card p-5 mb-6 space-y-3">
-      <textarea id="community-post-body" rows="2" placeholder="Share something with your classmates... 💬" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
+      <textarea id="community-post-body" rows="2" placeholder="شارك شيئًا مع زملائك... 💬" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
       <div class="flex items-center justify-between gap-3">
         <label class="btn btn-secondary btn-sm cursor-pointer">
-          <i data-lucide="image" class="w-4 h-4 mr-1"></i> Add Photo
+          <i data-lucide="image" class="w-4 h-4 me-1"></i> إضافة صورة
           <input id="community-image-input" type="file" accept="image/*" class="hidden">
         </label>
         <span id="community-image-name" class="text-xs flex-1" style="color:var(--text-secondary)"></span>
-        <button type="submit" class="btn btn-teal btn-sm">Post</button>
+        <button type="submit" class="btn btn-teal btn-sm">نشر</button>
       </div>
-      <p class="text-xs" style="color:var(--text-disabled)">Pictures only, under 1MB. No videos.</p>
+      <p class="text-xs" style="color:var(--text-disabled)">صور فقط، أقل من 1 ميجابايت. بدون فيديوهات.</p>
     </form>
     <div id="community-feed-list" class="space-y-4"></div>
   </div>
@@ -321,35 +305,44 @@
     <div class="card p-0 flex flex-col" style="min-height:26rem">
       <div id="community-chat-messages" class="flex-1 p-4 space-y-3 overflow-y-auto" style="max-height:24rem"></div>
       <form id="community-chat-form" class="p-3 border-t flex gap-2" style="border-color:var(--border-default)">
-        <input id="community-chat-input" placeholder="Message your group..." class="flex-1 px-4 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-        <button type="submit" class="btn btn-teal btn-sm">Send</button>
+        <input id="community-chat-input" placeholder="راسل مجموعتك..." class="flex-1 px-4 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <button type="submit" class="btn btn-teal btn-sm">إرسال</button>
       </form>
     </div>
   </div>
 </div>
 
 <div data-tab-panel="classroom" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-2" style="color:var(--navy-700)">Classroom</h1>
-  <p class="text-sm mb-6" style="color:var(--text-secondary)">Everything your teacher has shared with your class — PDFs, images, and videos.</p>
+  <h1 class="font-serif text-2xl font-bold mb-2" style="color:var(--navy-700)">الفصل الدراسي</h1>
+  <p class="text-sm mb-6" style="color:var(--text-secondary)">كل ما شاركه معلمك مع فصلك — ملفات PDF وصور وفيديوهات.</p>
+  <div class="flex gap-2 mb-6">
+    <button data-classroom-subtab="files" onclick="switchClassroomSubtab('files')" class="px-4 py-2 rounded-full text-sm font-medium" style="background:var(--teal-50); color:var(--navy-700)">الملفات</button>
+    <button data-classroom-subtab="videos" onclick="switchClassroomSubtab('videos')" class="px-4 py-2 rounded-full text-sm font-medium" style="color:var(--text-secondary)">الفيديوهات</button>
+  </div>
   <div class="flex flex-wrap gap-2 mb-6">
     <select id="sclass-category-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="">All Categories</option>
+      <option value="">كل الفئات</option>
     </select>
   </div>
-  <div id="classroom-resources-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  <div id="classroom-files-panel">
+    <div id="classroom-files-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </div>
+  <div id="classroom-videos-panel" class="hidden">
+    <div id="classroom-videos-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </div>
 </div>
 
 <!-- PDF viewer modal -->
 <div id="pdf-viewer-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.7)">
   <div class="card w-full max-w-4xl p-4 flex flex-col" style="height:90vh">
     <div class="flex items-center justify-between mb-3 shrink-0">
-      <p id="pdf-viewer-title" class="font-serif font-semibold" style="color:var(--navy-700)">Document</p>
+      <p id="pdf-viewer-title" class="font-serif font-semibold" style="color:var(--navy-700)">مستند</p>
       <div class="flex items-center gap-3">
-        <a id="pdf-viewer-download" href="#" download class="text-sm font-semibold inline-flex items-center gap-1" style="color:var(--red-600)"><i data-lucide="download" class="w-4 h-4"></i> Download</a>
-        <button onclick="closeModal('pdf-viewer-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <a id="pdf-viewer-download" href="#" download class="text-sm font-semibold inline-flex items-center gap-1" style="color:var(--red-600)"><i data-lucide="download" class="w-4 h-4"></i> تحميل</a>
+        <button onclick="closeModal('pdf-viewer-modal')" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
     </div>
-    <iframe id="pdf-viewer-frame" src="" class="flex-1 w-full rounded-md" style="border:1px solid var(--border-default)" title="PDF viewer"></iframe>
+    <iframe id="pdf-viewer-frame" src="" class="flex-1 w-full rounded-md" style="border:1px solid var(--border-default)" title="عارض PDF"></iframe>
   </div>
 </div>
 
@@ -357,11 +350,11 @@
 <div id="video-viewer-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.7)">
   <div class="card w-full max-w-3xl p-4 flex flex-col">
     <div class="flex items-center justify-between mb-3 shrink-0">
-      <p id="video-viewer-title" class="font-serif font-semibold" style="color:var(--navy-700)">Video</p>
-      <button onclick="document.getElementById('video-viewer-frame').src=''; closeModal('video-viewer-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <p id="video-viewer-title" class="font-serif font-semibold" style="color:var(--navy-700)">فيديو</p>
+      <button onclick="document.getElementById('video-viewer-frame').src=''; closeModal('video-viewer-modal')" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div class="w-full" style="aspect-ratio:16/9">
-      <iframe id="video-viewer-frame" src="" class="w-full h-full rounded-md" style="border:1px solid var(--border-default)" title="Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe id="video-viewer-frame" src="" class="w-full h-full rounded-md" style="border:1px solid var(--border-default)" title="فيديو" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
   </div>
 </div>
@@ -369,52 +362,52 @@
 <div id="report-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
   <div class="card w-full max-w-sm p-6">
     <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Report Post</p>
-      <button onclick="document.getElementById('report-modal').classList.add('hidden')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">الإبلاغ عن المنشور</p>
+      <button onclick="document.getElementById('report-modal').classList.add('hidden')" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
-    <p class="text-xs mb-3" style="color:var(--text-secondary)">Let an admin know what's wrong — they'll review it.</p>
+    <p class="text-xs mb-3" style="color:var(--text-secondary)">أخبر المشرف بما هو غير صحيح — سيقوم بمراجعته.</p>
     <form id="report-form" class="space-y-3">
       <input type="hidden" id="report-post-id">
-      <textarea id="report-reason" rows="3" placeholder="Reason (optional)" class="w-full px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
-      <button type="submit" class="btn btn-primary w-full btn-sm">Submit Report</button>
+      <textarea id="report-reason" rows="3" placeholder="السبب (اختياري)" class="w-full px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
+      <button type="submit" class="btn btn-primary w-full btn-sm">إرسال البلاغ</button>
     </form>
   </div>
 </div>
 
 <div data-tab-panel="settings" class="hidden max-w-lg">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Account Settings</h1>
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">إعدادات الحساب</h1>
 
   <div class="card p-6 mb-6">
-    <p class="font-semibold mb-1" style="color:var(--navy-700)">Profile</p>
-    <p class="text-xs mb-4" style="color:var(--text-secondary)">Signed in as <span id="settings-email" class="font-medium"></span></p>
+    <p class="font-semibold mb-1" style="color:var(--navy-700)">الملف الشخصي</p>
+    <p class="text-xs mb-4" style="color:var(--text-secondary)">تم تسجيل الدخول باسم <span id="settings-email" class="font-medium"></span></p>
     <form id="settings-profile-form" class="space-y-4">
       <div>
-        <label for="settings-name" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Full Name</label>
+        <label for="settings-name" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الاسم الكامل</label>
         <input id="settings-name" required type="text" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
       </div>
-      <button type="submit" class="btn btn-primary">Save Profile</button>
+      <button type="submit" class="btn btn-primary">حفظ الملف الشخصي</button>
     </form>
   </div>
 
   <div class="card p-6 mb-6">
-    <p class="font-semibold mb-4" style="color:var(--navy-700)">Change Password</p>
+    <p class="font-semibold mb-4" style="color:var(--navy-700)">تغيير كلمة المرور</p>
     <form id="settings-password-form" class="space-y-4">
       <div>
-        <label for="settings-new-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">New Password</label>
+        <label for="settings-new-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">كلمة المرور الجديدة</label>
         <input id="settings-new-password" required type="password" minlength="8" autocomplete="new-password" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
       </div>
       <div>
-        <label for="settings-confirm-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Confirm New Password</label>
+        <label for="settings-confirm-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">تأكيد كلمة المرور الجديدة</label>
         <input id="settings-confirm-password" required type="password" autocomplete="new-password" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
       </div>
-      <button type="submit" class="btn btn-secondary">Update Password</button>
+      <button type="submit" class="btn btn-secondary">تحديث كلمة المرور</button>
     </form>
   </div>
 
   <div class="card p-6">
-    <p class="font-semibold mb-1" style="color:var(--navy-700)">Log Out</p>
-    <p class="text-xs mb-4" style="color:var(--text-secondary)">End your session on this device.</p>
-    <button id="settings-logout" class="btn btn-secondary" style="color:var(--danger-600); border-color:var(--danger-600)">Log Out</button>
+    <p class="font-semibold mb-1" style="color:var(--navy-700)">تسجيل الخروج</p>
+    <p class="text-xs mb-4" style="color:var(--text-secondary)">إنهاء جلستك على هذا الجهاز.</p>
+    <button id="settings-logout" class="btn btn-secondary" style="color:var(--danger-600); border-color:var(--danger-600)">تسجيل الخروج</button>
   </div>
 </div>
 
@@ -425,8 +418,8 @@
 <div id="notif-lightbox" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
   <div class="card w-full max-w-md p-6">
     <div class="flex items-center justify-between mb-4">
-      <p class="eyebrow" style="color:var(--teal-600)">Notification</p>
-      <button id="notif-lightbox-close" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <p class="eyebrow" style="color:var(--teal-600)">إشعار</p>
+      <button id="notif-lightbox-close" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <h2 id="notif-lightbox-title" class="font-serif text-xl font-bold mb-2" style="color:var(--navy-700)"></h2>
     <p id="notif-lightbox-body" class="text-sm mb-3" style="color:var(--text-secondary)"></p>
@@ -453,49 +446,49 @@ document.getElementById('avatar-settings-btn').addEventListener('click', () => {
     <div class="container-ep py-14 grid grid-cols-2 md:grid-cols-5 gap-8">
       <div class="col-span-2">
         <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
-        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">Language and nursing training center based in Khemisset, Morocco — German, French, English, Nursing, and Ausbildung placement.</p>
+        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">مركز تدريب في اللغات والتمريض في مدينة الخميسات، المغرب — الألمانية، الفرنسية، الإنجليزية، التمريض، والتوظيف عبر Ausbildung.</p>
         <div class="flex gap-3 mt-4">
-          <a href="#" aria-label="Facebook" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="facebook" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
-          <a href="#" aria-label="Instagram" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="instagram" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
-          <a href="#" aria-label="YouTube" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="youtube" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="فيسبوك" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="facebook" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="إنستغرام" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="instagram" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="يوتيوب" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="youtube" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
         </div>
       </div>
       <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Programs</p>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">البرامج</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
-          <li><a href="program-german.html" class="hover:underline">German</a></li>
-          <li><a href="program-french.html" class="hover:underline">French</a></li>
-          <li><a href="courses.html" class="hover:underline">English</a></li>
-          <li><a href="program-nursing.html" class="hover:underline">Nursing Program</a></li>
-          <li><a href="program-nursing-ausbildung.html" class="hover:underline">Ausbildung Training &amp; Placement</a></li>
+          <li><a href="ar/program-german.html" class="hover:underline">الألمانية</a></li>
+          <li><a href="ar/program-french.html" class="hover:underline">الفرنسية</a></li>
+          <li><a href="ar/courses.html" class="hover:underline">الإنجليزية</a></li>
+          <li><a href="ar/program-nursing.html" class="hover:underline">برنامج التمريض</a></li>
+          <li><a href="ar/program-nursing-ausbildung.html" class="hover:underline">تدريب وتوظيف Ausbildung</a></li>
         </ul>
       </div>
       <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Learn</p>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">تعلّم</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
-          <li><a href="test-level.html" class="hover:underline">Test Your Level</a></li>
-          <li><a href="blog.html" class="hover:underline">Blog</a></li>
-          <li><a href="about.html" class="hover:underline">About</a></li>
-          <li><a href="contact.html" class="hover:underline">FAQ</a></li>
+          <li><a href="ar/test-level.html" class="hover:underline">اختبر مستواك</a></li>
+          <li><a href="ar/blog.html" class="hover:underline">المدونة</a></li>
+          <li><a href="ar/about.html" class="hover:underline">من نحن</a></li>
+          <li><a href="ar/contact.html" class="hover:underline">الأسئلة الشائعة</a></li>
         </ul>
       </div>
       <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Account</p>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">الحساب</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
-          <li><a href="login.html" class="hover:underline">Portal Login</a></li>
-          <li><a href="signup.html" class="hover:underline">Create Account</a></li>
+          <li><a href="login.html" class="hover:underline">تسجيل الدخول للبوابة</a></li>
+          <li><a href="signup.html" class="hover:underline">إنشاء حساب</a></li>
                   </ul>
       </div>
     </div>
     <div class="container-ep py-6 border-t flex flex-col md:flex-row justify-between gap-3 text-xs" style="border-color:var(--border-default); color:var(--text-secondary)">
-      <p>© 2026 EuroPass Language &amp; Nursing School, Khemisset. All rights reserved.</p>
+      <p>© 2026 يوروباس لتعليم اللغات والتمريض، الخميسات. جميع الحقوق محفوظة.</p>
       <div class="flex gap-4">
-        <a href="privacy.html" class="hover:underline">Privacy Policy</a>
-        <a href="terms.html" class="hover:underline">Terms</a>
+        <a href="privacy.html" class="hover:underline">سياسة الخصوصية</a>
+        <a href="terms.html" class="hover:underline">الشروط</a>
       </div>
     </div>
   </footer>
-  <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
+  <div id="toast-container" class="fixed bottom-4 end-4 z-50 w-72"></div>
 
 <script src="assets/js/main.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>

@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       quill = new Quill('#post-body-editor', {
         theme: 'snow',
-        placeholder: 'Write your post...',
+        placeholder: 'اكتب تدوينتك...',
         modules: {
           toolbar: [
             [{ header: [1, 2, 3, false] }],
@@ -40,15 +40,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       document.querySelectorAll('.ql-lineheight .ql-picker-item').forEach((item) => {
         const v = item.dataset.value;
-        item.textContent = v === '1' ? 'Single' : v === '1.5' ? '1.5×' : v === '2' ? 'Double' : '2.5×';
+        item.textContent = v === '1' ? 'مفرد' : v === '1.5' ? '1.5×' : v === '2' ? 'مزدوج' : '2.5×';
       });
       const lhLabel = document.querySelector('.ql-lineheight .ql-picker-label');
-      if (lhLabel) lhLabel.setAttribute('aria-label', 'Line spacing');
+      if (lhLabel) lhLabel.setAttribute('aria-label', 'تباعد الأسطر');
       document.getElementById('post-body').classList.add('hidden');
       document.getElementById('post-body').removeAttribute('required');
     } catch (err) {
       console.error('Quill failed to initialize — falling back to plain text body:', err);
-      if (typeof showToast === 'function') showToast('Rich text editor unavailable — using plain text for now', 'info');
+      if (typeof showToast === 'function') showToast('محرر النصوص المنسقة غير متاح — سيتم استخدام نص عادي الآن', 'info');
       quill = null;
     }
     return quill;
@@ -59,17 +59,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       EP.users(), EP.posts(), EP.homework(), EP.notificationsFor(user), EP.allEnrollments(),
     ]);
     const stats = [
-      ['clipboard-check', allEnrollments.filter(e => e.status === 'pending').length, 'Pending Enrollments', 'red-600', 'enrollments'],
-      ['users', allUsers.length, 'Total Users', 'navy-700', 'users'],
-      ['newspaper', allPosts.filter(p => p.status === 'published').length, 'Published Posts', 'red-600', 'blog'],
-      ['clipboard-list', allHomework.length, 'Homework Assigned', 'navy-700', 'homework'],
-      ['bell', allNotifs.length, 'Notifications Sent', 'amber-600', 'notifications'],
+      ['clipboard-check', allEnrollments.filter(e => e.status === 'pending').length, 'طلبات التسجيل المعلقة', 'red-600', 'enrollments'],
+      ['users', allUsers.length, 'إجمالي المستخدمين', 'navy-700', 'users'],
+      ['newspaper', allPosts.filter(p => p.status === 'published').length, 'المقالات المنشورة', 'red-600', 'blog'],
+      ['clipboard-list', allHomework.length, 'الواجبات المكلّفة', 'navy-700', 'homework'],
+      ['bell', allNotifs.length, 'الإشعارات المرسلة', 'amber-600', 'notifications'],
     ];
     document.getElementById('admin-kpis').innerHTML = stats.map(([icon, val, label, color, tab]) => {
       const tag = tab ? 'button' : 'div';
       const attrs = tab ? `onclick="switchTab('admin-shell','${tab}')"` : '';
       return `
-      <${tag} ${attrs} class="card ${tab ? 'card-hover' : ''} p-5 text-left w-full">
+      <${tag} ${attrs} class="card ${tab ? 'card-hover' : ''} p-5 text-start w-full">
         <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:var(--${color === 'navy-700' ? 'navy-50' : color === 'red-600' ? 'red-50' : 'amber-100'})">
           <i data-lucide="${icon}" class="w-4 h-4" style="color:var(--${color})"></i>
         </div>
@@ -83,12 +83,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function renderActivity(allNotifs, allPosts) {
     const graded = (await EP.submissions()).filter(s => s.status === 'graded');
     const events = [
-      ...allNotifs.map(n => ({ t: n.createdAt, text: `Notification sent: "${n.title}"` })),
-      ...allPosts.map(p => ({ t: p.createdAt, text: `Blog post ${p.status === 'published' ? 'published' : 'drafted'}: "${p.title}"` })),
+      ...allNotifs.map(n => ({ t: n.createdAt, text: `تم إرسال إشعار: "${n.title}"` })),
+      ...allPosts.map(p => ({ t: p.createdAt, text: `تدوينة ${p.status === 'published' ? 'تم نشرها' : 'حُفظت كمسودة'}: "${p.title}"` })),
     ].sort((a, b) => new Date(b.t) - new Date(a.t)).slice(0, 6);
     document.getElementById('admin-activity').innerHTML = events.map(e =>
       `<div class="flex items-start gap-2"><i data-lucide="dot" class="w-4 h-4 mt-0.5 shrink-0" style="color:var(--navy-300)"></i><div><p>${escapeHtml(e.text)}</p><p class="text-xs" style="color:var(--text-disabled)">${EP.timeAgo(e.t)}</p></div></div>`
-    ).join('') || `<p style="color:var(--text-secondary)">No activity yet.</p>`;
+    ).join('') || `<p style="color:var(--text-secondary)">لا يوجد نشاط بعد.</p>`;
   }
 
   function renderPosts(posts) {
@@ -96,23 +96,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="card p-5 flex items-center justify-between gap-4">
         <div class="min-w-0">
           <div class="flex items-center gap-2 mb-1">
-            <span class="badge ${p.status === 'published' ? 'badge-success' : 'badge-warning'}">${p.status}</span>
+            <span class="badge ${p.status === 'published' ? 'badge-success' : 'badge-warning'}">${p.status === 'published' ? 'منشور' : 'مسودة'}</span>
             <span class="text-xs" style="color:var(--text-secondary)">${escapeHtml(p.category)}</span>
           </div>
           <p class="font-semibold truncate" style="color:var(--navy-700)">${escapeHtml(p.title)}</p>
           <p class="text-xs mt-1" style="color:var(--text-secondary)">${EP.timeAgo(p.createdAt)}</p>
         </div>
         <div class="flex gap-2 shrink-0">
-          <button onclick="editPost('${p.id}')" class="btn btn-secondary btn-sm">Edit</button>
-          <button onclick="deletePostConfirm('${p.id}')" class="btn btn-secondary btn-sm" style="color:var(--danger-600); border-color:var(--danger-600)">Delete</button>
+          <button onclick="editPost('${p.id}')" class="btn btn-secondary btn-sm">تعديل</button>
+          <button onclick="deletePostConfirm('${p.id}')" class="btn btn-secondary btn-sm" style="color:var(--danger-600); border-color:var(--danger-600)">حذف</button>
         </div>
-      </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No posts yet. Click "New Post" to publish your first article.</p></div>`;
+      </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">لا توجد مقالات بعد. اضغط على "مقالة جديدة" لنشر أول مقال لك.</p></div>`;
   }
 
   function renderNotifHistory(notifs) {
     document.getElementById('admin-notif-list').innerHTML = notifs.map(n => `
       <div class="p-3 rounded-lg" style="background:var(--bg-subtle)">
-        <div class="flex items-center gap-2 mb-1"><span class="badge badge-info">${n.audience === 'all' ? 'Everyone' : n.audience}</span><span class="text-xs" style="color:var(--text-disabled)">${EP.timeAgo(n.createdAt)}</span></div>
+        <div class="flex items-center gap-2 mb-1"><span class="badge badge-info">${n.audience === 'all' ? 'الجميع' : n.audience}</span><span class="text-xs" style="color:var(--text-disabled)">${EP.timeAgo(n.createdAt)}</span></div>
         <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(n.title)}</p>
         <p class="text-xs mt-1" style="color:var(--text-secondary)">${escapeHtml(n.body)}</p>
       </div>`).join('');
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ---- CSV export — client-side only, no backend needed ----
   function exportToCsv(filename, rows) {
-    if (!rows.length) { showToast('Nothing to export yet', 'danger'); return; }
+    if (!rows.length) { showToast('لا يوجد شيء للتصدير بعد', 'danger'); return; }
     const headers = Object.keys(rows[0]);
     const escapeCell = (v) => {
       const s = v == null ? '' : String(v);
@@ -137,11 +137,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
+  const ROLE_LABEL = { admin: 'مدير', teacher: 'معلم', student: 'طالب' };
+  const ENR_STATUS_LABEL = { pending: 'قيد الانتظار', active: 'نشط', completed: 'مكتمل', cancelled: 'ملغى' };
+  const ENR_PAYMENT_LABEL = { paid: 'مدفوع', waived: 'معفى', unpaid: 'غير مدفوع' };
   window.exportUsersCsv = async () => {
     const [rows, courseList] = await Promise.all([EP.users(), EP.courses()]);
     const courseById = Object.fromEntries(courseList.map((c) => [c.id, c.name]));
     const data = rows.filter((u) => u.role !== 'admin').map((u) => ({
-      Name: u.name, Role: u.role, Course: u.courseId ? (courseById[u.courseId] || '') : '', City: u.city || '', Phone: u.phone || '',
+      الاسم: u.name, الدور: ROLE_LABEL[u.role] || u.role, الدورة: u.courseId ? (courseById[u.courseId] || '') : '', المدينة: u.city || '', الهاتف: u.phone || '',
     }));
     exportToCsv('europass-users.csv', data);
   };
@@ -150,8 +153,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const courseById = Object.fromEntries(courseList.map((c) => [c.id, c.name]));
     const userById3 = Object.fromEntries(roster.map((u) => [u.id, u.name]));
     const data = rows.map((e) => ({
-      Student: userById3[e.studentId] || '', Course: e.courseId ? (courseById[e.courseId] || '') : 'Undecided',
-      Status: e.status, Payment: e.paymentStatus, PriceMAD: e.priceMad || '', Requested: e.requestedAt ? new Date(e.requestedAt).toISOString().slice(0, 10) : '',
+      الطالب: userById3[e.studentId] || '', الدورة: e.courseId ? (courseById[e.courseId] || '') : 'غير محددة',
+      الحالة: ENR_STATUS_LABEL[e.status] || e.status, الدفع: ENR_PAYMENT_LABEL[e.paymentStatus] || e.paymentStatus, 'السعر (درهم)': e.priceMad || '', 'تاريخ الطلب': e.requestedAt ? new Date(e.requestedAt).toISOString().slice(0, 10) : '',
     }));
     exportToCsv('europass-enrollments.csv', data);
   };
@@ -160,16 +163,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const [rows, courseList] = await Promise.all([EP.users(), EP.courses()]);
     const teachersAndStudents = rows.filter(u => u.role !== 'admin');
     document.getElementById('admin-users-list').innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
-      <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="text-left px-5 py-3 text-white font-semibold">Joined</th><th class="text-left px-5 py-3 text-white font-semibold">Status</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      <th class="text-start px-5 py-3 text-white font-semibold">\u0627\u0644\u0627\u0633\u0645</th><th class="text-start px-5 py-3 text-white font-semibold">\u0627\u0644\u062f\u0648\u0631</th><th class="text-start px-5 py-3 text-white font-semibold">\u0627\u0644\u062f\u0648\u0631\u0629</th><th class="text-start px-5 py-3 text-white font-semibold">\u0627\u0644\u0645\u062f\u064a\u0646\u0629</th><th class="text-start px-5 py-3 text-white font-semibold">\u0627\u0644\u0647\u0627\u062a\u0641</th><th class="text-start px-5 py-3 text-white font-semibold">\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0627\u0646\u0636\u0645\u0627\u0645</th><th class="text-start px-5 py-3 text-white font-semibold">\u0627\u0644\u062d\u0627\u0644\u0629</th><th class="px-5 py-3"></th></tr></thead><tbody>
       ${teachersAndStudents.map((u, i) => `<tr onclick="openUserDetailModal('${u.id}')" style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; cursor:pointer">
         <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(u.name)}</td>
-        <td class="px-5 py-3"><span class="badge ${u.role === 'teacher' ? 'badge-info' : 'badge-amber'}">${u.role}</span></td>
+        <td class="px-5 py-3"><span class="badge ${u.role === 'teacher' ? 'badge-info' : 'badge-amber'}">${ROLE_LABEL[u.role] || u.role}</span></td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(courseList.find(c => c.id === u.courseId)?.name || '\u2014')}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(u.city || '\u2014')}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)" dir="ltr">${escapeHtml(u.phone || '\u2014')}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '\u2014'}</td>
-        <td class="px-5 py-3">${u.blockedAt ? '<span class="badge badge-danger">Blocked</span>' : '<span class="badge badge-success">Active</span>'}</td>
-        <td class="px-5 py-3 text-right"><button onclick="event.stopPropagation(); removeUserConfirm('${u.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Remove</button></td>
+        <td class="px-5 py-3">${u.blockedAt ? '<span class="badge badge-danger">\u0645\u062d\u0638\u0648\u0631</span>' : '<span class="badge badge-success">\u0646\u0634\u0637</span>'}</td>
+        <td class="px-5 py-3 text-end"><button onclick="event.stopPropagation(); removeUserConfirm('${u.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">\u0625\u0632\u0627\u0644\u0629</button></td>
       </tr>`).join('')}
     </tbody></table>`;
   }
@@ -182,30 +185,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       [user, courseList] = await Promise.all([EP.userById(userId), EP.courses()]);
     } catch (err) { showToast(err.message, 'danger'); return; }
-    if (!user) { showToast('Could not find that user', 'danger'); return; }
+    if (!user) { showToast('تعذر العثور على هذا المستخدم', 'danger'); return; }
 
     document.getElementById('user-detail-name').textContent = user.name;
-    document.getElementById('user-detail-role').textContent = user.role;
-    document.getElementById('user-detail-course').textContent = user.courseId ? (courseList.find(c => c.id === user.courseId)?.name || 'Unknown course') : 'No course assigned';
-    document.getElementById('user-detail-city').textContent = user.city || 'Not provided';
-    document.getElementById('user-detail-email').textContent = user.email || 'Not available';
-    document.getElementById('user-detail-phone').textContent = user.phone || 'Not provided';
-    document.getElementById('user-detail-joined').textContent = user.createdAt ? `Joined ${new Date(user.createdAt).toLocaleDateString()}` : 'Join date unknown';
+    document.getElementById('user-detail-role').textContent = ROLE_LABEL[user.role] || user.role;
+    document.getElementById('user-detail-course').textContent = user.courseId ? (courseList.find(c => c.id === user.courseId)?.name || 'دورة غير معروفة') : 'لا توجد دورة معيّنة';
+    document.getElementById('user-detail-city').textContent = user.city || 'غير متوفر';
+    document.getElementById('user-detail-email').textContent = user.email || 'غير متاح';
+    document.getElementById('user-detail-phone').textContent = user.phone || 'غير متوفر';
+    document.getElementById('user-detail-joined').textContent = user.createdAt ? `تاريخ الانضمام ${new Date(user.createdAt).toLocaleDateString()}` : 'تاريخ الانضمام غير معروف';
 
     const roleSelect = document.getElementById('user-detail-role-select');
     roleSelect.value = user.role;
     document.getElementById('user-detail-role-save').onclick = async () => {
       const newRole = roleSelect.value;
-      if (newRole === user.role) { showToast('That\u2019s already their current role'); return; }
+      if (newRole === user.role) { showToast('\u0647\u0630\u0627 \u0647\u0648 \u062f\u0648\u0631\u0647\u0645 \u0627\u0644\u062d\u0627\u0644\u064a \u0628\u0627\u0644\u0641\u0639\u0644'); return; }
       const warning = user.courseId
-        ? ` They're currently assigned to a course — changing their role will clear that assignment, since it means something different for each role.`
+        ? ` إنهم مسجلون حالياً في دورة — تغيير دورهم سيؤدي إلى إلغاء هذا التسجيل، لأن الدور يعني شيئاً مختلفاً لكل فئة.`
         : '';
-      if (!confirm(`Change ${user.name}'s role from ${user.role} to ${newRole}?${warning}`)) return;
+      if (!confirm(`تغيير دور ${user.name} من ${ROLE_LABEL[user.role] || user.role} إلى ${ROLE_LABEL[newRole] || newRole}؟${warning}`)) return;
       try {
         await EP.changeUserRole(user.id, newRole);
         closeModal('user-detail-modal');
         await renderUsers();
-        showToast(`${user.name} is now a ${newRole}`);
+        showToast(`${user.name} أصبح الآن ${ROLE_LABEL[newRole] || newRole}`);
       } catch (err) { showToast(err.message, 'danger'); }
     };
 
@@ -214,10 +217,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const paymentEl = document.getElementById('user-detail-payment');
     if (user.lastPaymentAt) {
       const daysSince = Math.floor((Date.now() - new Date(user.lastPaymentAt)) / 86400000);
-      paymentEl.textContent = `Last marked paid ${EP.timeAgo(user.lastPaymentAt)}`;
+      paymentEl.textContent = `آخر تحديد كمدفوع ${EP.timeAgo(user.lastPaymentAt)}`;
       paymentEl.style.color = daysSince > 30 ? 'var(--danger-600)' : 'var(--text-primary)';
     } else {
-      paymentEl.textContent = 'Never marked as paid';
+      paymentEl.textContent = 'لم يُحدد كمدفوع مطلقاً';
       paymentEl.style.color = 'var(--danger-600)';
     }
 
@@ -225,29 +228,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     const blockBtn = document.getElementById('user-detail-block-btn');
     if (user.blockedAt) {
       blockedBanner.classList.remove('hidden');
-      document.getElementById('user-detail-blocked-reason').textContent = user.blockedReason || 'No reason given.';
-      blockBtn.innerHTML = '<i data-lucide="unlock" class="w-4 h-4 mr-1"></i> Unblock Access';
+      document.getElementById('user-detail-blocked-reason').textContent = user.blockedReason || 'لم يُذكر سبب.';
+      blockBtn.innerHTML = '<i data-lucide="unlock" class="w-4 h-4 me-1"></i> إلغاء الحظر';
       blockBtn.style.background = 'var(--success-50)';
       blockBtn.style.color = 'var(--success-600)';
       blockBtn.onclick = async () => {
-        try { await EP.unblockUser(user.id); closeModal('user-detail-modal'); await renderUsers(); showToast('Access restored'); }
+        try { await EP.unblockUser(user.id); closeModal('user-detail-modal'); await renderUsers(); showToast('تمت استعادة الوصول'); }
         catch (err) { showToast(err.message, 'danger'); }
       };
     } else {
       blockedBanner.classList.add('hidden');
-      blockBtn.innerHTML = '<i data-lucide="lock" class="w-4 h-4 mr-1"></i> Block Access';
+      blockBtn.innerHTML = '<i data-lucide="lock" class="w-4 h-4 me-1"></i> حظر الوصول';
       blockBtn.style.background = 'var(--danger-50)';
       blockBtn.style.color = 'var(--danger-600)';
       blockBtn.onclick = async () => {
-        const reason = prompt(`Block ${user.name}'s access? Optionally add a reason they'll see on their dashboard (e.g. "Payment overdue for October"):`);
+        const reason = prompt(`حظر وصول ${user.name}؟ يمكنك إضافة سبب سيظهر له في لوحة التحكم (مثال: "الدفع متأخر لشهر أكتوبر"):`);
         if (reason === null) return; // cancelled
-        try { await EP.blockUser(user.id, reason || null); closeModal('user-detail-modal'); await renderUsers(); showToast(`${user.name}'s access has been blocked`); }
+        try { await EP.blockUser(user.id, reason || null); closeModal('user-detail-modal'); await renderUsers(); showToast(`تم حظر وصول ${user.name}`); }
         catch (err) { showToast(err.message, 'danger'); }
       };
     }
 
     document.getElementById('user-detail-mark-paid').onclick = async () => {
-      try { await EP.markPaid(user.id); openUserDetailModal(user.id); showToast('Marked as paid'); }
+      try { await EP.markPaid(user.id); openUserDetailModal(user.id); showToast('تم تحديده كمدفوع'); }
       catch (err) { showToast(err.message, 'danger'); }
     };
 
@@ -276,7 +279,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // so students always know exactly who graded their work) ----
   let hwCache = { homework: [], submissions: [], courses: [], users: [] };
   function hwCourseName(courseId) { return hwCache.courses.find(c => c.id === courseId)?.name || '\u2014'; }
-  function hwUserName(userId) { return hwCache.users.find(u => u.id === userId)?.name || 'Unknown'; }
+  function hwUserName(userId) { return hwCache.users.find(u => u.id === userId)?.name || '\u063a\u064a\u0631 \u0645\u0639\u0631\u0648\u0641'; }
 
   async function renderHomework() {
     const [hw, subs, courseList, userList] = await Promise.all([EP.homework(), EP.submissions(), EP.courses(), EP.users()]);
@@ -285,9 +288,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const courseFilter = document.getElementById('hw-course-filter');
     const teacherFilter = document.getElementById('hw-teacher-filter');
     if (!courseFilter.dataset.populated) {
-      courseFilter.innerHTML = '<option value="">All Courses</option>' + courseList.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+      courseFilter.innerHTML = '<option value="">كل الدورات</option>' + courseList.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
       const teachers = userList.filter(u => u.role === 'teacher');
-      teacherFilter.innerHTML = '<option value="">All Teachers</option>' + teachers.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+      teacherFilter.innerHTML = '<option value="">كل المعلمين</option>' + teachers.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
       courseFilter.dataset.populated = '1';
       courseFilter.addEventListener('change', renderHomeworkList);
       teacherFilter.addEventListener('change', renderHomeworkList);
@@ -306,17 +309,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       const hwSubs = hwCache.submissions.filter(s => s.homeworkId === h.id);
       const graded = hwSubs.filter(s => s.status === 'graded').length;
       return `
-      <button onclick="openHomeworkDetail('${h.id}')" class="card card-hover p-5 flex items-center justify-between gap-4 w-full text-left">
+      <button onclick="openHomeworkDetail('${h.id}')" class="card card-hover p-5 flex items-center justify-between gap-4 w-full text-start">
         <div class="min-w-0">
           <p class="font-semibold truncate" style="color:var(--navy-700)">${escapeHtml(h.title)}</p>
           <p class="text-xs mt-1" style="color:var(--text-secondary)">${escapeHtml(hwCourseName(h.courseId))} \u00b7 ${escapeHtml(hwUserName(h.teacherId))}</p>
         </div>
-        <div class="shrink-0 text-right">
-          <span class="badge ${graded === hwSubs.length && hwSubs.length ? 'badge-success' : 'badge-warning'}">${graded}/${hwSubs.length} graded</span>
-          <p class="text-xs mt-1" style="color:var(--text-secondary)">${hwSubs.length} submission${hwSubs.length === 1 ? '' : 's'}</p>
+        <div class="shrink-0 text-end">
+          <span class="badge ${graded === hwSubs.length && hwSubs.length ? 'badge-success' : 'badge-warning'}">${graded}/${hwSubs.length} مُصحح</span>
+          <p class="text-xs mt-1" style="color:var(--text-secondary)">${hwSubs.length} عملية تسليم</p>
         </div>
       </button>`;
-    }).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No homework matches this filter.</p></div>`;
+    }).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">لا توجد واجبات تطابق هذا الفلتر.</p></div>`;
     lucide.createIcons();
   }
 
@@ -324,18 +327,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const h = hwCache.homework.find(x => x.id === id);
     if (!h) return;
     document.getElementById('hw-detail-title').textContent = h.title;
-    document.getElementById('hw-detail-meta').textContent = `${hwCourseName(h.courseId)} \u00b7 Assigned by ${hwUserName(h.teacherId)}`;
+    document.getElementById('hw-detail-meta').textContent = `${hwCourseName(h.courseId)} \u00b7 \u0643\u0644\u0651\u0641\u0647 ${hwUserName(h.teacherId)}`;
     const subs = hwCache.submissions.filter(s => s.homeworkId === id);
     document.getElementById('hw-detail-submissions').innerHTML = subs.map(s => `
       <div class="p-4 rounded-lg" style="background:var(--bg-subtle)">
         <div class="flex items-center justify-between mb-1">
           <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(hwUserName(s.studentId))}</p>
-          <span class="badge ${s.status === 'graded' ? 'badge-success' : 'badge-warning'}">${s.status}</span>
+          <span class="badge ${s.status === 'graded' ? 'badge-success' : 'badge-warning'}">${s.status === 'graded' ? '\u062a\u0645 \u0627\u0644\u062a\u0642\u064a\u064a\u0645' : s.status === 'needs_revision' ? '\u064a\u062d\u062a\u0627\u062c \u0645\u0631\u0627\u062c\u0639\u0629' : s.status === 'draft' ? '\u0645\u0633\u0648\u062f\u0629' : '\u062a\u0645 \u0627\u0644\u062a\u0633\u0644\u064a\u0645'}</span>
         </div>
-        ${s.grade != null ? `<p class="text-sm font-semibold mt-1" style="color:var(--navy-700)">Grade: ${escapeHtml(String(s.grade))}</p>` : ''}
-        ${s.feedback ? `<p class="text-xs mt-1" style="color:var(--text-secondary)">Feedback: ${escapeHtml(s.feedback)}</p>` : ''}
-        <p class="text-xs mt-2" style="color:var(--text-disabled)">${s.submittedAt ? 'Submitted ' + EP.timeAgo(s.submittedAt) : 'Not yet submitted'}</p>
-      </div>`).join('') || `<p class="text-sm text-center py-6" style="color:var(--text-secondary)">No students have submitted this yet.</p>`;
+        ${s.grade != null ? `<p class="text-sm font-semibold mt-1" style="color:var(--navy-700)">\u0627\u0644\u062f\u0631\u062c\u0629: ${escapeHtml(String(s.grade))}</p>` : ''}
+        ${s.feedback ? `<p class="text-xs mt-1" style="color:var(--text-secondary)">\u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a: ${escapeHtml(s.feedback)}</p>` : ''}
+        <p class="text-xs mt-2" style="color:var(--text-disabled)">${s.submittedAt ? '\u062a\u0645 \u0627\u0644\u062a\u0633\u0644\u064a\u0645 ' + EP.timeAgo(s.submittedAt) : '\u0644\u0645 \u064a\u062a\u0645 \u0627\u0644\u062a\u0633\u0644\u064a\u0645 \u0628\u0639\u062f'}</p>
+      </div>`).join('') || `<p class="text-sm text-center py-6" style="color:var(--text-secondary)">\u0644\u0645 \u064a\u0642\u0645 \u0623\u064a \u0637\u0627\u0644\u0628 \u0628\u062a\u0633\u0644\u064a\u0645 \u0647\u0630\u0627 \u0628\u0639\u062f.</p>`;
     document.getElementById('homework-detail-modal').classList.remove('hidden');
     lucide.createIcons();
   };
@@ -344,7 +347,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let resourcesCache = [];
   let teachersCache = [];
   const RES_TYPE_ICON = { pdf: 'file-text', video: 'youtube', link: 'link' };
-  const RES_TYPE_LABEL = { pdf: 'PDF', video: 'Video', link: 'Link' };
+  const RES_TYPE_LABEL = { pdf: 'PDF', video: 'فيديو', link: 'رابط' };
 
   window.openResourceForm = async () => {
     document.getElementById('resource-form').reset();
@@ -360,21 +363,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     // this cheap, idempotent HTML population. Skipping it when the cache
     // was already warm was the actual bug: the select silently kept only
     // its static default option and never showed any teacher names.
-    teacherSelect.innerHTML = '<option value="">All Teachers</option>' + teachersCache.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+    teacherSelect.innerHTML = '<option value="">\u0643\u0644 \u0627\u0644\u0645\u0639\u0644\u0645\u064a\u0646</option>' + teachersCache.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
     teacherSelect.value = '';
-    document.getElementById('res-submit-btn').textContent = 'Send to All Teachers';
+    document.getElementById('res-submit-btn').textContent = '\u0625\u0631\u0633\u0627\u0644 \u0644\u062c\u0645\u064a\u0639 \u0627\u0644\u0645\u0639\u0644\u0645\u064a\u0646';
     document.getElementById('resource-modal').classList.remove('hidden');
   };
   document.getElementById('res-target-teacher').addEventListener('change', (e) => {
     const teacher = teachersCache.find(t => t.id === e.target.value);
-    document.getElementById('res-submit-btn').textContent = teacher ? `Send to ${teacher.name}` : 'Send to All Teachers';
+    document.getElementById('res-submit-btn').textContent = teacher ? `\u0625\u0631\u0633\u0627\u0644 \u0625\u0644\u0649 ${teacher.name}` : '\u0625\u0631\u0633\u0627\u0644 \u0644\u062c\u0645\u064a\u0639 \u0627\u0644\u0645\u0639\u0644\u0645\u064a\u0646';
   });
   document.getElementById('res-type').addEventListener('change', (e) => {
     const isPdf = e.target.value === 'pdf';
     document.getElementById('res-pdf-field').classList.toggle('hidden', !isPdf);
     document.getElementById('res-url-field').classList.toggle('hidden', isPdf);
     document.getElementById('res-url-hint').textContent = e.target.value === 'video'
-      ? 'Paste a YouTube (or other video) URL.' : 'Paste any link \u2014 a Google Drive folder, an article, anything useful.';
+      ? '\u0623\u0644\u0635\u0642 \u0631\u0627\u0628\u0637 \u064a\u0648\u062a\u064a\u0648\u0628 (\u0623\u0648 \u0641\u064a\u062f\u064a\u0648 \u0622\u062e\u0631).' : '\u0623\u0644\u0635\u0642 \u0623\u064a \u0631\u0627\u0628\u0637 \u2014 \u0645\u062c\u0644\u062f \u062c\u0648\u062c\u0644 \u062f\u0631\u0627\u064a\u0641\u060c \u0645\u0642\u0627\u0644\u0629\u060c \u0623\u0648 \u0623\u064a \u0634\u064a\u0621 \u0645\u0641\u064a\u062f.';
   });
 
   async function renderResources() {
@@ -383,7 +386,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!teachersCache.length) teachersCache = (await EP.users()).filter(u => u.role === 'teacher');
     } catch (err) {
       console.error('Could not load resources (has migration 012_teacher_resources.sql and 013_resource_teacher_targeting.sql been run?):', err);
-      document.getElementById('admin-resources-list').innerHTML = `<p class="text-sm col-span-full" style="color:var(--danger-600)">Could not load resources. Have the resources migrations been run yet?</p>`;
+      document.getElementById('admin-resources-list').innerHTML = `<p class="text-sm col-span-full" style="color:var(--danger-600)">تعذر تحميل الموارد. هل تم تشغيل ترحيلات قاعدة البيانات الخاصة بالموارد؟</p>`;
       return;
     }
     const catFilter = document.getElementById('res-category-filter');
@@ -391,7 +394,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       catFilter.addEventListener('change', renderResourcesList);
     }
     const cats = [...new Set(resourcesCache.map(r => r.category))].sort();
-    catFilter.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    catFilter.innerHTML = '<option value="">كل الفئات</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
     catFilter.dataset.populated = '1';
     const suggestions = document.getElementById('res-category-suggestions');
     if (suggestions) suggestions.innerHTML = cats.map(c => `<option value="${escapeHtml(c)}">`).join('');
@@ -399,9 +402,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function resourceRecipientLabel(r) {
-    if (!r.targetTeacherId) return 'All Teachers';
+    if (!r.targetTeacherId) return 'جميع المعلمين';
     const t = teachersCache.find(x => x.id === r.targetTeacherId);
-    return t ? t.name : 'A teacher (removed)';
+    return t ? t.name : 'معلم (تمت إزالته)';
   }
 
   function renderResourcesList() {
@@ -414,7 +417,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <i data-lucide="${RES_TYPE_ICON[r.type]}" class="w-4 h-4 shrink-0" style="color:var(--red-600)"></i>
             <p class="font-semibold text-sm truncate" style="color:var(--navy-700)">${escapeHtml(r.title)}</p>
           </div>
-          <button onclick="deleteResourceConfirm('${r.id}','${escapeHtml(r.title).replace(/'/g, "\\'")}')" class="shrink-0" aria-label="Delete"><i data-lucide="trash-2" class="w-4 h-4" style="color:var(--danger-600)"></i></button>
+          <button onclick="deleteResourceConfirm('${r.id}','${escapeHtml(r.title).replace(/'/g, "\\'")}')" class="shrink-0" aria-label="حذف"><i data-lucide="trash-2" class="w-4 h-4" style="color:var(--danger-600)"></i></button>
         </div>
         ${r.description ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">${escapeHtml(r.description)}</p>` : ''}
         <div class="flex items-center gap-2 mt-3 flex-wrap">
@@ -422,17 +425,17 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span class="text-xs" style="color:var(--text-disabled)">${RES_TYPE_LABEL[r.type]}</span>
         </div>
         <div class="flex items-center gap-1.5 mt-2"><i data-lucide="${r.targetTeacherId ? 'user' : 'users'}" class="w-3.5 h-3.5" style="color:var(--text-secondary)"></i><span class="text-xs" style="color:var(--text-secondary)">${escapeHtml(resourceRecipientLabel(r))}</span></div>
-        <a href="${r.url}" target="_blank" rel="noopener" class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--red-600)">Open <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a>
-      </div>`).join('') || `<p class="text-sm col-span-full text-center py-10" style="color:var(--text-secondary)">No resources in this category yet.</p>`;
+        <a href="${r.url}" target="_blank" rel="noopener" class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--red-600)">فتح <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a>
+      </div>`).join('') || `<p class="text-sm col-span-full text-center py-10" style="color:var(--text-secondary)">لا توجد موارد في هذه الفئة بعد.</p>`;
     lucide.createIcons();
   }
 
   window.deleteResourceConfirm = async (id, title) => {
-    if (!confirm(`Delete "${title}"? Teachers will no longer see it.`)) return;
+    if (!confirm(`حذف "${title}"؟ لن يعود المعلمون يرونه.`)) return;
     try {
       await EP.deleteResource(id);
       await renderResources();
-      showToast('Resource deleted');
+      showToast('تم حذف المورد');
     } catch (err) { showToast(err.message, 'danger'); }
   };
 
@@ -444,7 +447,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const targetTeacher = teachersCache.find(t => t.id === targetTeacherId);
     const originalLabel = submitBtn.textContent;
     submitBtn.disabled = true;
-    submitBtn.textContent = type === 'pdf' ? 'Uploading...' : 'Sending...';
+    submitBtn.textContent = type === 'pdf' ? 'جارٍ الرفع...' : 'جارٍ الإرسال...';
     try {
       await EP.addResource({
         title: document.getElementById('res-title').value,
@@ -457,7 +460,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       closeModal('resource-modal');
       await renderResources();
-      showToast(targetTeacher ? `Resource sent to ${targetTeacher.name}` : 'Resource sent to all teachers');
+      showToast(targetTeacher ? `تم إرسال المورد إلى ${targetTeacher.name}` : 'تم إرسال المورد إلى جميع المعلمين');
     } catch (err) {
       showToast(err.message, 'danger');
     } finally {
@@ -539,7 +542,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const courseById = Object.fromEntries(courseList.map((c) => [c.id, c.name]));
     const programCounts = {};
     allEnr.forEach((e) => {
-      const name = e.courseId ? (courseById[e.courseId] || 'Unknown') : 'Undecided';
+      const name = e.courseId ? (courseById[e.courseId] || 'غير معروف') : 'غير محدد';
       programCounts[name] = (programCounts[name] || 0) + 1;
     });
     const programEntries = Object.entries(programCounts).sort((a, b) => b[1] - a[1]);
@@ -549,28 +552,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (chartRevenue) chartRevenue.destroy();
     chartRevenue = new Chart(document.getElementById('analytics-chart-revenue'), {
       type: 'bar',
-      data: { labels: monthNames, datasets: [{ label: 'Revenue (MAD)', data: revenueByMonth, backgroundColor: teal }] },
+      data: { labels: monthNames, datasets: [{ label: 'الإيرادات (درهم)', data: revenueByMonth, backgroundColor: teal }] },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
     });
 
     if (chartEnrollments) chartEnrollments.destroy();
     chartEnrollments = new Chart(document.getElementById('analytics-chart-enrollments'), {
       type: 'line',
-      data: { labels: monthLabels, datasets: [{ label: 'Enrollment requests', data: monthKeys.map((k) => byMonth[k]), borderColor: navy, backgroundColor: navy + '22', tension: 0.3, fill: true }] },
+      data: { labels: monthLabels, datasets: [{ label: 'طلبات التسجيل', data: monthKeys.map((k) => byMonth[k]), borderColor: navy, backgroundColor: navy + '22', tension: 0.3, fill: true }] },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
     });
 
     if (chartStatus) chartStatus.destroy();
     chartStatus = new Chart(document.getElementById('analytics-chart-status'), {
       type: 'doughnut',
-      data: { labels: ['Pending', 'Active', 'Completed', 'Cancelled'], datasets: [{ data: [statusCounts.pending, statusCounts.active, statusCounts.completed, statusCounts.cancelled], backgroundColor: [amber, teal, navy, grey] }] },
+      data: { labels: ['قيد الانتظار', 'نشط', 'مكتمل', 'ملغى'], datasets: [{ data: [statusCounts.pending, statusCounts.active, statusCounts.completed, statusCounts.cancelled], backgroundColor: [amber, teal, navy, grey] }] },
       options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
     });
 
     if (chartPrograms) chartPrograms.destroy();
     chartPrograms = new Chart(document.getElementById('analytics-chart-programs'), {
       type: 'bar',
-      data: { labels: programEntries.map((p) => p[0]), datasets: [{ label: 'Enrollments', data: programEntries.map((p) => p[1]), backgroundColor: red }] },
+      data: { labels: programEntries.map((p) => p[0]), datasets: [{ label: 'التسجيلات', data: programEntries.map((p) => p[1]), backgroundColor: red }] },
       options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } },
     });
   }
@@ -593,7 +596,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.toggleFullscreenEditor = () => {
     const card = document.getElementById('post-modal-card');
     const isFull = card.classList.toggle('is-fullscreen');
-    document.getElementById('fullscreen-label').textContent = isFull ? 'Collapse' : 'Expand';
+    document.getElementById('fullscreen-label').textContent = isFull ? 'تصغير' : 'توسيع';
   };
 
   // ---- Category dropdown (populated from the categories table, filtered
@@ -626,24 +629,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       b.classList.toggle('btn-secondary', !active);
     });
     const list = document.getElementById('category-list');
-    list.innerHTML = `<p class="text-xs" style="color:var(--text-secondary)">Loading...</p>`;
+    list.innerHTML = `<p class="text-xs" style="color:var(--text-secondary)">جارٍ التحميل...</p>`;
     try {
       const cats = await EP.categories(categoryManagerLang);
       list.innerHTML = cats.map(c => `
         <div class="flex items-center justify-between px-3 py-2 rounded-md" style="background:var(--bg-subtle)" ${categoryManagerLang === 'ar' ? 'dir="rtl"' : ''}>
           <span class="text-sm">${c.name}</span>
-          <button type="button" onclick="deleteCategoryConfirm('${c.id}','${c.name.replace(/'/g, "\\'")}')" class="text-xs font-semibold" style="color:var(--danger-600)">Delete</button>
-        </div>`).join('') || `<p class="text-xs" style="color:var(--text-secondary)">No categories yet.</p>`;
+          <button type="button" onclick="deleteCategoryConfirm('${c.id}','${c.name.replace(/'/g, "\\'")}')" class="text-xs font-semibold" style="color:var(--danger-600)">حذف</button>
+        </div>`).join('') || `<p class="text-xs" style="color:var(--text-secondary)">لا توجد فئات بعد.</p>`;
     } catch (err) {
       list.innerHTML = `<p class="text-xs" style="color:var(--danger-600)">${err.message}</p>`;
     }
   };
   window.deleteCategoryConfirm = async (id, name) => {
-    if (!confirm(`Delete the "${name}" category? Existing posts already using it keep it — this only removes it as a future option.`)) return;
+    if (!confirm(`حذف فئة "${name}"؟ المقالات التي تستخدمها حالياً ستحتفظ بها — هذا يزيلها فقط كخيار مستقبلي.`)) return;
     try {
       await EP.deleteCategory(id);
       await loadCategoryManager();
-      showToast('Category deleted', 'info');
+      showToast('تم حذف الفئة', 'info');
     } catch (err) { showToast(err.message, 'danger'); }
   };
   document.getElementById('category-form').addEventListener('submit', async (e) => {
@@ -653,7 +656,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       await EP.addCategory(input.value, categoryManagerLang);
       input.value = '';
       await loadCategoryManager();
-      showToast('Category added');
+      showToast('تمت إضافة الفئة');
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
@@ -704,12 +707,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const status = document.getElementById('post-cover-status');
     status.classList.remove('hidden');
     status.style.color = 'var(--text-secondary)';
-    status.textContent = 'Uploading...';
+    status.textContent = 'جارٍ الرفع...';
     try {
       const url = await EP.uploadPostCover(file);
       document.getElementById('post-cover-url').value = url;
       updateCoverPreview();
-      status.textContent = 'Uploaded.';
+      status.textContent = 'تم الرفع.';
       status.style.color = 'var(--success-600)';
     } catch (err) {
       status.textContent = err.message;
@@ -718,13 +721,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
   window.deletePostConfirm = async (id) => {
-    if (!confirm('Delete this post?')) return;
-    try { await EP.deletePost(id); await renderAll(); showToast('Post deleted', 'info'); }
+    if (!confirm('حذف هذه المقالة؟')) return;
+    try { await EP.deletePost(id); await renderAll(); showToast('تم حذف المقالة', 'info'); }
     catch (err) { showToast(err.message, 'danger'); }
   };
   window.removeUserConfirm = async (id) => {
-    if (!confirm('Remove this user? They will lose portal access.')) return;
-    try { await EP.removeUser(id); await renderAll(); showToast('User removed', 'info'); }
+    if (!confirm('إزالة هذا المستخدم؟ سيفقد إمكانية الوصول إلى المنصة.')) return;
+    try { await EP.removeUser(id); await renderAll(); showToast('تمت إزالة المستخدم', 'info'); }
     catch (err) { showToast(err.message, 'danger'); }
   };
   window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
@@ -734,7 +737,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const status = e.submitter.dataset.status;
     const bodyHtml = quill ? quill.root.innerHTML : document.getElementById('post-body').value;
     const bodyText = quill ? quill.getText().trim() : bodyHtml.trim();
-    if (!bodyText) { showToast('Write something in the post body first', 'danger'); return; }
+    if (!bodyText) { showToast('اكتب شيئاً في نص المقالة أولاً', 'danger'); return; }
     try {
       await EP.savePost({
         id: document.getElementById('post-id').value || null,
@@ -748,7 +751,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       closeModal('post-modal');
       await renderAll();
-      showToast(status === 'published' ? 'Post published — now live on the public blog!' : 'Draft saved');
+      showToast(status === 'published' ? 'تم نشر المقالة — أصبحت متاحة الآن على المدونة العامة!' : 'تم حفظ المسودة');
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
@@ -763,7 +766,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       e.target.reset();
       await renderAll();
-      showToast('Notification sent');
+      showToast('تم إرسال الإشعار');
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
@@ -807,7 +810,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       closeModal('user-modal');
       await renderAll();
-      alert(`User created successfully.\n\nLogin email: ${email}\nPassword: ${password}\n\nShare these with them directly — this won't be shown again.`);
+      alert(`تم إنشاء المستخدم بنجاح.\n\nالبريد الإلكتروني لتسجيل الدخول: ${email}\nكلمة المرور: ${password}\n\nشارك هذه المعلومات معه مباشرة — لن تُعرض مرة أخرى.`);
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
@@ -818,7 +821,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!activeGroupId && groups.length) activeGroupId = groups[0].id;
     document.getElementById('admin-group-tabs').innerHTML = groups.map(g => `
       <button onclick="selectAdminGroup('${g.id}')" class="persona-tab" ${g.id === activeGroupId ? 'aria-selected="true"' : 'aria-selected="false"'}>
-        <span class="mr-1">${g.icon}</span> ${escapeHtml(g.name)}
+        <span class="me-1">${g.icon}</span> ${escapeHtml(g.name)}
       </button>`).join('');
     await renderGroupPosts();
   }
@@ -833,22 +836,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       return `
       <div class="card p-5" style="${reports.length ? 'border-color:var(--danger-600); border-width:1.5px' : ''}">
         <div class="flex items-center justify-between mb-2">
-          <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(byId[p.authorId] || 'Someone')} <span class="font-normal text-xs" style="color:var(--text-disabled)">${EP.timeAgo(p.createdAt)}</span></p>
+          <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(byId[p.authorId] || '\u0634\u062e\u0635 \u0645\u0627')} <span class="font-normal text-xs" style="color:var(--text-disabled)">${EP.timeAgo(p.createdAt)}</span></p>
           <div class="flex items-center gap-3">
-            ${reports.length ? `<span class="badge badge-danger">\u{1F6A9} ${reports.length} report${reports.length > 1 ? 's' : ''}</span>` : ''}
-            <button onclick="adminDeleteGroupPost('${p.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Delete Post</button>
+            ${reports.length ? `<span class="badge badge-danger">\u{1F6A9} ${reports.length} \u0628\u0644\u0627\u063a</span>` : ''}
+            <button onclick="adminDeleteGroupPost('${p.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u0634\u0648\u0631</button>
           </div>
         </div>
         ${p.body ? `<p class="text-sm mb-2">${escapeHtml(p.body)}</p>` : ''}
         ${p.imageUrl ? `<img src="${p.imageUrl}" alt="" class="rounded-lg max-h-64 object-cover mb-2">` : ''}
-        <p class="text-xs mb-2" style="color:var(--text-secondary)">${p.likes.length} likes \u00b7 ${p.comments.length} comments</p>
+        <p class="text-xs mb-2" style="color:var(--text-secondary)">${p.likes.length} \u0625\u0639\u062c\u0627\u0628 \u00b7 ${p.comments.length} \u062a\u0639\u0644\u064a\u0642</p>
 
         ${reports.length ? `
         <div class="mt-2 mb-3 p-3 rounded-lg space-y-1" style="background:var(--danger-50)">
           ${reports.map(r => `
             <div class="flex items-center justify-between text-xs">
-              <span style="color:var(--danger-600)">${escapeHtml(byId[r.reporterId] || 'Someone')}${r.reason ? ': ' + escapeHtml(r.reason) : ' (no reason given)'}</span>
-              <button onclick="adminDismissReport('${r.id}')" class="font-semibold shrink-0 ml-2" style="color:var(--text-secondary)">Dismiss</button>
+              <span style="color:var(--danger-600)">${escapeHtml(byId[r.reporterId] || '\u0634\u062e\u0635 \u0645\u0627')}${r.reason ? ': ' + escapeHtml(r.reason) : ' (\u0644\u0645 \u064a\u064f\u0630\u0643\u0631 \u0633\u0628\u0628)'}</span>
+              <button onclick="adminDismissReport('${r.id}')" class="font-semibold shrink-0 ms-2" style="color:var(--text-secondary)">\u062a\u062c\u0627\u0647\u0644</button>
             </div>`).join('')}
         </div>` : ''}
 
@@ -856,24 +859,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="mt-2 pt-2 border-t space-y-1.5" style="border-color:var(--border-default)">
           ${p.comments.map(c => `
             <div class="flex items-center justify-between text-xs">
-              <span><span class="font-semibold" style="color:var(--navy-700)">${escapeHtml(byId[c.authorId] || 'Someone')}</span> <span style="color:var(--text-secondary)">${escapeHtml(c.body)}</span></span>
-              <button onclick="adminDeleteComment('${c.id}')" class="font-semibold shrink-0 ml-2" style="color:var(--danger-600)">Delete</button>
+              <span><span class="font-semibold" style="color:var(--navy-700)">${escapeHtml(byId[c.authorId] || '\u0634\u062e\u0635 \u0645\u0627')}</span> <span style="color:var(--text-secondary)">${escapeHtml(c.body)}</span></span>
+              <button onclick="adminDeleteComment('${c.id}')" class="font-semibold shrink-0 ms-2" style="color:var(--danger-600)">\u062d\u0630\u0641</button>
             </div>`).join('')}
         </div>` : ''}
       </div>`;
-    }).join('') || `<p style="color:var(--text-secondary)">No posts in this group yet.</p>`;
+    }).join('') || `<p style="color:var(--text-secondary)">\u0644\u0627 \u062a\u0648\u062c\u062f \u0645\u0646\u0634\u0648\u0631\u0627\u062a \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u0645\u062c\u0645\u0648\u0639\u0629 \u0628\u0639\u062f.</p>`;
   }
   window.selectAdminGroup = (id) => { activeGroupId = id; renderGroupTabs(); };
   window.adminDeleteGroupPost = async (postId) => {
-    if (!confirm('Delete this post?')) return;
+    if (!confirm('\u062d\u0630\u0641 \u0647\u0630\u0627 \u0627\u0644\u0645\u0646\u0634\u0648\u0631\u061f')) return;
     try { await EP.deleteGroupPost(postId); await renderGroupPosts(); } catch (err) { showToast(err.message, 'danger'); }
   };
   window.adminDeleteComment = async (commentId) => {
-    if (!confirm('Delete this comment?')) return;
+    if (!confirm('\u062d\u0630\u0641 \u0647\u0630\u0627 \u0627\u0644\u062a\u0639\u0644\u064a\u0642\u061f')) return;
     try { await EP.deleteComment(commentId); await renderGroupPosts(); } catch (err) { showToast(err.message, 'danger'); }
   };
   window.adminDismissReport = async (reportId) => {
-    try { await EP.dismissReport(reportId); await renderGroupPosts(); showToast('Report dismissed'); } catch (err) { showToast(err.message, 'danger'); }
+    try { await EP.dismissReport(reportId); await renderGroupPosts(); showToast('تم تجاهل البلاغ'); } catch (err) { showToast(err.message, 'danger'); }
   };
   await renderGroupTabs();
   EP.onChange([EP.KEYS.group_posts, EP.KEYS.group_post_comments, EP.KEYS.group_post_reports], renderGroupPosts);
@@ -893,35 +896,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     const userById2 = Object.fromEntries(roster.map(u => [u.id, u.name]));
     const filtered = enrollmentFilter === 'all' ? all : all.filter(e => e.status === enrollmentFilter);
     const statusBadge = { pending: 'badge-warning', active: 'badge-success', completed: 'badge-info', cancelled: 'badge-danger' };
+    const ENR_FILTER_LABEL = { pending: '\u0642\u064a\u062f \u0627\u0644\u0627\u0646\u062a\u0638\u0627\u0631', active: '\u0646\u0634\u0637\u0629', completed: '\u0645\u0643\u062a\u0645\u0644\u0629', cancelled: '\u0645\u0644\u063a\u0627\u0629' };
     document.getElementById('admin-enrollments-list').innerHTML = filtered.map(e => `
       <div class="card p-5 flex items-center justify-between gap-4">
         <div class="min-w-0">
           <div class="flex items-center gap-2 mb-1">
-            <span class="badge ${statusBadge[e.status] || 'badge-info'}">${e.status}</span>
-            <span class="badge ${e.paymentStatus === 'paid' ? 'badge-success' : e.paymentStatus === 'waived' ? 'badge-info' : 'badge-warning'}">${e.paymentStatus}</span>
-            ${!e.courseId ? `<span class="badge badge-warning">Course undecided</span>` : ''}
+            <span class="badge ${statusBadge[e.status] || 'badge-info'}">${ENR_STATUS_LABEL[e.status] || e.status}</span>
+            <span class="badge ${e.paymentStatus === 'paid' ? 'badge-success' : e.paymentStatus === 'waived' ? 'badge-info' : 'badge-warning'}">${ENR_PAYMENT_LABEL[e.paymentStatus] || e.paymentStatus}</span>
+            ${!e.courseId ? `<span class="badge badge-warning">\u0627\u0644\u062f\u0648\u0631\u0629 \u063a\u064a\u0631 \u0645\u062d\u062f\u062f\u0629</span>` : ''}
           </div>
-          <p class="font-semibold truncate" style="color:var(--navy-700)"><a href="#" onclick="event.preventDefault(); openUserDetailModal('${e.studentId}')" class="hover:underline">${escapeHtml(userById2[e.studentId] || 'Unknown student')}</a> \u2192 ${e.courseId ? escapeHtml(courseById[e.courseId] || 'Unknown course') : 'Not yet decided'}</p>
-          <p class="text-xs mt-1" style="color:var(--text-secondary)">Requested ${EP.timeAgo(e.requestedAt)}${e.priceMad ? ` \u00b7 ${e.priceMad} MAD` : ''}</p>
+          <p class="font-semibold truncate" style="color:var(--navy-700)"><a href="#" onclick="event.preventDefault(); openUserDetailModal('${e.studentId}')" class="hover:underline">${escapeHtml(userById2[e.studentId] || '\u0637\u0627\u0644\u0628 \u063a\u064a\u0631 \u0645\u0639\u0631\u0648\u0641')}</a> \u2192 ${e.courseId ? escapeHtml(courseById[e.courseId] || '\u062f\u0648\u0631\u0629 \u063a\u064a\u0631 \u0645\u0639\u0631\u0648\u0641\u0629') : '\u0644\u0645 \u064a\u064f\u062d\u062f\u062f \u0628\u0639\u062f'}</p>
+          <p class="text-xs mt-1" style="color:var(--text-secondary)">\u062a\u0645 \u0627\u0644\u0637\u0644\u0628 ${EP.timeAgo(e.requestedAt)}${e.priceMad ? ` \u00b7 ${e.priceMad} MAD` : ''}</p>
         </div>
         ${e.status === 'pending' ? `
         <div class="flex gap-2 shrink-0">
-          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')})' class="btn btn-primary btn-sm">Approve</button>
-          <button onclick="rejectEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm" style="color:var(--danger-600); border-color:var(--danger-600)">Reject</button>
+          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')})' class="btn btn-primary btn-sm">\u0642\u0628\u0648\u0644</button>
+          <button onclick="rejectEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm" style="color:var(--danger-600); border-color:var(--danger-600)">\u0631\u0641\u0636</button>
         </div>` : ''}
         ${e.status === 'active' ? `
         <div class="flex gap-2 shrink-0">
-          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')}, ${JSON.stringify(e.priceMad || '')}, ${JSON.stringify(e.paymentStatus || 'unpaid')})' class="btn btn-secondary btn-sm">Edit</button>
+          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')}, ${JSON.stringify(e.priceMad || '')}, ${JSON.stringify(e.paymentStatus || 'unpaid')})' class="btn btn-secondary btn-sm">\u062a\u0639\u062f\u064a\u0644</button>
         </div>` : ''}
         ${e.status === 'cancelled' ? `
         <div class="flex gap-2 shrink-0">
-          <button onclick="revertEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm">Reinstate</button>
+          <button onclick="revertEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm">\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u062a\u0641\u0639\u064a\u0644</button>
         </div>` : ''}
-      </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No ${enrollmentFilter === 'all' ? '' : enrollmentFilter + ' '}enrollments.</p></div>`;
+      </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">\u0644\u0627 \u062a\u0648\u062c\u062f \u062a\u0633\u062c\u064a\u0644\u0627\u062a${enrollmentFilter === 'all' ? '' : ' ' + ENR_FILTER_LABEL[enrollmentFilter]}.</p></div>`;
   }
   window.revertEnrollmentConfirm = async (id) => {
-    if (!confirm('Move this enrollment back to Pending? You\'ll be able to approve it again from the Pending list.')) return;
-    try { await EP.revertEnrollment(id); await renderEnrollments(); showToast('Enrollment reinstated to Pending'); }
+    if (!confirm('\u0625\u0639\u0627\u062f\u0629 \u0647\u0630\u0627 \u0627\u0644\u062a\u0633\u062c\u064a\u0644 \u0625\u0644\u0649 \u0642\u064a\u062f \u0627\u0644\u0627\u0646\u062a\u0638\u0627\u0631\u061f \u0633\u062a\u062a\u0645\u0643\u0646 \u0645\u0646 \u0627\u0644\u0645\u0648\u0627\u0641\u0642\u0629 \u0639\u0644\u064a\u0647 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649 \u0645\u0646 \u0642\u0627\u0626\u0645\u0629 \u0642\u064a\u062f \u0627\u0644\u0627\u0646\u062a\u0638\u0627\u0631.')) return;
+    try { await EP.revertEnrollment(id); await renderEnrollments(); showToast('\u062a\u0645\u062a \u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u062a\u0633\u062c\u064a\u0644 \u0625\u0644\u0649 \u0642\u064a\u062f \u0627\u0644\u0627\u0646\u062a\u0638\u0627\u0631'); }
     catch (err) { showToast(err.message, 'danger'); }
   };
   window.openActivateModal = async (id, studentName, courseId, existingPrice, existingPaymentStatus) => {
@@ -929,8 +933,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('activate-enrollment-id').value = id;
     document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(studentName)}</strong>`;
     document.getElementById('activate-enrollment-form').reset();
-    document.querySelector('#activate-enrollment-modal p.font-serif').textContent = isEdit ? 'Edit Enrollment' : 'Activate Enrollment';
-    document.querySelector('#activate-enrollment-form button[type="submit"]').textContent = isEdit ? 'Save Changes' : 'Activate Enrollment';
+    document.querySelector('#activate-enrollment-modal p.font-serif').textContent = isEdit ? '\u062a\u0639\u062f\u064a\u0644 \u0627\u0644\u062a\u0633\u062c\u064a\u0644' : '\u062a\u0641\u0639\u064a\u0644 \u0627\u0644\u062a\u0633\u062c\u064a\u0644';
+    document.querySelector('#activate-enrollment-form button[type="submit"]').textContent = isEdit ? '\u062d\u0641\u0638 \u0627\u0644\u062a\u063a\u064a\u064a\u0631\u0627\u062a' : '\u062a\u0641\u0639\u064a\u0644 \u0627\u0644\u062a\u0633\u062c\u064a\u0644';
     const courseSelect = document.getElementById('activate-course');
     const courseList = await EP.courses();
     courseSelect.innerHTML = courseList.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
@@ -945,17 +949,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   document.getElementById('activate-cancel-link').addEventListener('click', async () => {
     const id = document.getElementById('activate-enrollment-id').value;
-    if (!confirm('Cancel this enrollment? Use this for duplicate or incorrect records — the student will lose access to this course.')) return;
+    if (!confirm('إلغاء هذا التسجيل؟ استخدم هذا للسجلات المكررة أو غير الصحيحة — سيفقد الطالب إمكانية الوصول إلى هذه الدورة.')) return;
     try {
       await EP.rejectEnrollment(id);
       document.getElementById('activate-enrollment-modal').classList.add('hidden');
       await renderEnrollments();
-      showToast('Enrollment cancelled');
+      showToast('تم إلغاء التسجيل');
     } catch (err) { showToast(err.message, 'danger'); }
   });
   window.rejectEnrollmentConfirm = async (id) => {
-    if (!confirm('Reject this enrollment request?')) return;
-    try { await EP.rejectEnrollment(id); await renderEnrollments(); showToast('Enrollment rejected', 'info'); }
+    if (!confirm('رفض طلب التسجيل هذا؟')) return;
+    try { await EP.rejectEnrollment(id); await renderEnrollments(); showToast('تم رفض التسجيل', 'info'); }
     catch (err) { showToast(err.message, 'danger'); }
   };
   document.getElementById('activate-enrollment-form').addEventListener('submit', async (e) => {
@@ -968,7 +972,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       document.getElementById('activate-enrollment-modal').classList.add('hidden');
       await renderEnrollments();
-      showToast('Enrollment activated \u2014 student now has course access');
+      showToast('\u062a\u0645 \u062a\u0641\u0639\u064a\u0644 \u0627\u0644\u062a\u0633\u062c\u064a\u0644 \u2014 \u0623\u0635\u0628\u062d \u0644\u062f\u0649 \u0627\u0644\u0637\u0627\u0644\u0628 \u0625\u0645\u0643\u0627\u0646\u064a\u0629 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u0649 \u0627\u0644\u062f\u0648\u0631\u0629');
     } catch (err) { showToast(err.message, 'danger'); }
   });
   await renderEnrollments();

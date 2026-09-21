@@ -56,13 +56,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function renderCourseInfo() {
     if (!course) {
-      document.getElementById('student-course-info').innerHTML = `<p class="text-sm" style="color:var(--text-secondary)">No active course yet \u2014 see your enrollment status above.</p>`;
+      document.getElementById('student-course-info').innerHTML = `<p class="text-sm" style="color:var(--text-secondary)">\u0644\u0627 \u064a\u0648\u062c\u062f \u0628\u0631\u0646\u0627\u0645\u062c \u0646\u0634\u0637 \u0628\u0639\u062f \u2014 \u0631\u0627\u062c\u0639 \u062d\u0627\u0644\u0629 \u0627\u0644\u062a\u0633\u062c\u064a\u0644 \u0623\u0639\u0644\u0627\u0647.</p>`;
       return;
     }
     document.getElementById('student-course-info').innerHTML = `
       <div class="flex items-center gap-4">
         <div class="w-12 h-12 rounded-lg flex items-center justify-center shrink-0" style="background:var(--navy-50)"><i data-lucide="book-open" style="color:var(--navy-700)"></i></div>
-        <div><p class="font-semibold" style="color:var(--navy-700)">${escapeHtml(course?.name || '')}</p><p class="text-xs mt-1" style="color:var(--text-secondary)">Teacher: ${escapeHtml(teacher?.name || '')}</p></div>
+        <div><p class="font-semibold" style="color:var(--navy-700)">${escapeHtml(course?.name || '')}</p><p class="text-xs mt-1" style="color:var(--text-secondary)">\u0627\u0644\u0645\u0639\u0644\u0645: ${escapeHtml(teacher?.name || '')}</p></div>
       </div>`;
   }
 
@@ -84,16 +84,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="card p-4 flex items-center justify-between gap-3" style="background:var(--warning-50); border-color:var(--warning-600)">
         <div class="flex items-center gap-3">
           <i data-lucide="clock" class="w-5 h-5 shrink-0" style="color:var(--warning-600)"></i>
-          <p class="text-sm" style="color:var(--text-primary)"><span class="font-semibold">Enrollment pending:</span> ${escapeHtml(c?.name || 'a program')} \u2014 an admin will review and confirm it soon.</p>
+          <p class="text-sm" style="color:var(--text-primary)"><span class="font-semibold">\u0627\u0644\u062a\u0633\u062c\u064a\u0644 \u0642\u064a\u062f \u0627\u0644\u0627\u0646\u062a\u0638\u0627\u0631:</span> ${escapeHtml(c?.name || '\u0628\u0631\u0646\u0627\u0645\u062c')} \u2014 \u0633\u064a\u0642\u0648\u0645 \u0627\u0644\u0645\u0634\u0631\u0641 \u0628\u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629 \u0648\u0627\u0644\u062a\u0623\u0643\u064a\u062f \u0642\u0631\u064a\u0628\u0627\u064b.</p>
         </div>
-        <button onclick="cancelMyEnrollment('${e.id}')" class="text-xs font-semibold shrink-0" style="color:var(--danger-600)">Withdraw</button>
+        <button onclick="cancelMyEnrollment('${e.id}')" class="text-xs font-semibold shrink-0" style="color:var(--danger-600)">\u0633\u062d\u0628 \u0627\u0644\u0637\u0644\u0628</button>
       </div>`;
     }).join('');
     lucide.createIcons();
   }
   window.cancelMyEnrollment = async (id) => {
-    if (!confirm('Withdraw this enrollment request?')) return;
-    try { await EP.cancelEnrollment(id); await renderEnrollmentBanner(); showToast('Enrollment request withdrawn'); }
+    if (!confirm('\u0633\u062d\u0628 \u0637\u0644\u0628 \u0627\u0644\u062a\u0633\u062c\u064a\u0644 \u0647\u0630\u0627\u061f')) return;
+    try { await EP.cancelEnrollment(id); await renderEnrollmentBanner(); showToast('\u062a\u0645 \u0633\u062d\u0628 \u0637\u0644\u0628 \u0627\u0644\u062a\u0633\u062c\u064a\u0644'); }
     catch (err) { showToast(err.message, 'danger'); }
   };
 
@@ -108,8 +108,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const ring = document.getElementById('student-progress-ring-fg');
     if (ring) ring.style.strokeDashoffset = String(circumference - (circumference * percent) / 100);
 
-    document.getElementById('student-progress-title').textContent = total > 0 ? `${percent}%` : 'No homework yet';
-    document.getElementById('student-progress-sub').textContent = total > 0 ? `${completed} of ${total} homework completed` : 'Your teacher hasn\u2019t assigned any yet';
+    document.getElementById('student-progress-title').textContent = total > 0 ? `${percent}%` : '\u0644\u0627 \u0648\u0627\u062c\u0628\u0627\u062a \u0628\u0639\u062f';
+    document.getElementById('student-progress-sub').textContent = total > 0 ? `\u062a\u0645 \u0625\u0643\u0645\u0627\u0644 ${completed} \u0645\u0646 ${total} \u0648\u0627\u062c\u0628` : '\u0644\u0645 \u064a\u0642\u0645 \u0645\u0639\u0644\u0645\u0643 \u0628\u062a\u0643\u0644\u064a\u0641 \u0623\u064a \u0648\u0627\u062c\u0628\u0627\u062a \u0628\u0639\u062f';
   }
 
   async function renderOverviewLists() {
@@ -121,14 +121,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.getElementById('student-hw-due').innerHTML = due.map(h => {
       const sub = mySubs.find(x => x.homeworkId === h.id);
-      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-left hover:opacity-70 transition"><span>${escapeHtml(h.title)}</span><span class="badge ${sub ? 'badge-warning' : 'badge-info'}">${sub ? 'Submitted' : 'Not started'}</span></button>`;
-    }).join('') || `<p style="color:var(--text-secondary)">You\u2019re all caught up!</p>`;
+      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-start hover:opacity-70 transition"><span>${escapeHtml(h.title)}</span><span class="badge ${sub ? 'badge-warning' : 'badge-info'}">${sub ? '\u062a\u0645 \u0627\u0644\u062a\u0633\u0644\u064a\u0645' : '\u0644\u0645 \u064a\u0628\u062f\u0623'}</span></button>`;
+    }).join('') || `<p style="color:var(--text-secondary)">\u0623\u0646\u062a \u0639\u0644\u0649 \u0627\u0637\u0644\u0627\u0639 \u0628\u0643\u0644 \u0634\u064a\u0621!</p>`;
 
     const graded = mySubs.filter(s => s.status === 'graded');
     document.getElementById('student-recent-grades').innerHTML = graded.map(s => {
       const h = hw.find(x => x.id === s.homeworkId);
-      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-left hover:opacity-70 transition"><span>${escapeHtml(h?.title)}</span><span class="badge badge-success">${escapeHtml(s.grade)}</span></button>`;
-    }).join('') || `<p style="color:var(--text-secondary)">No grades yet.</p>`;
+      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-start hover:opacity-70 transition"><span>${escapeHtml(h?.title)}</span><span class="badge badge-success">${escapeHtml(s.grade)}</span></button>`;
+    }).join('') || `<p style="color:var(--text-secondary)">\u0644\u0627 \u062a\u0648\u062c\u062f \u062f\u0631\u062c\u0627\u062a \u0628\u0639\u062f.</p>`;
   }
 
   async function renderHwList() {
@@ -136,33 +136,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     const mySubs = allSubs.filter(s => s.studentId === user.id);
     document.getElementById('student-hw-list').innerHTML = hw.map(h => {
       const sub = mySubs.find(x => x.homeworkId === h.id);
-      const modeLabel = { text: 'Written', file: 'File Upload', quiz: 'Quiz', multi: 'Multi-Task' }[h.submissionMode] || 'Written';
+      const modeLabel = { text: '\u0643\u062a\u0627\u0628\u064a', file: '\u0631\u0641\u0639 \u0645\u0644\u0641', quiz: '\u0627\u062e\u062a\u0628\u0627\u0631', multi: '\u0645\u062a\u0639\u062f\u062f \u0627\u0644\u0645\u0647\u0627\u0645' }[h.submissionMode] || '\u0643\u062a\u0627\u0628\u064a';
       const statusBadge = !sub ? 'badge-danger'
         : sub.status === 'graded' ? 'badge-success'
         : sub.status === 'needs_revision' ? 'badge-warning'
         : sub.status === 'draft' ? 'badge-info'
         : 'badge-warning';
-      const statusLabel = !sub ? 'not started' : sub.status === 'needs_revision' ? 'needs revision' : sub.status;
+      const statusLabel = !sub ? '\u0644\u0645 \u064a\u0628\u062f\u0623' : sub.status === 'needs_revision' ? '\u064a\u062d\u062a\u0627\u062c \u0645\u0631\u0627\u062c\u0639\u0629' : sub.status === 'graded' ? '\u062a\u0645 \u0627\u0644\u062a\u0642\u064a\u064a\u0645' : sub.status === 'draft' ? '\u0645\u0633\u0648\u062f\u0629' : '\u062a\u0645 \u0627\u0644\u062a\u0633\u0644\u064a\u0645';
 
       const isAudio = h.attachmentUrl && /\.(mp3|wav|ogg|m4a)(\?|$)/i.test(h.attachmentUrl);
       const attachmentHtml = h.attachmentUrl
         ? isAudio
-          ? `<div class="mb-3"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">Listen:</p><audio controls class="w-full" src="${escapeHtml(h.attachmentUrl)}"></audio></div>`
-          : `<a href="${escapeHtml(h.attachmentUrl)}" target="_blank" rel="noopener" class="text-xs font-semibold inline-flex items-center gap-1 mb-3" style="color:var(--teal-600)"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i> ${escapeHtml(h.attachmentName || 'Download attachment')}</a>`
+          ? `<div class="mb-3"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">\u0627\u0633\u062a\u0645\u0639:</p><audio controls class="w-full" src="${escapeHtml(h.attachmentUrl)}"></audio></div>`
+          : `<a href="${escapeHtml(h.attachmentUrl)}" target="_blank" rel="noopener" class="text-xs font-semibold inline-flex items-center gap-1 mb-3" style="color:var(--teal-600)"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i> ${escapeHtml(h.attachmentName || '\u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u0645\u0631\u0641\u0642')}</a>`
         : '';
 
       let actionHtml;
       if (sub && sub.status === 'graded') {
-        actionHtml = `<div class="p-3 rounded-lg text-sm" style="background:var(--success-50)"><span class="font-semibold" style="color:var(--success-600)">Grade: ${escapeHtml(sub.grade)} ${h.maxPoints && h.submissionMode !== 'quiz' ? `/ ${h.maxPoints}` : ''}</span>${sub.feedback ? `<p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback)}</p>` : ''}</div>`;
+        actionHtml = `<div class="p-3 rounded-lg text-sm" style="background:var(--success-50)"><span class="font-semibold" style="color:var(--success-600)">\u0627\u0644\u062f\u0631\u062c\u0629: ${escapeHtml(sub.grade)} ${h.maxPoints && h.submissionMode !== 'quiz' ? `/ ${h.maxPoints}` : ''}</span>${sub.feedback ? `<p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback)}</p>` : ''}</div>`;
       } else if (sub && sub.status === 'needs_revision') {
-        actionHtml = `<div class="p-3 rounded-lg text-sm mb-3" style="background:var(--amber-100)"><span class="font-semibold" style="color:var(--amber-600)">Needs revision</span><p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback || '')}</p></div>
-          <button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">Resubmit</button>`;
+        actionHtml = `<div class="p-3 rounded-lg text-sm mb-3" style="background:var(--amber-100)"><span class="font-semibold" style="color:var(--amber-600)">\u064a\u062d\u062a\u0627\u062c \u0645\u0631\u0627\u062c\u0639\u0629</span><p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback || '')}</p></div>
+          <button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u062a\u0633\u0644\u064a\u0645</button>`;
       } else if (sub && sub.status === 'draft') {
-        actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-secondary btn-sm">Continue Draft</button>`;
+        actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-secondary btn-sm">\u0645\u062a\u0627\u0628\u0639\u0629 \u0627\u0644\u0645\u0633\u0648\u062f\u0629</button>`;
       } else if (sub) {
-        actionHtml = `<p class="text-xs" style="color:var(--text-secondary)">Submitted ${EP.timeAgo(sub.submittedAt)} \u2014 waiting for your teacher to grade it.</p>`;
+        actionHtml = `<p class="text-xs" style="color:var(--text-secondary)">\u062a\u0645 \u0627\u0644\u062a\u0633\u0644\u064a\u0645 ${EP.timeAgo(sub.submittedAt)} \u2014 \u0628\u0627\u0646\u062a\u0638\u0627\u0631 \u062a\u0642\u064a\u064a\u0645 \u0645\u0639\u0644\u0645\u0643.</p>`;
       } else {
-        actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">${h.submissionMode === 'quiz' ? 'Take Quiz' : 'Submit'}</button>`;
+        actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">${h.submissionMode === 'quiz' ? '\u0628\u062f\u0621 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631' : '\u062a\u0633\u0644\u064a\u0645'}</button>`;
       }
 
       return `<div class="card p-5">
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         ${attachmentHtml}
         ${actionHtml}
       </div>`;
-    }).join('') || `<p style="color:var(--text-secondary)">No homework assigned yet.</p>`;
+    }).join('') || `<p style="color:var(--text-secondary)">لا توجد واجبات مكلف بها بعد.</p>`;
     if (window.lucide) lucide.createIcons();
   }
 
@@ -185,10 +185,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const items = await EP.notificationsFor(user);
     document.getElementById('student-notif-list').innerHTML = items.map(n => `
       <div onclick="EP.markRead('${n.id}', '${user.id}').then(()=>{this.style.opacity=0.6;})" class="card p-4 cursor-pointer">
-        <div class="flex items-center justify-between mb-1"><span class="badge badge-info">${n.audience === 'all' ? 'Announcement' : 'Class'}</span><span class="text-xs" style="color:var(--text-disabled)">${EP.timeAgo(n.createdAt)}</span></div>
+        <div class="flex items-center justify-between mb-1"><span class="badge badge-info">${n.audience === 'all' ? 'إعلان' : 'الفصل'}</span><span class="text-xs" style="color:var(--text-disabled)">${EP.timeAgo(n.createdAt)}</span></div>
         <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(n.title)}</p>
         <p class="text-xs mt-1" style="color:var(--text-secondary)">${escapeHtml(n.body)}</p>
-      </div>`).join('') || `<p style="color:var(--text-secondary)">No notifications yet.</p>`;
+      </div>`).join('') || `<p style="color:var(--text-secondary)">لا توجد إشعارات بعد.</p>`;
   }
 
   async function renderChat() {
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="max-w-[75%] px-4 py-2 rounded-xl text-sm" style="background:${m.fromId === user.id ? 'var(--navy-700)' : 'var(--bg-subtle)'}; color:${m.fromId === user.id ? '#fff' : 'var(--text-primary)'}">
           ${escapeHtml(m.body)}<div class="text-[10px] mt-1 opacity-70">${EP.timeAgo(m.createdAt)}</div>
         </div>
-      </div>`).join('') || `<p class="text-sm text-center" style="color:var(--text-secondary)">No messages yet — say hello to your teacher!</p>`;
+      </div>`).join('') || `<p class="text-sm text-center" style="color:var(--text-secondary)">لا توجد رسائل بعد — قل مرحباً لمعلمك!</p>`;
     msgsEl.scrollTop = msgsEl.scrollHeight;
   }
 
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!el || !window.Quill) return null;
     const editor = new Quill(el, {
       theme: 'snow',
-      placeholder: 'Write your answer...',
+      placeholder: 'اكتب إجابتك...',
       modules: { toolbar: [
         [{ header: [1, 2, 3, false] }],
         [{ size: ['small', false, 'large', 'huge'] }],
@@ -229,10 +229,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     quillEditors.set(elementId, editor);
     if (rtlCheckboxId) {
       const checkbox = document.getElementById(rtlCheckboxId);
-      checkbox.addEventListener('change', () => {
+      const applyDirection = () => {
         el.querySelector('.ql-editor').style.direction = checkbox.checked ? 'rtl' : 'ltr';
         el.querySelector('.ql-editor').style.textAlign = checkbox.checked ? 'right' : 'left';
-      });
+      };
+      checkbox.addEventListener('change', applyDirection);
+      applyDirection();
     }
     return editor;
   }
@@ -250,16 +252,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (item.kind === 'video') {
       const embed = youtubeEmbedUrl(item.url);
       return embed
-        ? `<div class="mb-2"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">${escapeHtml(item.name || 'Video')}</p><iframe src="${escapeHtml(embed)}" class="w-full rounded-lg" style="aspect-ratio:16/9" allowfullscreen></iframe></div>`
-        : `<div class="mb-2"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">${escapeHtml(item.name || 'Video')}</p><video controls class="w-full rounded-lg" src="${escapeHtml(item.url)}"></video></div>`;
+        ? `<div class="mb-2"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">${escapeHtml(item.name || 'فيديو')}</p><iframe src="${escapeHtml(embed)}" class="w-full rounded-lg" style="aspect-ratio:16/9" allowfullscreen></iframe></div>`
+        : `<div class="mb-2"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">${escapeHtml(item.name || 'فيديو')}</p><video controls class="w-full rounded-lg" src="${escapeHtml(item.url)}"></video></div>`;
     }
     if (item.kind === 'audio') {
-      return `<div class="mb-2"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">${escapeHtml(item.name || 'Audio')}</p><audio controls class="w-full" src="${escapeHtml(item.url)}"></audio></div>`;
+      return `<div class="mb-2"><p class="text-xs font-semibold mb-1" style="color:var(--text-secondary)">${escapeHtml(item.name || 'صوت')}</p><audio controls class="w-full" src="${escapeHtml(item.url)}"></audio></div>`;
     }
     if (item.kind === 'image') {
       return `<div class="mb-2"><img src="${escapeHtml(item.url)}" alt="${escapeHtml(item.name || '')}" class="w-full rounded-lg"></div>`;
     }
-    return `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" class="text-sm font-semibold inline-flex items-center gap-1 mb-2" style="color:var(--teal-600)">\u{1F4CE} ${escapeHtml(item.name || (item.kind === 'pdf' ? 'View PDF' : item.kind === 'link' ? 'Open Link' : 'Open File'))}</a>`;
+    return `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" class="text-sm font-semibold inline-flex items-center gap-1 mb-2" style="color:var(--teal-600)">\u{1F4CE} ${escapeHtml(item.name || (item.kind === 'pdf' ? 'عرض PDF' : item.kind === 'link' ? 'فتح الرابط' : 'فتح الملف'))}</a>`;
   }
 
   window.openSubmitModal = async (hwId) => {
@@ -278,12 +280,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('submit-modal-attachment').innerHTML = h.attachmentUrl
       ? isAudio
         ? `<audio controls class="w-full mb-2" src="${escapeHtml(h.attachmentUrl)}"></audio>`
-        : `<a href="${escapeHtml(h.attachmentUrl)}" target="_blank" rel="noopener" class="text-xs font-semibold" style="color:var(--teal-600)">\u{1F4CE} ${escapeHtml(h.attachmentName || 'View attachment')}</a>`
+        : `<a href="${escapeHtml(h.attachmentUrl)}" target="_blank" rel="noopener" class="text-xs font-semibold" style="color:var(--teal-600)">\u{1F4CE} ${escapeHtml(h.attachmentName || 'عرض المرفق')}</a>`
       : '';
 
     const revisionNote = document.getElementById('submit-modal-revision-note');
     if (existing && existing.status === 'needs_revision' && existing.feedback) {
-      revisionNote.textContent = `Your teacher asked for a revision: ${existing.feedback}`;
+      revisionNote.textContent = `طلب معلمك إجراء مراجعة: ${existing.feedback}`;
       revisionNote.classList.remove('hidden');
     } else {
       revisionNote.classList.add('hidden');
@@ -303,7 +305,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let responseHtml;
         if (t.type === 'writing') {
           responseHtml = `
-            <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="task-rtl-${t.id}"> Right-to-left (Arabic)</label>
+            <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="task-rtl-${t.id}" checked> من اليمين إلى اليسار (عربي)</label>
             <div id="task-editor-${t.id}" data-writing-task="${t.id}"></div>`;
         } else if (t.type === 'quiz') {
           responseHtml = t.questions.map((q, qi) => `
@@ -319,10 +321,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>`).join('');
         } else {
           const mediaHtml = (t.mediaItems || []).map(renderMediaItem).join('');
-          responseHtml = `${mediaHtml}<textarea class="task-response w-full px-3 py-2 rounded-md border text-sm mt-2" data-task-id="${t.id}" data-task-type="media" rows="2" placeholder="Add a note (optional)">${escapeHtml(saved?.content || '')}</textarea>`;
+          responseHtml = `${mediaHtml}<textarea class="task-response w-full px-3 py-2 rounded-md border text-sm mt-2" data-task-id="${t.id}" data-task-type="media" rows="2" placeholder="أضف ملاحظة (اختياري)">${escapeHtml(saved?.content || '')}</textarea>`;
         }
         return `<div class="p-4 rounded-lg border" style="border-color:var(--border-default)">
-          <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--teal-600)">${escapeHtml(t.title || `Task ${ti + 1}`)}</p>
+          <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--teal-600)">${escapeHtml(t.title || `مهمة ${ti + 1}`)}</p>
           ${taskInstructions}
           ${responseHtml}
         </div>`;
@@ -351,12 +353,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       draftBtn.classList.remove('hidden');
       body.innerHTML = `
         <input id="submit-file" type="file" accept=".pdf,.doc,.docx,image/*,audio/*" class="w-full text-sm">
-        <p id="submit-file-status" class="text-xs mt-1" style="color:var(--text-secondary)">${existing?.attachmentName ? `Current: ${escapeHtml(existing.attachmentName)}` : ''}</p>
-        <textarea id="submit-content" rows="3" placeholder="Add a note (optional)" class="w-full px-4 py-3 rounded-md border text-sm mt-3" style="border-color:var(--border-default)">${escapeHtml(existing?.content || '')}</textarea>`;
+        <p id="submit-file-status" class="text-xs mt-1" style="color:var(--text-secondary)">${existing?.attachmentName ? `الحالي: ${escapeHtml(existing.attachmentName)}` : ''}</p>
+        <textarea id="submit-content" rows="3" placeholder="أضف ملاحظة (اختياري)" class="w-full px-4 py-3 rounded-md border text-sm mt-3" style="border-color:var(--border-default)">${escapeHtml(existing?.content || '')}</textarea>`;
     } else {
       draftBtn.classList.remove('hidden');
       body.innerHTML = `
-        <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="submit-content-rtl"> Right-to-left (Arabic)</label>
+        <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="submit-content-rtl" checked> من اليمين إلى اليسار (عربي)</label>
         <div id="submit-content-editor" data-writing-task="single"></div>`;
       initQuillEditor('submit-content-editor', 'submit-content-rtl', existing?.content || '');
     }
@@ -364,48 +366,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('submit-modal').classList.remove('hidden');
   };
   window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
-
-  async function renderAttendanceSummary() {
-    const el = document.getElementById('student-attendance-summary');
-    if (!el) return;
-    let records = [];
-    try { records = await EP.myAttendance(user.id); } catch (e) { console.warn('Could not load attendance:', e); }
-    if (!records.length) { el.innerHTML = `<p class="text-sm" style="color:var(--text-secondary)">No attendance recorded yet.</p>`; return; }
-    const counts = { present: 0, late: 0, absent: 0 };
-    records.forEach((r) => { counts[r.status] = (counts[r.status] || 0) + 1; });
-    const total = records.length;
-    const pct = Math.round((counts.present / total) * 100);
-    el.innerHTML = `
-      <div class="text-center"><p class="font-serif text-2xl font-bold" style="color:var(--navy-700)">${pct}%</p><p class="text-xs" style="color:var(--text-secondary)">present</p></div>
-      <div class="text-sm space-y-1" style="color:var(--text-secondary)">
-        <p><span class="font-semibold" style="color:var(--success-600)">${counts.present}</span> present</p>
-        <p><span class="font-semibold" style="color:var(--warning-600)">${counts.late}</span> late</p>
-        <p><span class="font-semibold" style="color:var(--danger-600)">${counts.absent}</span> absent</p>
-      </div>`;
-  }
-
-  async function renderStreak() {
-    const el = document.getElementById('student-streak-count');
-    if (!el) return;
-    const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
-    const mySubs = allSubs.filter(s => s.studentId === user.id);
-    // Exercises have no deadline, so this is a completion streak, not an
-    // on-time one: sort assigned homework newest-first (by when it was
-    // assigned) and count how many in a row, starting from the newest,
-    // the student has actually finished — breaks on the first one that's
-    // still unfinished.
-    const sorted = [...hw].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    let streak = 0;
-    for (const h of sorted) {
-      const sub = mySubs.find((s) => s.homeworkId === h.id);
-      // A draft has submittedAt set (it's really "last saved at") but isn't
-      // a finished submission, so it must not count toward the streak.
-      const isComplete = sub && sub.status !== 'draft' && sub.submittedAt;
-      if (isComplete) streak++;
-      else break;
-    }
-    el.textContent = String(streak);
-  }
 
   async function renderStudentAnnouncements() {
     const el = document.getElementById('student-announcements-list');
@@ -417,14 +377,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         <p class="font-semibold" style="color:var(--navy-700)">${escapeHtml(a.title)}</p>
         <p class="text-sm mt-1" style="color:var(--text-secondary)">${escapeHtml(a.body)}</p>
         <p class="text-xs mt-2" style="color:var(--text-disabled)">${EP.timeAgo(a.createdAt)}</p>
-      </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No announcements from your teacher yet.</p></div>`;
+      </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">لا توجد إعلانات من معلمك بعد.</p></div>`;
   }
 
   // ---- Classroom (PDFs / images / video & other links the teacher has
   // shared with this student's course — the learning hub) ----
+  // Files (pdf/image/link) and Videos are two separate sub-tabs, matching
+  // the teacher side, so a student browsing videos isn't scrolling past
+  // documents to find them.
   let classroomResourcesCache = [];
-  const SCLASS_TYPE_ICON = { pdf: 'file-text', image: 'image', video: 'youtube', link: 'link' };
-  const SCLASS_TYPE_LABEL = { pdf: 'PDF', image: 'Image', video: 'Video', link: 'Link' };
+  let classroomSubtab = 'files';
+  const SCLASS_TYPE_ICON = { pdf: 'file-text', image: 'image', link: 'link' };
+  const SCLASS_TYPE_LABEL = { pdf: 'PDF', image: 'صورة', link: 'رابط' };
 
   // Turns a YouTube watch/share/shorts URL into its embeddable form. Any
   // other video host's URL is passed straight into the iframe as-is, since
@@ -442,14 +406,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     return url;
   }
 
+  // Pulls the video id out of any common YouTube URL shape so the card can
+  // show its official thumbnail with no extra network call.
+  function youtubeThumbnail(url) {
+    try {
+      const u = new URL(url);
+      let id = null;
+      if (u.hostname.includes('youtu.be')) id = u.pathname.slice(1);
+      else if (u.hostname.includes('youtube.com')) {
+        if (u.pathname.startsWith('/shorts/')) id = u.pathname.split('/')[2];
+        else id = u.searchParams.get('v');
+      }
+      return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+    } catch (e) { return null; }
+  }
+
+  window.switchClassroomSubtab = (tab) => {
+    classroomSubtab = tab;
+    document.querySelectorAll('[data-classroom-subtab]').forEach((btn) => {
+      const active = btn.dataset.classroomSubtab === tab;
+      btn.style.background = active ? 'var(--teal-50)' : '';
+      btn.style.color = active ? 'var(--navy-700)' : 'var(--text-secondary)';
+    });
+    document.getElementById('classroom-files-panel').classList.toggle('hidden', tab !== 'files');
+    document.getElementById('classroom-videos-panel').classList.toggle('hidden', tab !== 'videos');
+    renderClassroomList();
+  };
+
   async function renderClassroom() {
-    const list = document.getElementById('classroom-resources-list');
+    const list = document.getElementById('classroom-files-list');
     if (!list) return; // classroom tab not present on this page
     try {
       classroomResourcesCache = await EP.classroomResourcesByCourse(user.courseId);
     } catch (err) {
       console.error('Could not load classroom resources:', err);
-      list.innerHTML = `<p class="text-sm col-span-full" style="color:var(--danger-600)">Could not load your classroom right now.</p>`;
+      list.innerHTML = `<p class="text-sm col-span-full" style="color:var(--danger-600)">تعذر تحميل الفصل الدراسي الآن.</p>`;
       return;
     }
     const catFilter = document.getElementById('sclass-category-filter');
@@ -460,19 +451,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (catFilter) {
       const cats = [...new Set(classroomResourcesCache.map(r => r.category))].sort();
       const current = catFilter.value;
-      catFilter.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+      catFilter.innerHTML = '<option value="">كل الفئات</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
       catFilter.value = current;
     }
     renderClassroomList();
   }
 
   function renderClassroomList() {
-    const list = document.getElementById('classroom-resources-list');
-    if (!list) return;
     const filterEl = document.getElementById('sclass-category-filter');
     const filter = filterEl ? filterEl.value : '';
-    const items = filter ? classroomResourcesCache.filter(r => r.category === filter) : classroomResourcesCache;
-    list.innerHTML = items.map(r => `
+    const scoped = filter ? classroomResourcesCache.filter(r => r.category === filter) : classroomResourcesCache;
+
+    const files = scoped.filter(r => r.type !== 'video');
+    document.getElementById('classroom-files-list').innerHTML = files.map(r => `
       <div class="card p-4">
         <div class="flex items-center gap-2">
           <i data-lucide="${SCLASS_TYPE_ICON[r.type]}" class="w-4 h-4 shrink-0" style="color:var(--teal-600)"></i>
@@ -485,13 +476,33 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span class="text-xs" style="color:var(--text-disabled)">${SCLASS_TYPE_LABEL[r.type]}</span>
         </div>
         ${r.type === 'pdf'
-          ? `<button onclick='openPdfViewer(${JSON.stringify(r.url)}, ${JSON.stringify(r.title)})' class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--teal-600)">View PDF <i data-lucide="eye" class="w-3 h-3"></i></button>`
-          : r.type === 'video'
-          ? `<button onclick='openVideoViewer(${JSON.stringify(r.url)}, ${JSON.stringify(r.title)})' class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--teal-600)">Watch <i data-lucide="play" class="w-3 h-3"></i></button>`
+          ? `<button onclick='openPdfViewer(${JSON.stringify(r.url)}, ${JSON.stringify(r.title)})' class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--teal-600)">عرض PDF <i data-lucide="eye" class="w-3 h-3"></i></button>`
           : r.type === 'image'
           ? ''
-          : `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener" class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--teal-600)">Open <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a>`}
-      </div>`).join('') || `<p class="text-sm col-span-full text-center py-10" style="color:var(--text-secondary)">Your teacher hasn’t shared anything here yet.</p>`;
+          : `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener" class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--teal-600)">فتح <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a>`}
+      </div>`).join('') || `<p class="text-sm col-span-full text-center py-10" style="color:var(--text-secondary)">لا توجد ملفات أو روابط مشتركة بعد.</p>`;
+
+    const videos = scoped.filter(r => r.type === 'video');
+    document.getElementById('classroom-videos-list').innerHTML = videos.map(r => {
+      const thumb = youtubeThumbnail(r.url);
+      return `
+      <div class="card overflow-hidden">
+        <div class="relative cursor-pointer" onclick='openVideoViewer(${JSON.stringify(r.url)}, ${JSON.stringify(r.title)})'>
+          ${thumb
+            ? `<img src="${thumb}" alt="${escapeHtml(r.title)}" class="w-full object-cover" style="aspect-ratio:16/9">`
+            : `<div class="w-full flex items-center justify-center" style="aspect-ratio:16/9; background:var(--bg-subtle)"><i data-lucide="youtube" class="w-8 h-8" style="color:var(--teal-600)"></i></div>`}
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:rgba(11,29,58,.6)"><i data-lucide="play" class="w-5 h-5 text-white"></i></div>
+          </div>
+        </div>
+        <div class="p-4">
+          <p class="font-semibold text-sm truncate" style="color:var(--navy-700)">${escapeHtml(r.title)}</p>
+          ${r.description ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">${escapeHtml(r.description)}</p>` : ''}
+          <span class="badge badge-info mt-3 inline-block">${escapeHtml(r.category)}</span>
+        </div>
+      </div>`;
+    }).join('') || `<p class="text-sm col-span-full text-center py-10" style="color:var(--text-secondary)">لا توجد مقاطع فيديو مشتركة بعد.</p>`;
+
     if (window.lucide) lucide.createIcons();
   }
 
@@ -509,11 +520,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function renderAll() {
     renderCourseInfo();
-    await Promise.all([renderEnrollmentBanner(), renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat(), renderAttendanceSummary(), renderStreak(), renderStudentAnnouncements(), renderClassroom()]);
+    await Promise.all([renderEnrollmentBanner(), renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat(), renderStudentAnnouncements(), renderClassroom()]);
     lucide.createIcons();
   }
   await renderAll();
-  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.notifications, EP.KEYS.messages, EP.KEYS.enrollments, EP.KEYS.attendance, EP.KEYS.announcements, EP.KEYS.classroomResources], renderAll);
+  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.notifications, EP.KEYS.messages, EP.KEYS.enrollments, EP.KEYS.announcements, EP.KEYS.classroomResources], renderAll);
 
   async function collectSubmissionPayload(hwId, isDraft = false) {
     const h = (await myHomework()).find(x => x.id === hwId);
@@ -526,11 +537,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const checked = document.querySelector(`input[name="task-${t.id}-q-${qi}"]:checked`);
             return checked ? parseInt(checked.value, 10) : -1;
           });
-          if (!isDraft && answers.some((a) => a === -1)) throw new Error(`Answer every question in "${t.title || 'the quiz task'}".`);
+          if (!isDraft && answers.some((a) => a === -1)) throw new Error(`أجب عن كل سؤال في "${t.title || 'مهمة الاختبار'}".`);
           taskResponses.push({ taskId: t.id, type: 'quiz', answers });
         } else if (t.type === 'writing') {
           const writingContent = quillHtml(`task-editor-${t.id}`);
-          if (!isDraft && !writingContent) throw new Error(`Write an answer for "${t.title || 'the writing task'}" before submitting.`);
+          if (!isDraft && !writingContent) throw new Error(`اكتب إجابة لـ "${t.title || 'مهمة الكتابة'}" قبل التسليم.`);
           taskResponses.push({ taskId: t.id, type: t.type, content: writingContent });
         } else {
           const textarea = document.querySelector(`.task-response[data-task-id="${t.id}"]`);
@@ -545,7 +556,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const checked = document.querySelector(`input[name="quiz-q-${qi}"]:checked`);
         return checked ? parseInt(checked.value, 10) : -1;
       });
-      if (answers.some((a) => a === -1)) throw new Error('Please answer every question.');
+      if (answers.some((a) => a === -1)) throw new Error('يرجى الإجابة عن كل سؤال.');
       return { answers };
     }
     if (h.submissionMode === 'file') {
@@ -554,16 +565,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       const file = fileInput?.files[0];
       if (file) {
         const statusEl = document.getElementById('submit-file-status');
-        statusEl.textContent = 'Uploading...';
+        statusEl.textContent = 'جارٍ الرفع...';
         const uploaded = await EP.uploadHomeworkFile(file);
         return { content, attachmentUrl: uploaded.url, attachmentName: uploaded.name };
       }
       const existing = await EP.submissionFor(hwId, user.id).catch(() => null);
-      if (!existing?.attachmentUrl && !content) throw new Error('Attach a file or add a note.');
+      if (!existing?.attachmentUrl && !content) throw new Error('أرفق ملفاً أو أضف ملاحظة.');
       return { content, attachmentUrl: existing?.attachmentUrl, attachmentName: existing?.attachmentName };
     }
     const finalContent = quillHtml('submit-content-editor');
-    if (!isDraft && !finalContent) throw new Error('Write your answer before submitting.');
+    if (!isDraft && !finalContent) throw new Error('اكتب إجابتك قبل التسليم.');
     return { content: finalContent };
   }
 
@@ -575,7 +586,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       await EP.submitHomework(hwId, user.id, payload);
       closeModal('submit-modal');
       await renderAll();
-      showToast('Submitted!');
+      showToast('تم التسليم!');
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
@@ -586,7 +597,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       await EP.saveDraft(hwId, user.id, payload);
       closeModal('submit-modal');
       await renderAll();
-      showToast('Draft saved — come back anytime to finish it');
+      showToast('تم حفظ المسودة — عد في أي وقت لإكمالها');
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
