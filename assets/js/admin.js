@@ -195,14 +195,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (usersFilterStatus === 'active') teachersAndStudents = teachersAndStudents.filter(u => !u.blockedAt);
     if (usersFilterStatus === 'blocked') teachersAndStudents = teachersAndStudents.filter(u => !!u.blockedAt);
     if (usersFilterBalance === 'owing') teachersAndStudents = teachersAndStudents.filter(u => (balances[u.id]?.balance || 0) > 0);
-    if (usersFilterBalance === 'settled') teachersAndStudents = teachersAndStudents.filter(u => (balances[u.id]?.balance || 0) <= 0);
+    if (usersFilterBalance === 'settled') teachersAndStudents = teachersAndStudents.filter(u => !!balances[u.id]?.hasEnrollment && (balances[u.id]?.balance || 0) <= 0);
+    if (usersFilterBalance === 'unenrolled') teachersAndStudents = teachersAndStudents.filter(u => u.role === 'student' && !balances[u.id]?.hasEnrollment);
 
     document.getElementById('admin-users-list').innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
       <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="text-left px-5 py-3 text-white font-semibold">Joined</th><th class="text-left px-5 py-3 text-white font-semibold">Balance</th><th class="text-left px-5 py-3 text-white font-semibold">Status</th><th class="px-5 py-3"></th></tr></thead><tbody>
       ${teachersAndStudents.map((u, i) => {
-        const bal = balances[u.id]?.balance || 0;
+        const balInfo = balances[u.id];
+        const bal = balInfo?.balance || 0;
         const balanceHtml = u.role === 'student'
-          ? (bal > 0 ? `<span class="badge badge-danger">${bal.toLocaleString()} MAD due</span>` : `<span class="badge badge-success">Paid up</span>`)
+          ? (!balInfo?.hasEnrollment
+              ? `<span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary)">Not enrolled</span>`
+              : bal > 0 ? `<span class="badge badge-danger">${bal.toLocaleString()} MAD due</span>` : `<span class="badge badge-success">Paid up</span>`)
           : `<span style="color:var(--text-disabled)">\u2014</span>`;
         return `<tr onclick="openUserDetailModal('${u.id}')" style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; cursor:pointer">
         <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(u.name)}</td>
@@ -259,6 +263,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Balance + full payment history from the real ledger — replaces the
     // old one-click "marked paid" flag, which recorded no amount at all.
     await renderUserDetailPayments(user.id);
+    const enrollBtn = document.getElementById('user-detail-enroll-btn');
+    if (user.role === 'student') {
+      const balances = await EP.studentBalances();
+      enrollBtn.classList.toggle('hidden', !!balances[user.id]?.hasEnrollment);
+    } else {
+      enrollBtn.classList.add('hidden');
+    }
 
     const blockedBanner = document.getElementById('user-detail-blocked-banner');
     const blockBtn = document.getElementById('user-detail-block-btn');
@@ -1215,6 +1226,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.openActivateModal = async (id, studentName, courseId, existingPrice, existingPaymentStatus) => {
     const isEdit = existingPrice !== undefined;
     document.getElementById('activate-enrollment-id').value = id;
+    document.getElementById('activate-student-id').value = '';
     document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(studentName)}</strong>`;
     document.getElementById('activate-enrollment-form').reset();
     document.querySelector('#activate-enrollment-modal p.font-serif').textContent = isEdit ? 'Edit Enrollment' : 'Activate Enrollment';
@@ -1229,6 +1241,31 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('activate-payment-status').value = existingPaymentStatus || 'unpaid';
     }
     document.getElementById('activate-cancel-link').classList.toggle('hidden', !isEdit);
+    document.getElementById('activate-enrollment-modal').classList.remove('hidden');
+  };
+
+  // For a student who has no enrollment record at all (typically one added
+  // directly via "Add User" rather than through the self-signup request
+  // flow) — reuses the same modal, but with no existing enrollment id to
+  // edit, so the submit handler below creates a fresh active enrollment
+  // instead of updating one.
+  window.openEnrollStudentModal = async (studentId) => {
+    let user;
+    try { user = await EP.userById(studentId); } catch (err) { showToast(err.message, 'danger'); return; }
+    if (!user) { showToast('Could not find that user', 'danger'); return; }
+    document.getElementById('activate-enrollment-id').value = '';
+    document.getElementById('activate-student-id').value = studentId;
+    document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(user.name)}</strong> has no enrollment yet — create one to bill and give course access.`;
+    document.getElementById('activate-enrollment-form').reset();
+    document.querySelector('#activate-enrollment-modal p.font-serif').textContent = 'Enroll Student';
+    document.querySelector('#activate-enrollment-form button[type="submit"]').textContent = 'Create Enrollment';
+    const courseSelect = document.getElementById('activate-course');
+    const courseList = await EP.courses();
+    courseSelect.innerHTML = courseList.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+    document.getElementById('activate-course-hint').classList.toggle('hidden', !!user.courseId);
+    if (user.courseId) courseSelect.value = user.courseId;
+    document.getElementById('activate-payment-status').value = 'unpaid';
+    document.getElementById('activate-cancel-link').classList.add('hidden');
     document.getElementById('activate-enrollment-modal').classList.remove('hidden');
   };
   document.getElementById('activate-cancel-link').addEventListener('click', async () => {
@@ -1248,15 +1285,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   document.getElementById('activate-enrollment-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const enrollmentId = document.getElementById('activate-enrollment-id').value;
+    const studentId = document.getElementById('activate-student-id').value;
     try {
-      await EP.activateEnrollment(document.getElementById('activate-enrollment-id').value, {
-        priceMad: document.getElementById('activate-price').value,
-        paymentStatus: document.getElementById('activate-payment-status').value,
-        courseId: document.getElementById('activate-course').value,
-      });
+      if (enrollmentId) {
+        await EP.activateEnrollment(enrollmentId, {
+          priceMad: document.getElementById('activate-price').value,
+          paymentStatus: document.getElementById('activate-payment-status').value,
+          courseId: document.getElementById('activate-course').value,
+        });
+      } else if (studentId) {
+        await EP.adminEnrollStudent({
+          studentId,
+          courseId: document.getElementById('activate-course').value,
+          priceMad: document.getElementById('activate-price').value,
+          paymentStatus: document.getElementById('activate-payment-status').value,
+        });
+      } else {
+        throw new Error('Missing enrollment or student reference.');
+      }
       document.getElementById('activate-enrollment-modal').classList.add('hidden');
-      await renderEnrollments();
-      showToast('Enrollment activated \u2014 student now has course access');
+      closeModal('user-detail-modal');
+      await Promise.all([renderEnrollments(), refreshFinanceViews()]);
+      showToast(enrollmentId ? 'Enrollment activated \u2014 student now has course access' : 'Student enrolled \u2014 they now have course access and appear on Enrollments');
     } catch (err) { showToast(err.message, 'danger'); }
   });
   await renderEnrollments();

@@ -147,6 +147,20 @@ const EP = (() => {
     const { error } = await client.from('enrollments').update(update).eq('id', id);
     if (error) throw error;
   }
+  // For a student who never went through the self-signup request flow (an
+  // admin-created login, for instance) — creates their enrollment straight
+  // at 'active' instead of requiring a 'pending' row to approve first. This
+  // is the only way such a student can ever appear on the Enrollments tab
+  // or be billed at all; without it they're a profile with no invoice.
+  async function adminEnrollStudent({ studentId, courseId, priceMad, paymentStatus }) {
+    const client = await db();
+    const { error } = await client.from('enrollments').insert({
+      student_id: studentId, course_id: courseId, status: 'active',
+      price_mad: priceMad || null, payment_status: paymentStatus || 'unpaid',
+      activated_at: new Date().toISOString(),
+    });
+    if (error) throw error;
+  }
   async function rejectEnrollment(id) {
     const client = await db();
     const { error } = await client.from('enrollments').update({ status: 'cancelled' }).eq('id', id);
@@ -421,7 +435,9 @@ const EP = (() => {
   async function studentBalances() {
     const [allEnr, allPay] = await Promise.all([allEnrollments(), payments()]);
     const invoicedByStudent = {};
+    const enrolledStudentIds = new Set();
     allEnr.forEach((e) => {
+      enrolledStudentIds.add(e.studentId);
       if ((e.status === 'active' || e.status === 'completed') && e.paymentStatus !== 'waived' && e.priceMad) {
         invoicedByStudent[e.studentId] = (invoicedByStudent[e.studentId] || 0) + Number(e.priceMad);
       }
@@ -430,12 +446,15 @@ const EP = (() => {
     allPay.forEach((p) => {
       if (!p.voidedAt) paidByStudent[p.studentId] = (paidByStudent[p.studentId] || 0) + p.amount;
     });
-    const studentIds = new Set([...Object.keys(invoicedByStudent), ...Object.keys(paidByStudent)]);
+    const studentIds = new Set([...Object.keys(invoicedByStudent), ...Object.keys(paidByStudent), ...enrolledStudentIds]);
     const result = {};
     studentIds.forEach((id) => {
       const invoiced = invoicedByStudent[id] || 0;
       const paid = paidByStudent[id] || 0;
-      result[id] = { invoiced, paid, balance: invoiced - paid };
+      // hasEnrollment distinguishes "no enrollment record at all" (a student
+      // created directly via Add User, never billed) from "fully paid" —
+      // both have balance 0, but only one should ever read as "Paid up".
+      result[id] = { invoiced, paid, balance: invoiced - paid, hasEnrollment: enrolledStudentIds.has(id) };
     });
     return result;
   }
@@ -1061,6 +1080,6 @@ const EP = (() => {
     legacyPaymentFlagsNeedingReview, studentBalances,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
     groupMessages, sendGroupMessage, reportPost, reportsForGroup, dismissReport,
-    ensurePendingEnrollment, requestEnrollment, myEnrollments, cancelEnrollment, allEnrollments, activateEnrollment, rejectEnrollment, revertEnrollment,
+    ensurePendingEnrollment, requestEnrollment, myEnrollments, cancelEnrollment, allEnrollments, activateEnrollment, adminEnrollStudent, rejectEnrollment, revertEnrollment,
   };
 })();

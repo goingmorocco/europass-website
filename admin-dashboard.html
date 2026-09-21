@@ -495,6 +495,7 @@
       <option value="">All Balances</option>
       <option value="owing">Owes money</option>
       <option value="settled">Paid up</option>
+      <option value="unenrolled">Not enrolled</option>
     </select>
   </div>
   <div id="admin-users-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
@@ -534,7 +535,10 @@
     <div class="border-t mt-5 pt-5" style="border-color:var(--border-default)">
       <div class="flex items-center justify-between mb-3">
         <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Balance</p>
-        <button onclick="openPaymentModal({ studentId: currentUserDetailId })" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Record Payment</button>
+        <div class="flex gap-2">
+          <button id="user-detail-enroll-btn" onclick="openEnrollStudentModal(currentUserDetailId)" class="btn btn-secondary btn-sm hidden"><i data-lucide="graduation-cap" class="w-4 h-4 mr-1"></i> Enroll Student</button>
+          <button onclick="openPaymentModal({ studentId: currentUserDetailId })" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Record Payment</button>
+        </div>
       </div>
       <div id="user-detail-balance" class="p-3 rounded-lg text-sm mb-3" style="background:var(--bg-subtle)">—</div>
       <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--text-secondary)">Payment History</p>
@@ -764,6 +768,7 @@
     <div id="activate-modal-summary" class="text-sm mb-4 p-3 rounded-lg" style="background:var(--bg-subtle); color:var(--text-secondary)"></div>
     <form id="activate-enrollment-form" class="space-y-4">
       <input type="hidden" id="activate-enrollment-id">
+      <input type="hidden" id="activate-student-id">
       <div>
         <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course</label>
         <select id="activate-course" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
