@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (usersFilterBalance === 'unenrolled') teachersAndStudents = teachersAndStudents.filter(u => u.role === 'student' && !balances[u.id]?.hasEnrollment);
 
     document.getElementById('admin-users-list').innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
-      <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="text-left px-5 py-3 text-white font-semibold">Joined</th><th class="text-left px-5 py-3 text-white font-semibold">Balance</th><th class="text-left px-5 py-3 text-white font-semibold">Status</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="text-left px-5 py-3 text-white font-semibold">Joined</th><th class="text-left px-5 py-3 text-white font-semibold">Balance</th><th class="text-left px-5 py-3 text-white font-semibold">Next Payment</th><th class="text-left px-5 py-3 text-white font-semibold">Status</th><th class="px-5 py-3"></th></tr></thead><tbody>
       ${teachersAndStudents.map((u, i) => {
         const balInfo = balances[u.id];
         const bal = balInfo?.balance || 0;
@@ -208,6 +208,13 @@ document.addEventListener('DOMContentLoaded', async () => {
               ? `<span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary)">Not enrolled</span>`
               : bal > 0 ? `<span class="badge badge-danger">${bal.toLocaleString()} MAD due</span>` : `<span class="badge badge-success">Paid up</span>`)
           : `<span style="color:var(--text-disabled)">\u2014</span>`;
+        let nextPaymentHtml = `<span style="color:var(--text-disabled)">\u2014</span>`;
+        if (u.role === 'student' && balInfo?.nextPaymentDueAt) {
+          const due = new Date(balInfo.nextPaymentDueAt);
+          const days = Math.ceil((due - new Date()) / (1000 * 60 * 60 * 24));
+          const isUrgent = days <= 7;
+          nextPaymentHtml = `<span style="color:${isUrgent ? 'var(--danger-600)' : 'var(--text-secondary)'}; font-weight:${isUrgent ? '600' : '400'}">${due.toLocaleDateString()}${days < 0 ? ' (overdue)' : ''}</span>`;
+        }
         return `<tr onclick="openUserDetailModal('${u.id}')" style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; cursor:pointer">
         <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(u.name)}</td>
         <td class="px-5 py-3"><span class="badge ${u.role === 'teacher' ? 'badge-info' : 'badge-amber'}">${u.role}</span></td>
@@ -216,10 +223,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td class="px-5 py-3" style="color:var(--text-secondary)" dir="ltr">${escapeHtml(u.phone || '\u2014')}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '\u2014'}</td>
         <td class="px-5 py-3">${balanceHtml}</td>
+        <td class="px-5 py-3">${nextPaymentHtml}</td>
         <td class="px-5 py-3">${u.blockedAt ? '<span class="badge badge-danger">Blocked</span>' : '<span class="badge badge-success">Active</span>'}</td>
         <td class="px-5 py-3 text-right"><button onclick="event.stopPropagation(); removeUserConfirm('${u.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Remove</button></td>
       </tr>`;
-      }).join('') || `<tr><td colspan="9" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No users match these filters.</td></tr>`}
+      }).join('') || `<tr><td colspan="10" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No users match these filters.</td></tr>`}
     </tbody></table>`;
   }
 
@@ -322,12 +330,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const balanceEl = document.getElementById('user-detail-balance');
     const listEl = document.getElementById('user-detail-payments-list');
     const [balances, allPayments] = await Promise.all([EP.studentBalances(), EP.payments()]);
-    const bal = balances[userId] || { invoiced: 0, paid: 0, balance: 0 };
-    balanceEl.innerHTML = bal.balance > 0
+    const bal = balances[userId] || { invoiced: 0, paid: 0, balance: 0, nextPaymentDueAt: null };
+    let dueLine = '';
+    if (bal.balance > 0 && bal.nextPaymentDueAt) {
+      const due = new Date(bal.nextPaymentDueAt);
+      const days = Math.ceil((due - new Date()) / (1000 * 60 * 60 * 24));
+      const isUrgent = days <= 7;
+      const label = days < 0 ? `overdue by ${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'}` : `due ${due.toLocaleDateString()}`;
+      dueLine = `<div class="text-xs mt-1" style="color:${isUrgent ? 'var(--danger-600)' : 'var(--text-secondary)'}; font-weight:${isUrgent ? '600' : '400'}">Next payment ${label}</div>`;
+    }
+    balanceEl.innerHTML = (bal.balance > 0
       ? `<span class="font-semibold" style="color:var(--danger-600)">${bal.balance.toLocaleString()} MAD still owed</span> <span style="color:var(--text-secondary)">(${bal.paid.toLocaleString()} of ${bal.invoiced.toLocaleString()} MAD paid)</span>`
       : bal.invoiced > 0
         ? `<span class="font-semibold" style="color:var(--success-600)">Paid up</span> <span style="color:var(--text-secondary)">(${bal.paid.toLocaleString()} of ${bal.invoiced.toLocaleString()} MAD)</span>`
-        : `<span style="color:var(--text-secondary)">No priced enrollment on file yet.</span>`;
+        : `<span style="color:var(--text-secondary)">No priced enrollment on file yet.</span>`) + dueLine;
 
     const mine = allPayments.filter((p) => p.studentId === userId);
     listEl.innerHTML = mine.map((p) => `
@@ -1172,12 +1188,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
   async function renderEnrollments() {
-    const [all, courseList, roster] = await Promise.all([EP.allEnrollments(), EP.courses(), EP.users()]);
+    const [all, courseList, roster, balances] = await Promise.all([EP.allEnrollments(), EP.courses(), EP.users(), EP.studentBalances()]);
     const courseById = Object.fromEntries(courseList.map(c => [c.id, c.name]));
     const userById2 = Object.fromEntries(roster.map(u => [u.id, u.name]));
+    const listEl = document.getElementById('admin-enrollments-list');
+
+    // "No Enrollment" isn't a status on any enrollment row \u2014 it's students
+    // with zero rows at all (e.g. added directly via Add User, or who
+    // signed up but haven't logged in since \u2014 see login()/
+    // ensurePendingEnrollment). They'd otherwise never appear on this page,
+    // which is exactly why they were invisible here before.
+    if (enrollmentFilter === 'unenrolled') {
+      const unenrolled = roster.filter(u => u.role === 'student' && !balances[u.id]?.hasEnrollment);
+      listEl.innerHTML = unenrolled.map(u => `
+        <div class="card p-5 flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-1"><span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary)">No enrollment</span></div>
+            <p class="font-semibold truncate" style="color:var(--navy-700)"><a href="#" onclick="event.preventDefault(); openUserDetailModal('${u.id}')" class="hover:underline">${escapeHtml(u.name)}</a></p>
+            <p class="text-xs mt-1" style="color:var(--text-secondary)">${escapeHtml(u.email || 'No email on file')}</p>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button onclick="openEnrollStudentModal('${u.id}')" class="btn btn-primary btn-sm">Enroll</button>
+          </div>
+        </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">Every student has an enrollment record.</p></div>`;
+      return;
+    }
+
     const filtered = enrollmentFilter === 'all' ? all : all.filter(e => e.status === enrollmentFilter);
     const statusBadge = { pending: 'badge-warning', active: 'badge-success', completed: 'badge-info', cancelled: 'badge-danger' };
-    document.getElementById('admin-enrollments-list').innerHTML = filtered.map(e => `
+    const now = new Date();
+    document.getElementById('admin-enrollments-list').innerHTML = filtered.map(e => {
+      const bal = balances[e.studentId]?.balance || 0;
+      let dueHtml = '';
+      if (e.status === 'active' && e.paymentDueAt && bal > 0) {
+        const due = new Date(e.paymentDueAt);
+        const days = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
+        const isUrgent = days <= 7;
+        const dueLabel = days < 0 ? `overdue since ${due.toLocaleDateString()}` : `due ${due.toLocaleDateString()}`;
+        dueHtml = ` \u00b7 <span style="color:${isUrgent ? 'var(--danger-600)' : 'var(--text-secondary)'}; font-weight:${isUrgent ? '600' : '400'}">payment ${dueLabel}</span>`;
+      }
+      return `
       <div class="card p-5 flex items-center justify-between gap-4">
         <div class="min-w-0">
           <div class="flex items-center gap-2 mb-1">
@@ -1186,7 +1236,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${!e.courseId ? `<span class="badge badge-warning">Course undecided</span>` : ''}
           </div>
           <p class="font-semibold truncate" style="color:var(--navy-700)"><a href="#" onclick="event.preventDefault(); openUserDetailModal('${e.studentId}')" class="hover:underline">${escapeHtml(userById2[e.studentId] || 'Unknown student')}</a> \u2192 ${e.courseId ? escapeHtml(courseById[e.courseId] || 'Unknown course') : 'Not yet decided'}</p>
-          <p class="text-xs mt-1" style="color:var(--text-secondary)">Requested ${EP.timeAgo(e.requestedAt)}${e.priceMad ? ` \u00b7 ${e.priceMad} MAD` : ''}</p>
+          <p class="text-xs mt-1" style="color:var(--text-secondary)">Requested ${EP.timeAgo(e.requestedAt)}${e.priceMad ? ` \u00b7 ${e.priceMad} MAD` : ''}${dueHtml}</p>
         </div>
         ${e.status === 'pending' ? `
         <div class="flex gap-2 shrink-0">
@@ -1201,7 +1251,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="flex gap-2 shrink-0">
           <button onclick="revertEnrollmentConfirm('${e.id}')" class="btn btn-secondary btn-sm">Reinstate</button>
         </div>` : ''}
-      </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No ${enrollmentFilter === 'all' ? '' : enrollmentFilter + ' '}enrollments.</p></div>`;
+      </div>`;
+    }).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No ${enrollmentFilter === 'all' ? '' : enrollmentFilter + ' '}enrollments.</p></div>`;
   }
   window.revertEnrollmentConfirm = async (id) => {
     if (!confirm('Move this enrollment back to Pending? You\'ll be able to approve it again from the Pending list.')) return;

@@ -447,10 +447,19 @@ const EP = (() => {
     const [allEnr, allPay] = await Promise.all([allEnrollments(), payments()]);
     const invoicedByStudent = {};
     const enrolledStudentIds = new Set();
+    const dueByStudent = {};
     allEnr.forEach((e) => {
       enrolledStudentIds.add(e.studentId);
       if ((e.status === 'active' || e.status === 'completed') && e.paymentStatus !== 'waived' && e.priceMad) {
         invoicedByStudent[e.studentId] = (invoicedByStudent[e.studentId] || 0) + Number(e.priceMad);
+      }
+      // Soonest upcoming due date across a student's active enrollments —
+      // this is what the Users table's "Next Payment" column and the
+      // student's own dashboard countdown are both built from.
+      if (e.status === 'active' && e.paymentDueAt && e.paymentStatus !== 'paid' && e.paymentStatus !== 'waived') {
+        if (!dueByStudent[e.studentId] || new Date(e.paymentDueAt) < new Date(dueByStudent[e.studentId])) {
+          dueByStudent[e.studentId] = e.paymentDueAt;
+        }
       }
     });
     const paidByStudent = {};
@@ -465,7 +474,11 @@ const EP = (() => {
       // hasEnrollment distinguishes "no enrollment record at all" (a student
       // created directly via Add User, never billed) from "fully paid" —
       // both have balance 0, but only one should ever read as "Paid up".
-      result[id] = { invoiced, paid, balance: invoiced - paid, hasEnrollment: enrolledStudentIds.has(id) };
+      result[id] = {
+        invoiced, paid, balance: invoiced - paid, hasEnrollment: enrolledStudentIds.has(id),
+        // Only meaningful once there's actually something left to pay.
+        nextPaymentDueAt: (invoiced - paid) > 0 ? (dueByStudent[id] || null) : null,
+      };
     });
     return result;
   }

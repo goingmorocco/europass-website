@@ -97,6 +97,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     catch (err) { showToast(err.message, 'danger'); }
   };
 
+  // A simple countdown to the next payment due date, read straight off the
+  // student's own active enrollment row (readable under their own RLS
+  // policy) rather than the payments ledger, which only admins can query.
+  // Turns red inside the last week, exactly like the admin-side views.
+  async function renderPaymentDue() {
+    const el = document.getElementById('student-payment-due-banner');
+    if (!el) return;
+    const enrollments = await EP.myEnrollments(user.id).catch(() => []);
+    const mine = enrollments.find((e) => (e.status === 'active' || e.status === 'completed')
+      && e.paymentDueAt && e.paymentStatus !== 'paid' && e.paymentStatus !== 'waived');
+    if (!mine) { el.innerHTML = ''; return; }
+    const due = new Date(mine.paymentDueAt);
+    const days = Math.ceil((due - new Date()) / (1000 * 60 * 60 * 24));
+    const isUrgent = days <= 7; // includes overdue (negative days)
+    const label = days < 0
+      ? `Payment overdue by ${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'}`
+      : days === 0
+        ? 'Payment due today'
+        : `Payment due in ${days} day${days === 1 ? '' : 's'}`;
+    el.innerHTML = `
+      <div class="card p-4 flex items-center gap-3" style="background:${isUrgent ? 'var(--danger-50)' : 'var(--bg-subtle)'}; border-color:${isUrgent ? 'var(--danger-600)' : 'var(--border-default)'}">
+        <i data-lucide="calendar-clock" class="w-5 h-5 shrink-0" style="color:${isUrgent ? 'var(--danger-600)' : 'var(--text-secondary)'}"></i>
+        <p class="text-sm" style="color:${isUrgent ? 'var(--danger-600)' : 'var(--text-primary)'}"><span class="font-semibold">${label}</span> — ${due.toLocaleDateString()}</p>
+      </div>`;
+  }
+
   async function renderProgress() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
     const mySubs = allSubs.filter(s => s.studentId === user.id);
@@ -539,7 +565,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function renderAll() {
     renderCourseInfo();
-    await Promise.all([renderEnrollmentBanner(), renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat(), renderStudentAnnouncements(), renderClassroom(), renderMessagesDot()]);
+    await Promise.all([renderEnrollmentBanner(), renderPaymentDue(), renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat(), renderStudentAnnouncements(), renderClassroom(), renderMessagesDot()]);
     lucide.createIcons();
   }
   await renderAll();
