@@ -140,10 +140,11 @@ const EP = (() => {
     if (error) throw error;
     return data.map(mapEnrollment);
   }
-  async function activateEnrollment(id, { priceMad, paymentStatus, courseId }) {
+  async function activateEnrollment(id, { priceMad, paymentStatus, courseId, paymentDueAt }) {
     const client = await db();
     const update = { status: 'active', price_mad: priceMad || null, payment_status: paymentStatus };
     if (courseId) update.course_id = courseId;
+    if (paymentDueAt !== undefined) update.payment_due_at = paymentDueAt || null;
     const { error } = await client.from('enrollments').update(update).eq('id', id);
     if (error) throw error;
   }
@@ -152,11 +153,12 @@ const EP = (() => {
   // at 'active' instead of requiring a 'pending' row to approve first. This
   // is the only way such a student can ever appear on the Enrollments tab
   // or be billed at all; without it they're a profile with no invoice.
-  async function adminEnrollStudent({ studentId, courseId, priceMad, paymentStatus }) {
+  async function adminEnrollStudent({ studentId, courseId, priceMad, paymentStatus, paymentDueAt }) {
     const client = await db();
     const { error } = await client.from('enrollments').insert({
       student_id: studentId, course_id: courseId, status: 'active',
       price_mad: priceMad || null, payment_status: paymentStatus || 'unpaid',
+      payment_due_at: paymentDueAt || null,
       activated_at: new Date().toISOString(),
     });
     if (error) throw error;
@@ -176,7 +178,7 @@ const EP = (() => {
     if (error) throw error;
   }
   function mapEnrollment(e) {
-    return { id: e.id, studentId: e.student_id, courseId: e.course_id, status: e.status, paymentStatus: e.payment_status, priceMad: e.price_mad, requestedAt: e.requested_at, activatedAt: e.activated_at };
+    return { id: e.id, studentId: e.student_id, courseId: e.course_id, status: e.status, paymentStatus: e.payment_status, priceMad: e.price_mad, requestedAt: e.requested_at, activatedAt: e.activated_at, paymentDueAt: e.payment_due_at };
   }
 
   async function logout() {
@@ -457,6 +459,22 @@ const EP = (() => {
       result[id] = { invoiced, paid, balance: invoiced - paid, hasEnrollment: enrolledStudentIds.has(id) };
     });
     return result;
+  }
+
+  // Enrollments with a payment_due_at inside the next `daysAhead` days (or
+  // already overdue) on a student who still has an outstanding balance —
+  // this is what the "Payment Due Soon" panel and the one-click reminder
+  // email/WhatsApp buttons are built from. A due date on a fully-settled
+  // enrollment (balance <= 0) never appears here, even if it's in the past.
+  async function upcomingPaymentsDue(daysAhead = 7) {
+    const [allEnr, balances] = await Promise.all([allEnrollments(), studentBalances()]);
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() + daysAhead);
+    return allEnr
+      .filter((e) => e.paymentDueAt && (e.status === 'active' || e.status === 'completed'))
+      .filter((e) => new Date(e.paymentDueAt) <= cutoff)
+      .filter((e) => (balances[e.studentId]?.balance || 0) > 0)
+      .sort((a, b) => new Date(a.paymentDueAt) - new Date(b.paymentDueAt));
   }
 
   // ---- Blog posts ----
@@ -1077,7 +1095,7 @@ const EP = (() => {
     messagesFor, sendMessage, unreadMessages, markMessagesRead, onChange,
     payments, addPayment, updatePayment, voidPayment, unvoidPayment,
     expenses, addExpense, updateExpense, voidExpense, unvoidExpense,
-    legacyPaymentFlagsNeedingReview, studentBalances,
+    legacyPaymentFlagsNeedingReview, studentBalances, upcomingPaymentsDue,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
     groupMessages, sendGroupMessage, reportPost, reportsForGroup, dismissReport,
     ensurePendingEnrollment, requestEnrollment, myEnrollments, cancelEnrollment, allEnrollments, activateEnrollment, adminEnrollStudent, rejectEnrollment, revertEnrollment,

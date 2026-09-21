@@ -216,6 +216,12 @@
     </div>
   </div>
 
+  <div id="payment-due-panel" class="hidden card p-5 mb-6" style="background:var(--danger-50); border-color:var(--danger-600)">
+    <p class="font-semibold text-sm mb-1" style="color:var(--danger-600)"><i data-lucide="bell-ring" class="w-4 h-4 inline align-text-bottom mr-1"></i> Payment Due Soon</p>
+    <p class="text-xs mb-3" style="color:var(--text-secondary)">Due within a week (or already overdue) with a balance still owed — reach out before it's late.</p>
+    <div id="payment-due-list" class="space-y-2"></div>
+  </div>
+
   <div id="finance-review-panel" class="hidden card p-5 mb-6" style="background:var(--amber-100); border-color:var(--amber-600)">
     <p class="font-semibold text-sm mb-1" style="color:var(--amber-600)"><i data-lucide="alert-triangle" class="w-4 h-4 inline align-text-bottom mr-1"></i> Needs review</p>
     <p class="text-xs mb-3" style="color:var(--text-secondary)">These students were marked paid the old way, before amounts were tracked — add the real payment so they count correctly.</p>
@@ -283,18 +289,6 @@
     <div class="card p-5">
       <p class="font-semibold mb-4" style="color:var(--navy-700)">Expenses by Category</p>
       <canvas id="analytics-chart-expenses" height="220"></canvas>
-    </div>
-    <div class="card p-5">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">Enrollments Over Time</p>
-      <canvas id="analytics-chart-enrollments" height="220"></canvas>
-    </div>
-    <div class="card p-5">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">Enrollment Status</p>
-      <canvas id="analytics-chart-status" height="220"></canvas>
-    </div>
-    <div class="card p-5 lg:col-span-2">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">Most Popular Programs</p>
-      <canvas id="analytics-chart-programs" height="200"></canvas>
     </div>
   </div>
 
@@ -785,6 +779,11 @@
           <option value="unpaid">Unpaid — activate anyway</option>
           <option value="waived">Waived (scholarship / free)</option>
         </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Payment due date <span class="font-normal" style="color:var(--text-disabled)">(optional)</span></label>
+        <input id="activate-payment-due" type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <p class="text-xs mt-1" style="color:var(--text-disabled)">When set, this student shows up under "Payment Due Soon" a week ahead of this date, until they're fully paid.</p>
       </div>
       <button type="submit" class="btn btn-primary w-full">Activate Enrollment</button>
       <button type="button" id="activate-cancel-link" class="hidden text-xs font-semibold w-full text-center" style="color:var(--danger-600)">Cancel This Enrollment</button>

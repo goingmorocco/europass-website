@@ -690,7 +690,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // reasoning as the resources-cache fix from earlier in this project —
   // renderAll() calls renderAnalytics() immediately, and a `let` binding
   // isn't accessible until its own declaration line has actually executed.
-  let chartEnrollments = null, chartStatus = null, chartPrograms = null, chartRevenue = null, chartExpenses = null;
+  let chartRevenue = null, chartExpenses = null;
   let analyticsSelectedYear = new Date().getFullYear();
 
   // ---- Ledger table filter state (Payments + Expenses, on Analytics) ----
@@ -739,10 +739,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function renderAnalytics() {
-    if (!document.getElementById('analytics-chart-enrollments') || !window.Chart) return;
-    const [allEnr, courseList, allPayments, allExpenses, balances, needsReview] = await Promise.all([
-      EP.allEnrollments(), EP.courses(), EP.payments(), EP.expenses(), EP.studentBalances(), EP.legacyPaymentFlagsNeedingReview(),
+    if (!document.getElementById('analytics-chart-revenue') || !window.Chart) return;
+    const [allEnr, allPayments, allExpenses, balances, needsReview, upcomingDue, roster] = await Promise.all([
+      EP.allEnrollments(), EP.payments(), EP.expenses(), EP.studentBalances(), EP.legacyPaymentFlagsNeedingReview(), EP.upcomingPaymentsDue(7), EP.users(),
     ]);
+    const userById3 = Object.fromEntries(roster.map((u) => [u.id, u]));
     const livePayments = allPayments.filter((p) => !p.voidedAt);
     const liveExpenses = allExpenses.filter((x) => !x.voidedAt);
 
@@ -771,6 +772,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('analytics-receivable').textContent = receivableTotal.toLocaleString() + ' MAD';
     document.getElementById('analytics-active-students').textContent = String(active.length);
     document.getElementById('analytics-conversion').textContent = allEnr.length ? Math.round((active.length / allEnr.length) * 100) + '%' : '\u2014';
+
+    // "Payment Due Soon" -- enrollments with a due date within the next
+    // week (or overdue) and a balance still owed. Email/WhatsApp buttons
+    // reuse the same mailto:/wa.me pattern as the User Details modal —
+    // there's no automated email-sending set up, so this is the one-click
+    // way to actually reach out.
+    const duePanel = document.getElementById('payment-due-panel');
+    if (upcomingDue.length) {
+      duePanel.classList.remove('hidden');
+      document.getElementById('payment-due-list').innerHTML = upcomingDue.map((e) => {
+        const student = userById3[e.studentId];
+        const name = student?.name || 'Unknown student';
+        const bal = balances[e.studentId]?.balance || 0;
+        const due = new Date(e.paymentDueAt);
+        const isOverdue = due < now;
+        const dueLabel = isOverdue ? `overdue since ${due.toLocaleDateString()}` : `due ${due.toLocaleDateString()}`;
+        const subject = encodeURIComponent('EuroPass Academy — payment reminder');
+        const body = encodeURIComponent(`Hi ${name},\n\nThis is a friendly reminder that your payment of ${bal.toLocaleString()} MAD is ${dueLabel}. Please let us know if you have any questions.\n\nThank you,\nEuroPass Academy`);
+        const mailLink = student?.email ? `<a href="mailto:${student.email}?subject=${subject}&body=${body}" class="btn btn-secondary btn-sm shrink-0"><i data-lucide="mail" class="w-3.5 h-3.5 mr-1"></i> Email</a>` : '';
+        return `<div class="flex items-center justify-between gap-3 p-2 rounded-md" style="background:#fff">
+          <span class="text-sm min-w-0"><a href="#" onclick="event.preventDefault(); openUserDetailModal('${e.studentId}')" class="hover:underline font-medium" style="color:var(--navy-700)">${escapeHtml(name)}</a> — <span style="color:${isOverdue ? 'var(--danger-600)' : 'var(--text-secondary)'}">${bal.toLocaleString()} MAD ${dueLabel}</span></span>
+          <div class="flex gap-2 shrink-0">${mailLink}</div>
+        </div>`;
+      }).join('');
+    } else {
+      duePanel.classList.add('hidden');
+    }
 
     // "Needs review" -- legacy marked-paid flags with no ledger payment.
     const reviewPanel = document.getElementById('finance-review-panel');
@@ -813,29 +841,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     liveExpenses.forEach((x) => { expenseByCategory[x.category] = (expenseByCategory[x.category] || 0) + x.amount; });
     const expenseEntries = Object.entries(expenseByCategory).sort((a, b) => b[1] - a[1]);
 
-    // Enrollments over time — group by month of request
-    const byMonth = {};
-    allEnr.forEach((e) => {
-      const d = new Date(e.requestedAt);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      byMonth[key] = (byMonth[key] || 0) + 1;
-    });
-    const monthKeys = Object.keys(byMonth).sort();
-    const monthLabels = monthKeys.map((k) => new Date(k + '-01').toLocaleDateString(undefined, { month: 'short', year: '2-digit' }));
-
-    // Status breakdown
-    const statusCounts = { pending: 0, active: 0, completed: 0, cancelled: 0 };
-    allEnr.forEach((e) => { statusCounts[e.status] = (statusCounts[e.status] || 0) + 1; });
-
-    // Popular programs
-    const courseById = Object.fromEntries(courseList.map((c) => [c.id, c.name]));
-    const programCounts = {};
-    allEnr.forEach((e) => {
-      const name = e.courseId ? (courseById[e.courseId] || 'Unknown') : 'Undecided';
-      programCounts[name] = (programCounts[name] || 0) + 1;
-    });
-    const programEntries = Object.entries(programCounts).sort((a, b) => b[1] - a[1]);
-
     const navy = '#0B1D3A', red = '#DC2626', teal = '#0D9488', amber = '#C77D14', grey = '#94A3B8';
 
     if (chartRevenue) chartRevenue.destroy();
@@ -851,27 +856,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       data: { labels: expenseEntries.map((e) => e[0]), datasets: [{ data: expenseEntries.map((e) => e[1]), backgroundColor: [red, amber, teal, navy, grey, '#7C3AED', '#DB2777', '#059669'] }] },
       options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
     });
-
-    if (chartEnrollments) chartEnrollments.destroy();
-    chartEnrollments = new Chart(document.getElementById('analytics-chart-enrollments'), {
-      type: 'line',
-      data: { labels: monthLabels, datasets: [{ label: 'Enrollment requests', data: monthKeys.map((k) => byMonth[k]), borderColor: navy, backgroundColor: navy + '22', tension: 0.3, fill: true }] },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
-    });
-
-    if (chartStatus) chartStatus.destroy();
-    chartStatus = new Chart(document.getElementById('analytics-chart-status'), {
-      type: 'doughnut',
-      data: { labels: ['Pending', 'Active', 'Completed', 'Cancelled'], datasets: [{ data: [statusCounts.pending, statusCounts.active, statusCounts.completed, statusCounts.cancelled], backgroundColor: [amber, teal, navy, grey] }] },
-      options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
-    });
-
-    if (chartPrograms) chartPrograms.destroy();
-    chartPrograms = new Chart(document.getElementById('analytics-chart-programs'), {
-      type: 'bar',
-      data: { labels: programEntries.map((p) => p[0]), datasets: [{ label: 'Enrollments', data: programEntries.map((p) => p[1]), backgroundColor: red }] },
-      options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } },
-    });
+    lucide.createIcons();
   }
 
   async function renderAll() {
@@ -1210,7 +1195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>` : ''}
         ${e.status === 'active' ? `
         <div class="flex gap-2 shrink-0">
-          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')}, ${JSON.stringify(e.priceMad || '')}, ${JSON.stringify(e.paymentStatus || 'unpaid')})' class="btn btn-secondary btn-sm">Edit</button>
+          <button onclick='openActivateModal(${JSON.stringify(e.id)}, ${JSON.stringify(userById2[e.studentId] || '')}, ${JSON.stringify(e.courseId || '')}, ${JSON.stringify(e.priceMad || '')}, ${JSON.stringify(e.paymentStatus || 'unpaid')}, ${JSON.stringify(e.paymentDueAt || '')})' class="btn btn-secondary btn-sm">Edit</button>
         </div>` : ''}
         ${e.status === 'cancelled' ? `
         <div class="flex gap-2 shrink-0">
@@ -1223,7 +1208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try { await EP.revertEnrollment(id); await renderEnrollments(); showToast('Enrollment reinstated to Pending'); }
     catch (err) { showToast(err.message, 'danger'); }
   };
-  window.openActivateModal = async (id, studentName, courseId, existingPrice, existingPaymentStatus) => {
+  window.openActivateModal = async (id, studentName, courseId, existingPrice, existingPaymentStatus, existingDueAt) => {
     const isEdit = existingPrice !== undefined;
     document.getElementById('activate-enrollment-id').value = id;
     document.getElementById('activate-student-id').value = '';
@@ -1239,6 +1224,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isEdit) {
       document.getElementById('activate-price').value = existingPrice;
       document.getElementById('activate-payment-status').value = existingPaymentStatus || 'unpaid';
+      document.getElementById('activate-payment-due').value = existingDueAt ? existingDueAt.slice(0, 10) : '';
     }
     document.getElementById('activate-cancel-link').classList.toggle('hidden', !isEdit);
     document.getElementById('activate-enrollment-modal').classList.remove('hidden');
@@ -1287,12 +1273,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     const enrollmentId = document.getElementById('activate-enrollment-id').value;
     const studentId = document.getElementById('activate-student-id').value;
+    const paymentDueAt = document.getElementById('activate-payment-due').value || null;
     try {
       if (enrollmentId) {
         await EP.activateEnrollment(enrollmentId, {
           priceMad: document.getElementById('activate-price').value,
           paymentStatus: document.getElementById('activate-payment-status').value,
           courseId: document.getElementById('activate-course').value,
+          paymentDueAt,
         });
       } else if (studentId) {
         await EP.adminEnrollStudent({
@@ -1300,6 +1288,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           courseId: document.getElementById('activate-course').value,
           priceMad: document.getElementById('activate-price').value,
           paymentStatus: document.getElementById('activate-payment-status').value,
+          paymentDueAt,
         });
       } else {
         throw new Error('Missing enrollment or student reference.');
