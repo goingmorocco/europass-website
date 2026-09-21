@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">${h.submissionMode === 'quiz' ? 'Take Quiz' : 'Submit'}</button>`;
       }
 
-      return `<div class="card p-5">
+      return `<div class="card p-5" id="hw-card-${h.id}">
         <div class="flex items-center justify-between mb-2 gap-2 flex-wrap">
           <p class="font-semibold" style="color:var(--navy-700)">${escapeHtml(h.title)}</p>
           <div class="flex items-center gap-2 shrink-0">
@@ -181,15 +181,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.lucide) lucide.createIcons();
   }
 
+  const NOTIF_AUDIENCE_LABEL = { all: 'Announcement', teachers: 'Announcement', students: 'Announcement', course: 'Class', user: 'Personal' };
+
   async function renderNotifications() {
     const items = await EP.notificationsFor(user);
     document.getElementById('student-notif-list').innerHTML = items.map(n => `
-      <div onclick="EP.markRead('${n.id}', '${user.id}').then(()=>{this.style.opacity=0.6;})" class="card p-4 cursor-pointer">
-        <div class="flex items-center justify-between mb-1"><span class="badge badge-info">${n.audience === 'all' ? 'Announcement' : 'Class'}</span><span class="text-xs" style="color:var(--text-disabled)">${EP.timeAgo(n.createdAt)}</span></div>
+      <div onclick="handleNotificationClick('${n.id}', 'student-shell', '${user.id}')" class="card p-4 cursor-pointer">
+        <div class="flex items-center justify-between mb-1"><span class="badge badge-info">${NOTIF_AUDIENCE_LABEL[n.audience] || 'Class'}</span><span class="text-xs" style="color:var(--text-disabled)">${EP.timeAgo(n.createdAt)}</span></div>
         <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(n.title)}</p>
         <p class="text-xs mt-1" style="color:var(--text-secondary)">${escapeHtml(n.body)}</p>
       </div>`).join('') || `<p style="color:var(--text-secondary)">No notifications yet.</p>`;
   }
+
+  // Jumps from a "Homework graded" / "Revision requested" notification
+  // straight to that exercise's card on the Homework tab, and briefly
+  // highlights it so the student can find it at a glance.
+  window.jumpToHomework = (homeworkId) => {
+    const card = document.getElementById(`hw-card-${homeworkId}`);
+    if (!card) return;
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const prevTransition = card.style.transition;
+    const prevShadow = card.style.boxShadow;
+    card.style.transition = 'box-shadow .3s ease';
+    card.style.boxShadow = '0 0 0 3px var(--teal-600)';
+    setTimeout(() => { card.style.boxShadow = prevShadow; setTimeout(() => { card.style.transition = prevTransition; }, 300); }, 1600);
+  };
 
   async function renderChat() {
     if (!teacher) return;
@@ -204,6 +220,28 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>`).join('') || `<p class="text-sm text-center" style="color:var(--text-secondary)">No messages yet — say hello to your teacher!</p>`;
     msgsEl.scrollTop = msgsEl.scrollHeight;
   }
+
+  // Red dot on the Messages nav item (drawer + sidebar) whenever the
+  // teacher has sent something the student hasn't opened yet.
+  async function renderMessagesDot() {
+    const hasUnread = (await EP.unreadMessages(user.id).catch(() => [])).length > 0;
+    ['messages-nav-dot-drawer', 'messages-nav-dot-sidebar'].forEach((id) => {
+      document.getElementById(id)?.classList.toggle('hidden', !hasUnread);
+    });
+  }
+  // The student only has one thread (their teacher), so opening the
+  // Messages tab at all means they've seen everything in it.
+  async function markMessagesReadFromTeacher() {
+    if (!teacher) return;
+    await EP.markMessagesRead(teacher.id, user.id).catch(() => {});
+    await renderMessagesDot();
+  }
+  document.querySelectorAll('[data-tab-trigger="messages"], button[onclick*="\'messages\'"]').forEach((el) => {
+    el.addEventListener('click', markMessagesReadFromTeacher);
+  });
+  // A "New message" notification always points at the one thread this
+  // student has (their teacher) — just get them there, already-read.
+  window.jumpToThread = () => markMessagesReadFromTeacher();
 
   // Same reusable Quill manager as the teacher side — a multi-task
   // exercise can have more than one writing response open at once, so
@@ -501,7 +539,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function renderAll() {
     renderCourseInfo();
-    await Promise.all([renderEnrollmentBanner(), renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat(), renderStudentAnnouncements(), renderClassroom()]);
+    await Promise.all([renderEnrollmentBanner(), renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat(), renderStudentAnnouncements(), renderClassroom(), renderMessagesDot()]);
     lucide.createIcons();
   }
   await renderAll();

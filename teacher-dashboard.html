@@ -111,7 +111,7 @@
       <button onclick="switchTab('teacher-shell','announcements'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="megaphone" class="w-4 h-4"></i> Announcements</button>
       <button onclick="switchTab('teacher-shell','assign'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Assign Homework</button>
       <button onclick="switchTab('teacher-shell','grade'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="check-circle" class="w-4 h-4"></i> Grade Submissions</button>
-      <button onclick="switchTab('teacher-shell','messages'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="messages-square" class="w-4 h-4"></i> Messages</button>
+      <button onclick="switchTab('teacher-shell','messages'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="messages-square" class="w-4 h-4"></i> Messages<span id="messages-nav-dot-drawer" class="hidden w-2 h-2 rounded-full ml-auto mr-1" style="background:var(--red-600)"></span></button>
       <button onclick="switchTab('teacher-shell','community'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users-round" class="w-4 h-4"></i> Community</button>
       <button onclick="switchTab('teacher-shell','classroom'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="graduation-cap" class="w-4 h-4"></i> Classroom</button>
       <button onclick="switchTab('teacher-shell','resources'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="folder-open" class="w-4 h-4"></i> Resources</button>
@@ -153,7 +153,7 @@
       <i data-lucide="check-circle" class="w-4 h-4"></i>Grade Submissions
     </button>
     <button data-tab-trigger="messages" onclick="switchTab('teacher-shell','messages')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="messages-square" class="w-4 h-4"></i>Messages
+      <i data-lucide="messages-square" class="w-4 h-4"></i>Messages<span id="messages-nav-dot-sidebar" class="hidden w-2 h-2 rounded-full ml-auto" style="background:var(--red-600)"></span>
     </button>
     <button data-tab-trigger="community" onclick="switchTab('teacher-shell','community')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="users-round" class="w-4 h-4"></i>Community

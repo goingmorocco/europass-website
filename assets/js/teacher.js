@@ -136,12 +136,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('teacher-grade-list').innerHTML = rows.filter((_, i) => subs[i].status !== 'draft').join('') || `<p style="color:var(--text-secondary)">No submissions yet.</p>`;
   }
 
+  let unreadFromStudents = [];
   function renderThreads() {
-    document.getElementById('teacher-thread-list').innerHTML = myStudents.map(s => `
+    document.getElementById('teacher-thread-list').innerHTML = myStudents.map(s => {
+      const hasUnread = unreadFromStudents.includes(s.id);
+      return `
       <button onclick="selectThread('${s.id}')" class="w-full text-left px-3 py-3 rounded-lg text-sm flex items-center gap-3" style="background:${s.id === activeThreadStudentId ? 'var(--navy-50)' : 'transparent'}">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style="background:var(--navy-700)">${s.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
-        <span style="color:var(--navy-700)">${escapeHtml(s.name)}</span>
-      </button>`).join('');
+        <span style="color:var(--navy-700)" class="flex-1">${escapeHtml(s.name)}</span>
+        ${hasUnread ? `<span class="w-2 h-2 rounded-full shrink-0" style="background:var(--red-600)"></span>` : ''}
+      </button>`;
+    }).join('');
   }
 
   async function renderChat() {
@@ -160,7 +165,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     msgsEl.scrollTop = msgsEl.scrollHeight;
   }
 
-  window.selectThread = async (studentId) => { activeThreadStudentId = studentId; renderThreads(); await renderChat(); };
+  // Red dot on the Messages nav item (drawer + sidebar) whenever any
+  // student has sent something this teacher hasn't opened yet, plus the
+  // per-student list used to dot individual threads in renderThreads().
+  async function renderMessagesDot() {
+    const unread = await EP.unreadMessages(user.id).catch(() => []);
+    unreadFromStudents = [...new Set(unread.map(m => m.fromId))];
+    const hasUnread = unreadFromStudents.length > 0;
+    ['messages-nav-dot-drawer', 'messages-nav-dot-sidebar'].forEach((id) => {
+      document.getElementById(id)?.classList.toggle('hidden', !hasUnread);
+    });
+  }
+  // Opening a thread (by selecting it, or by opening the Messages tab
+  // straight onto whichever thread is already active) means the teacher
+  // has now seen that student's messages.
+  async function markThreadRead(studentId) {
+    if (!studentId) return;
+    await EP.markMessagesRead(studentId, user.id).catch(() => {});
+    await renderMessagesDot();
+    renderThreads();
+  }
+  window.selectThread = async (studentId) => { activeThreadStudentId = studentId; renderThreads(); await renderChat(); await markThreadRead(studentId); };
+  // Lets a "New message" notification jump straight to that student's
+  // thread, same as clicking them in the thread list would.
+  window.jumpToThread = (studentId) => window.selectThread(studentId);
+  document.querySelectorAll('[data-tab-trigger="messages"], button[onclick*="\'messages\'"]').forEach((el) => {
+    el.addEventListener('click', () => markThreadRead(activeThreadStudentId));
+  });
 
   window.openViewExerciseModal = async (hwId) => {
     const h = (await myHomework()).find(x => x.id === hwId);
@@ -248,7 +279,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sub = (await EP.submissions()).find(s => s.id === subId);
     try {
       await EP.requestRevision(subId, feedback);
-      if (sub) await EP.sendNotification({ fromId: user.id, audience: 'user', audienceId: sub.studentId, title: 'Revision requested', body: feedback }).catch(() => {});
+      if (sub) await EP.sendNotification({ fromId: user.id, audience: 'user', audienceId: sub.studentId, title: 'Revision requested', body: feedback, relatedHomeworkId: sub.homeworkId }).catch(() => {});
       closeModal('grade-modal');
       await renderAll();
       showToast('Sent back to the student for revision');
@@ -483,7 +514,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function renderAll() {
     myStudents = await EP.studentsOf(myCourseId);
     if (!activeThreadStudentId && myStudents.length) activeThreadStudentId = myStudents[0].id;
-    await Promise.all([renderKPIs(), renderPending(), renderStudents(), renderHwList(), renderGradeList(), renderTeacherResources(), renderClassroom(), renderAnnouncements()]);
+    await Promise.all([renderKPIs(), renderPending(), renderStudents(), renderHwList(), renderGradeList(), renderTeacherResources(), renderClassroom(), renderAnnouncements(), renderMessagesDot()]);
     renderThreads();
     await renderChat();
     lucide.createIcons();
@@ -841,7 +872,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const gradeVal = document.getElementById('grade-value').value;
       await EP.gradeSubmission(subId, gradeVal, document.getElementById('grade-feedback').value);
-      if (sub) await EP.sendNotification({ fromId: user.id, audience: 'user', audienceId: sub.studentId, title: 'Homework graded', body: `Your submission was graded: ${gradeVal}` }).catch(() => {});
+      if (sub) await EP.sendNotification({ fromId: user.id, audience: 'user', audienceId: sub.studentId, title: 'Homework graded', body: `Your submission was graded: ${gradeVal}`, relatedHomeworkId: sub.homeworkId }).catch(() => {});
       closeModal('grade-modal');
       await renderAll();
       showToast('Grade saved and student notified');

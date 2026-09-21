@@ -663,13 +663,17 @@ const EP = (() => {
         (n.audience_type === 'students' && user.role === 'student') ||
         (n.audience_type === 'course' && n.audience_id === user.courseId) ||
         (n.audience_type === 'user' && n.audience_id === user.id) ||
-        n.from_id === user.id
+        // A sender sees their own broadcast (all/teachers/students/course)
+        // notifications too, as confirmation it went out — but a 'user'
+        // notification is private to its one recipient, so the sender
+        // (e.g. the teacher who graded it) must NOT also see it here.
+        (n.from_id === user.id && n.audience_type !== 'user')
       )
-      .map(n => ({ id: n.id, fromId: n.from_id, audience: n.audience_type, title: n.title, body: n.body, createdAt: n.created_at, readBy: (n.notification_reads || []).map(r => r.user_id), relatedPostId: n.related_post_id }));
+      .map(n => ({ id: n.id, fromId: n.from_id, audience: n.audience_type, title: n.title, body: n.body, createdAt: n.created_at, readBy: (n.notification_reads || []).map(r => r.user_id), relatedPostId: n.related_post_id, relatedHomeworkId: n.related_homework_id }));
   }
-  async function sendNotification({ fromId, audience, audienceId, title, body }) {
+  async function sendNotification({ fromId, audience, audienceId, title, body, relatedHomeworkId }) {
     const client = await db();
-    const { error } = await client.from('notifications').insert({ from_id: fromId, audience_type: audience, audience_id: audienceId || null, title, body });
+    const { error } = await client.from('notifications').insert({ from_id: fromId, audience_type: audience, audience_id: audienceId || null, title, body, related_homework_id: relatedHomeworkId || null });
     if (error) throw error;
   }
   async function markRead(notificationId, userId) {
@@ -684,11 +688,33 @@ const EP = (() => {
       .or(`and(from_id.eq.${userA},to_id.eq.${userB}),and(from_id.eq.${userB},to_id.eq.${userA})`)
       .order('created_at', { ascending: true });
     if (error) throw error;
-    return data.map(m => ({ id: m.id, fromId: m.from_id, toId: m.to_id, body: m.body, createdAt: m.created_at }));
+    return data.map(m => ({ id: m.id, fromId: m.from_id, toId: m.to_id, body: m.body, createdAt: m.created_at, readAt: m.read_at }));
   }
   async function sendMessage(fromId, toId, body) {
     const client = await db();
     const { error } = await client.from('messages').insert({ from_id: fromId, to_id: toId, body });
+    if (error) throw error;
+    // Also drop a private notification for the recipient (bell + Notifications
+    // page), on top of the unread-dot in the Messages nav — sendNotification
+    // is declared further down in this same module, but function
+    // declarations are hoisted, so it's already callable here.
+    const preview = body.length > 100 ? `${body.slice(0, 100)}…` : body;
+    await sendNotification({ fromId, audience: 'user', audienceId: toId, title: 'New message', body: preview }).catch(() => {});
+  }
+  // Every message this user has been sent and hasn't opened yet — drives
+  // the unread-message dot in the nav (and, for a teacher, per-thread).
+  async function unreadMessages(userId) {
+    const client = await db();
+    const { data, error } = await client.from('messages').select('*').eq('to_id', userId).is('read_at', null);
+    if (error) throw error;
+    return data.map(m => ({ id: m.id, fromId: m.from_id, toId: m.to_id, body: m.body, createdAt: m.created_at }));
+  }
+  // Marks every message a specific sender has sent this reader as read —
+  // called once the reader actually has that thread open, not just when
+  // new messages arrive.
+  async function markMessagesRead(fromId, toId) {
+    const client = await db();
+    const { error } = await client.from('messages').update({ read_at: new Date().toISOString() }).eq('from_id', fromId).eq('to_id', toId).is('read_at', null);
     if (error) throw error;
   }
 
@@ -881,7 +907,7 @@ const EP = (() => {
     announcementsFor, myAnnouncements, addAnnouncement, deleteAnnouncement,
     homework, homeworkByCourse, addHomework, homeworkQuestions, questionsForTask, homeworkTasks, uploadHomeworkFile, submissions, submissionFor, submitHomework, saveDraft, gradeSubmission, requestRevision,
     notificationsFor, sendNotification, markRead,
-    messagesFor, sendMessage, onChange,
+    messagesFor, sendMessage, unreadMessages, markMessagesRead, onChange,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
     groupMessages, sendGroupMessage, reportPost, reportsForGroup, dismissReport,
     ensurePendingEnrollment, requestEnrollment, myEnrollments, cancelEnrollment, allEnrollments, activateEnrollment, rejectEnrollment, revertEnrollment,

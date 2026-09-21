@@ -91,6 +91,12 @@ async function handleNotificationClick(notificationId, containerId, userId) {
     switchTab(containerId, 'community');
     const wantsComments = /comment|reply/i.test(n.title);
     setTimeout(() => window.communityJumpToPost(n.relatedPostId, { expandComments: wantsComments }), 60);
+  } else if (n.relatedHomeworkId && typeof window.jumpToHomework === 'function') {
+    switchTab(containerId, 'homework');
+    setTimeout(() => window.jumpToHomework(n.relatedHomeworkId), 60);
+  } else if (n.title === 'New message' && typeof window.jumpToThread === 'function') {
+    switchTab(containerId, 'messages');
+    setTimeout(() => window.jumpToThread(n.fromId), 60);
   } else {
     document.getElementById('notif-lightbox-title').textContent = n.title;
     document.getElementById('notif-lightbox-body').textContent = n.body;
