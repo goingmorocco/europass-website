@@ -210,9 +210,18 @@
 <div data-tab-panel="analytics" class="hidden">
   <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
     <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Analytics &amp; Finance</h1>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap items-center gap-2">
+      <select id="finance-export-period" class="px-2 py-1.5 rounded-md border text-xs" style="border-color:var(--border-default)">
+        <option value="month">This Month</option>
+        <option value="year">This Year (so far)</option>
+        <option value="all" selected>All Time</option>
+        <option value="custom">Custom Range</option>
+      </select>
+      <input type="date" id="finance-export-from" class="hidden px-2 py-1.5 rounded-md border text-xs" style="border-color:var(--border-default)">
+      <input type="date" id="finance-export-to" class="hidden px-2 py-1.5 rounded-md border text-xs" style="border-color:var(--border-default)">
       <button onclick="exportPaymentsCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export Payments</button>
       <button onclick="exportExpensesCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export Expenses</button>
+      <button onclick="exportFullReportPdf()" class="btn btn-primary btn-sm"><i data-lucide="file-text" class="w-4 h-4 mr-1"></i> Export Report PDF</button>
     </div>
   </div>
 
@@ -1111,7 +1120,7 @@ document.getElementById('avatar-settings-btn').addEventListener('click', () => {
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
 
 <script src="assets/js/main.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script><script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/admin.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script><script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/admin.js"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>

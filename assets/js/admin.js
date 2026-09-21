@@ -575,19 +575,243 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
+  // ---- Shared export period control (This Month / This Year (so far) /
+  // All Time / Custom) — drives Export Payments, Export Expenses, and
+  // Export Report PDF, so all three always agree on what range they cover.
+  const exportPeriodSelect = document.getElementById('finance-export-period');
+  const exportFromInput = document.getElementById('finance-export-from');
+  const exportToInput = document.getElementById('finance-export-to');
+  exportPeriodSelect?.addEventListener('change', () => {
+    const isCustom = exportPeriodSelect.value === 'custom';
+    exportFromInput.classList.toggle('hidden', !isCustom);
+    exportToInput.classList.toggle('hidden', !isCustom);
+  });
+  // Returns { from, to, label } — from/to are ISO date strings ('YYYY-MM-DD')
+  // or null for an open end (null,null = all time). label is a human-
+  // readable description of the range, used in filenames and the PDF header.
+  function getFinanceExportRange() {
+    const period = exportPeriodSelect?.value || 'all';
+    const now = new Date();
+    const iso = (d) => d.toISOString().slice(0, 10);
+    if (period === 'month') {
+      return { from: iso(new Date(now.getFullYear(), now.getMonth(), 1)), to: iso(now), label: now.toLocaleString('en', { month: 'long', year: 'numeric' }) };
+    }
+    if (period === 'year') {
+      return { from: iso(new Date(now.getFullYear(), 0, 1)), to: iso(now), label: `${now.getFullYear()} (so far)` };
+    }
+    if (period === 'custom') {
+      const from = exportFromInput?.value || null;
+      const to = exportToInput?.value || null;
+      return { from, to, label: from || to ? `${from || 'earliest'} to ${to || 'latest'}` : 'All Time' };
+    }
+    return { from: null, to: null, label: 'All Time' };
+  }
+  // A record's own date field is a full timestamp; the range bounds are
+  // plain dates, so comparisons are done on the date portion only — a
+  // record on the `to` day itself still counts as in-range.
+  function withinRange(isoTimestamp, from, to) {
+    const d = new Date(isoTimestamp).toISOString().slice(0, 10);
+    if (from && d < from) return false;
+    if (to && d > to) return false;
+    return true;
+  }
+
   window.exportPaymentsCsv = async () => {
-    const rows = (await EP.payments()).map((p) => ({
-      Student: p.studentName, Course: p.courseName || '', Amount: p.amount, Currency: p.currency, Method: p.method,
-      Date: new Date(p.paidAt).toISOString().slice(0, 10), Notes: p.notes || '', Voided: p.voidedAt ? 'Yes' : 'No',
-    }));
-    exportToCsv('europass-payments.csv', rows);
+    const { from, to, label } = getFinanceExportRange();
+    const rows = (await EP.payments())
+      .filter((p) => withinRange(p.paidAt, from, to))
+      .map((p) => ({
+        Student: p.studentName, Course: p.courseName || '', Amount: p.amount, Currency: p.currency, Method: p.method,
+        Date: new Date(p.paidAt).toISOString().slice(0, 10), Notes: p.notes || '', Voided: p.voidedAt ? 'Yes' : 'No',
+      }));
+    exportToCsv(`europass-payments-${label.replace(/\s+/g, '-').toLowerCase()}.csv`, rows);
   };
   window.exportExpensesCsv = async () => {
-    const rows = (await EP.expenses()).map((x) => ({
-      Category: x.category, Vendor: x.vendor || '', Amount: x.amount, Currency: x.currency,
-      Date: new Date(x.incurredAt).toISOString().slice(0, 10), Notes: x.notes || '', Voided: x.voidedAt ? 'Yes' : 'No',
-    }));
-    exportToCsv('europass-expenses.csv', rows);
+    const { from, to, label } = getFinanceExportRange();
+    const rows = (await EP.expenses())
+      .filter((x) => withinRange(x.incurredAt, from, to))
+      .map((x) => ({
+        Category: x.category, Vendor: x.vendor || '', Amount: x.amount, Currency: x.currency,
+        Date: new Date(x.incurredAt).toISOString().slice(0, 10), Notes: x.notes || '', Voided: x.voidedAt ? 'Yes' : 'No',
+      }));
+    exportToCsv(`europass-expenses-${label.replace(/\s+/g, '-').toLowerCase()}.csv`, rows);
+  };
+
+  // ---- Full financial report PDF (jsPDF + autoTable, both loaded via CDN
+  // in admin-dashboard.html) — a multi-page, printable snapshot of the
+  // whole Finance page for the selected period: summary, chart of accounts,
+  // trial balance, balance sheet, P&L, payroll, and the full general
+  // ledger detail. Everything is pulled live from EP.* at export time, so
+  // it always reflects the current chart of accounts as-is — an account
+  // the admin has since deactivated shows as "Inactive" (greyed out) here
+  // rather than being hardcoded or silently dropped, and a newly added
+  // account appears automatically with no code change needed.
+  window.exportFullReportPdf = async () => {
+    try {
+      if (!window.jspdf || !window.jspdf.jsPDF) { showToast('PDF library failed to load — check your connection and try again', 'danger'); return; }
+      const { jsPDF } = window.jspdf;
+      const { from, to, label } = getFinanceExportRange();
+      const [accountsList, balances, journalRows, payroll] = await Promise.all([
+        EP.accounts(), EP.getAccountBalances(from, to), EP.getJournalEntries(from, to, null), EP.payrollEntries(),
+      ]);
+      const payrollInRange = payroll.filter((p) => withinRange(p.paidAt, from, to));
+
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      if (!doc.autoTable) { showToast('PDF table library failed to load — check your connection and try again', 'danger'); return; }
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 14;
+      const money = (n) => `${Number(n || 0).toLocaleString()} MAD`;
+
+      const sectionHeader = (title) => {
+        let y = 18;
+        doc.setTextColor(11, 29, 58);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.text('EuroPass', margin, y);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(90, 90, 90);
+        doc.text('Financial Report', pageWidth - margin, y - 5, { align: 'right' });
+        doc.text(label, pageWidth - margin, y, { align: 'right' });
+        y += 5;
+        doc.setDrawColor(11, 29, 58);
+        doc.setLineWidth(0.4);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 9;
+        doc.setTextColor(11, 29, 58);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.text(title, margin, y);
+        return y + 4;
+      };
+      const footerAllPages = () => {
+        const pages = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pages; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.setTextColor(150, 150, 150);
+          doc.text(`EuroPass Language & Nursing School, Khemisset · Generated ${new Date().toLocaleString()}`, margin, pageHeight - 8);
+          doc.text(`Page ${i} of ${pages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+        }
+      };
+
+      // ---- Summary ----
+      let y = sectionHeader('Financial Summary');
+      const revenue = balances.filter((r) => r.type === 'revenue').reduce((s, r) => s + r.balance, 0);
+      const expense = balances.filter((r) => r.type === 'expense').reduce((s, r) => s + r.balance, 0);
+      const assets = balances.filter((r) => r.type === 'asset').reduce((s, r) => s + r.balance, 0);
+      const liabilities = balances.filter((r) => r.type === 'liability').reduce((s, r) => s + r.balance, 0);
+      const equity = balances.filter((r) => r.type === 'equity').reduce((s, r) => s + r.balance, 0);
+      const netProfit = revenue - expense;
+      doc.autoTable({
+        startY: y, margin: { left: margin, right: margin }, theme: 'plain', styles: { fontSize: 10, cellPadding: 1.6 },
+        body: [
+          ['Report period', label],
+          ['Total Revenue', money(revenue)],
+          ['Total Expenses', money(expense)],
+          ['Net Profit', money(netProfit)],
+          ['Total Assets', money(assets)],
+          ['Total Liabilities', money(liabilities)],
+          ['Total Equity', money(equity)],
+        ],
+        columnStyles: { 0: { fontStyle: 'bold', textColor: [11, 29, 58], cellWidth: 60 }, 1: { halign: 'right' } },
+      });
+
+      // ---- Chart of Accounts (live — reflects active/inactive as-is) ----
+      doc.addPage();
+      y = sectionHeader('Chart of Accounts');
+      doc.autoTable({
+        startY: y, margin: { left: margin, right: margin }, headStyles: { fillColor: [11, 29, 58] }, styles: { fontSize: 9 },
+        head: [['Code', 'Name', 'Type', 'Normal Balance', 'Status']],
+        body: accountsList.map((a) => [a.code, a.name + (a.isSystem ? ' (system)' : ''), a.type, a.normalBalance, a.isActive ? 'Active' : 'Inactive']),
+        didParseCell: (data) => {
+          if (data.section === 'body' && accountsList[data.row.index] && !accountsList[data.row.index].isActive) data.cell.styles.textColor = [160, 160, 160];
+        },
+      });
+
+      // ---- Trial Balance ----
+      doc.addPage();
+      y = sectionHeader('Trial Balance');
+      const totalDebit = balances.reduce((s, r) => s + r.totalDebit, 0);
+      const totalCredit = balances.reduce((s, r) => s + r.totalCredit, 0);
+      doc.autoTable({
+        startY: y, margin: { left: margin, right: margin }, headStyles: { fillColor: [11, 29, 58] }, styles: { fontSize: 9 },
+        head: [['Code', 'Name', 'Debit', 'Credit', 'Balance']],
+        body: balances.map((r) => [r.code, r.name, money(r.totalDebit), money(r.totalCredit), money(r.balance)]),
+        foot: [['', 'Totals', money(totalDebit), money(totalCredit), Math.abs(totalDebit - totalCredit) < 0.01 ? 'Balanced' : 'Out of balance']],
+        footStyles: { fillColor: [230, 230, 230], textColor: [11, 29, 58], fontStyle: 'bold' },
+      });
+
+      // ---- Balance Sheet ----
+      doc.addPage();
+      y = sectionHeader('Balance Sheet');
+      const bsGroup = (t) => balances.filter((r) => r.type === t);
+      const bsBody = [];
+      const addBsGroup = (title, list) => {
+        bsBody.push([{ content: title, colSpan: 2, styles: { fontStyle: 'bold', fillColor: [245, 245, 245] } }]);
+        list.forEach((r) => bsBody.push([`${r.code}  ${r.name}`, money(r.balance)]));
+        const subtotal = list.reduce((s, r) => s + r.balance, 0);
+        bsBody.push([{ content: `Total ${title}`, styles: { fontStyle: 'bold' } }, { content: money(subtotal), styles: { fontStyle: 'bold' } }]);
+      };
+      addBsGroup('Assets', bsGroup('asset'));
+      addBsGroup('Liabilities', bsGroup('liability'));
+      addBsGroup('Equity', bsGroup('equity'));
+      doc.autoTable({
+        startY: y, margin: { left: margin, right: margin }, headStyles: { fillColor: [11, 29, 58] }, styles: { fontSize: 9 },
+        head: [['Account', 'Balance']], body: bsBody,
+      });
+      const diff = assets - (liabilities + equity);
+      y = doc.lastAutoTable.finalY + 6;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(Math.abs(diff) < 0.01 ? 22 : 190, Math.abs(diff) < 0.01 ? 130 : 40, Math.abs(diff) < 0.01 ? 70 : 40);
+      doc.text(`Total Assets ${money(assets)}  vs  Total Liabilities + Equity ${money(liabilities + equity)}  —  ${Math.abs(diff) < 0.01 ? 'Balanced' : 'Difference: ' + money(diff)}`, margin, y);
+
+      // ---- P&L ----
+      doc.addPage();
+      y = sectionHeader('Profit & Loss');
+      const plBody = [[{ content: 'Revenue', colSpan: 2, styles: { fontStyle: 'bold', fillColor: [245, 245, 245] } }]];
+      balances.filter((r) => r.type === 'revenue').forEach((r) => plBody.push([`${r.code}  ${r.name}`, money(r.balance)]));
+      plBody.push([{ content: 'Total Revenue', styles: { fontStyle: 'bold' } }, { content: money(revenue), styles: { fontStyle: 'bold' } }]);
+      plBody.push([{ content: 'Expenses', colSpan: 2, styles: { fontStyle: 'bold', fillColor: [245, 245, 245] } }]);
+      balances.filter((r) => r.type === 'expense').forEach((r) => plBody.push([`${r.code}  ${r.name}`, money(r.balance)]));
+      plBody.push([{ content: 'Total Expenses', styles: { fontStyle: 'bold' } }, { content: money(expense), styles: { fontStyle: 'bold' } }]);
+      plBody.push([{ content: 'Net Profit', styles: { fontStyle: 'bold', textColor: [11, 29, 58] } }, { content: money(netProfit), styles: { fontStyle: 'bold', textColor: [11, 29, 58] } }]);
+      doc.autoTable({
+        startY: y, margin: { left: margin, right: margin }, headStyles: { fillColor: [11, 29, 58] }, styles: { fontSize: 9 },
+        head: [['Account', 'Amount']], body: plBody,
+      });
+
+      // ---- Payroll ----
+      doc.addPage();
+      y = sectionHeader('Payroll');
+      const payrollTotal = payrollInRange.filter((p) => !p.voidedAt).reduce((s, p) => s + p.grossAmount, 0);
+      doc.autoTable({
+        startY: y, margin: { left: margin, right: margin }, headStyles: { fillColor: [11, 29, 58] }, styles: { fontSize: 9 },
+        head: [['Teacher', 'Period', 'Gross', 'Paid', 'Status']],
+        body: payrollInRange.map((p) => [p.teacherName, `${p.periodStart} – ${p.periodEnd}`, money(p.grossAmount), new Date(p.paidAt).toLocaleDateString(), p.voidedAt ? 'Voided' : 'Paid']),
+        foot: [['', '', money(payrollTotal), '', 'Total (non-voided)']],
+        footStyles: { fillColor: [230, 230, 230], textColor: [11, 29, 58], fontStyle: 'bold' },
+      });
+
+      // ---- General Ledger detail (appendix — every posted line in range) ----
+      doc.addPage();
+      y = sectionHeader('General Ledger (Detail)');
+      doc.autoTable({
+        startY: y, margin: { left: margin, right: margin }, headStyles: { fillColor: [11, 29, 58] }, styles: { fontSize: 8 },
+        head: [['Date', 'Account', 'Memo', 'Debit', 'Credit', 'Source']],
+        body: journalRows.map((r) => [
+          new Date(r.entryDate).toLocaleDateString(), `${r.accountCode} ${r.accountName}`, r.lineMemo || r.memo || '—',
+          r.debit ? r.debit.toLocaleString() : '', r.credit ? r.credit.toLocaleString() : '',
+          r.voidedAt ? `${r.sourceType} (voided)` : r.sourceType,
+        ]),
+      });
+
+      footerAllPages();
+      doc.save(`europass-financial-report-${label.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+      showToast('Report exported');
+    } catch (err) { showToast(err.message, 'danger'); }
   };
 
   // ---- Homework & Grades (admin view-only — grading itself stays with the
