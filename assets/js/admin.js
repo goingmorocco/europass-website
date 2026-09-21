@@ -138,11 +138,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     URL.revokeObjectURL(url);
   }
   window.exportUsersCsv = async () => {
-    const [rows, courseList] = await Promise.all([EP.users(), EP.courses()]);
+    const [rows, courseList, balances] = await Promise.all([EP.users(), EP.courses(), EP.studentBalances()]);
     const courseById = Object.fromEntries(courseList.map((c) => [c.id, c.name]));
-    const data = rows.filter((u) => u.role !== 'admin').map((u) => ({
-      Name: u.name, Role: u.role, Course: u.courseId ? (courseById[u.courseId] || '') : '', City: u.city || '', Phone: u.phone || '',
-    }));
+    const data = rows.filter((u) => u.role !== 'admin').map((u) => {
+      const bal = balances[u.id];
+      return {
+        Name: u.name, Role: u.role, Course: u.courseId ? (courseById[u.courseId] || '') : '', City: u.city || '', Phone: u.phone || '',
+        Balance: u.role === 'student' ? (bal?.hasEnrollment ? (bal.balance || 0) : 'Not enrolled') : '',
+        NextPaymentDue: u.role === 'student' && bal?.nextPaymentDueAt ? new Date(bal.nextPaymentDueAt).toISOString().slice(0, 10) : '',
+      };
+    });
     exportToCsv('europass-users.csv', data);
   };
   window.exportEnrollmentsCsv = async () => {
@@ -152,6 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const data = rows.map((e) => ({
       Student: userById3[e.studentId] || '', Course: e.courseId ? (courseById[e.courseId] || '') : 'Undecided',
       Status: e.status, Payment: e.paymentStatus, PriceMAD: e.priceMad || '', Requested: e.requestedAt ? new Date(e.requestedAt).toISOString().slice(0, 10) : '',
+      PaymentDueDate: e.paymentDueAt ? new Date(e.paymentDueAt).toISOString().slice(0, 10) : '',
     }));
     exportToCsv('europass-enrollments.csv', data);
   };
@@ -271,7 +277,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Balance + full payment history from the real ledger — replaces the
     // old one-click "marked paid" flag, which recorded no amount at all.
     await renderUserDetailPayments(user.id);
+    // Wired here (not as an inline onclick) because the id it needs to
+    // capture — currentUserDetailId — lives in this closure, not on
+    // window; an inline onclick reading it directly threw a silent
+    // ReferenceError on click, which is why these two buttons appeared to
+    // "do nothing" from the Users page.
+    document.getElementById('user-detail-record-payment-btn').onclick = () => openPaymentModal({ studentId: user.id });
     const enrollBtn = document.getElementById('user-detail-enroll-btn');
+    enrollBtn.onclick = () => openEnrollStudentModal(user.id);
     if (user.role === 'student') {
       const balances = await EP.studentBalances();
       enrollBtn.classList.toggle('hidden', !!balances[user.id]?.hasEnrollment);
@@ -1351,5 +1364,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (err) { showToast(err.message, 'danger'); }
   });
   await renderEnrollments();
-  EP.onChange([EP.KEYS.enrollments], renderEnrollments);
+  // Also re-render on payments/expenses changes, not just enrollment
+  // changes — this page shows a per-student balance and "payment due"
+  // highlight (both derived from the payments ledger), which used to go
+  // stale here until an actual enrollment row changed, even though
+  // Analytics and Users already refreshed correctly.
+  EP.onChange([EP.KEYS.enrollments, EP.KEYS.payments, EP.KEYS.expenses], renderEnrollments);
 });
