@@ -254,24 +254,26 @@
   <div id="student-notif-list" class="space-y-3 max-w-2xl"></div>
 </div>
 
-<div id="submit-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-lg p-6 my-8">
-    <div class="flex items-center justify-between mb-4">
+<div id="submit-modal" class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-lg p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
+    <div class="flex items-center justify-between mb-4 shrink-0">
       <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Submit Exercise</p>
       <button onclick="closeModal('submit-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
-    <div id="submit-modal-title" class="text-sm font-semibold mb-1" style="color:var(--navy-700)"></div>
-    <div id="submit-modal-instructions" class="text-sm mb-2" style="color:var(--text-secondary)"></div>
-    <div id="submit-modal-attachment" class="mb-4"></div>
-    <div id="submit-modal-revision-note" class="hidden p-3 rounded-md text-sm mb-4" style="background:var(--amber-100); color:var(--amber-600)"></div>
-    <form id="submit-form" class="space-y-4">
-      <input type="hidden" id="submit-hw-id">
-      <div id="submit-modal-body"></div>
-      <div class="flex gap-3">
-        <button type="button" id="submit-draft-btn" class="btn btn-secondary flex-1">Save Draft</button>
-        <button type="submit" class="btn btn-primary flex-1">Submit</button>
-      </div>
-    </form>
+    <div class="overflow-y-auto min-h-0">
+      <div id="submit-modal-title" class="text-sm font-semibold mb-1" style="color:var(--navy-700)"></div>
+      <div id="submit-modal-instructions" class="text-sm mb-2" style="color:var(--text-secondary)"></div>
+      <div id="submit-modal-attachment" class="mb-4"></div>
+      <div id="submit-modal-revision-note" class="hidden p-3 rounded-md text-sm mb-4" style="background:var(--amber-100); color:var(--amber-600)"></div>
+      <form id="submit-form" class="space-y-4">
+        <input type="hidden" id="submit-hw-id">
+        <div id="submit-modal-body"></div>
+        <div class="flex gap-3">
+          <button type="button" id="submit-draft-btn" class="btn btn-secondary flex-1">Save Draft</button>
+          <button type="submit" class="btn btn-primary flex-1">Submit</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
