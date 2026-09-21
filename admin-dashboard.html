@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>لوحة تحكم المشرف | يوروباس الخميسات</title>
-<meta name="description" content="لوحة تحكم مدير أكاديمية يوروباس.">
+<title>Admin Dashboard | EuroPass Khemisset</title>
+<meta name="description" content="EuroPass academy manager dashboard.">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
@@ -43,7 +43,7 @@
             warning: {50:'#FDF3E7',600:'#B45309'},
             danger: {50:'#FDECEC',600:'#DC2626'}
           },
-          fontFamily: { serif: ['Cairo','Baloo 2','Lora','Georgia','serif'], sans: ['Cairo','Inter','system-ui','sans-serif'] },
+          fontFamily: { serif: ['Baloo 2','Lora','Georgia','serif'], sans: ['Inter','system-ui','sans-serif'] },
           borderRadius: { sm:'6px', md:'10px', lg:'16px', xl:'24px' }
         }
       }
@@ -55,41 +55,45 @@
 </head>
 <body>
 
-  <a href="#main" class="skip-link">الانتقال إلى المحتوى الرئيسي</a>
+  <a href="#main" class="skip-link">Skip to main content</a>
   <header id="site-header" class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b" style="border-color:var(--border-default)">
     <div class="container-ep flex items-center justify-between navbar-inner">
-      <a href="ar/index.html" class="font-serif font-bold text-xl tracking-tight" style="color:var(--navy-700)">
+      <a href="index.html" class="font-serif font-bold text-xl tracking-tight" style="color:var(--navy-700)">
         EURO<span style="color:var(--red-600)">PASS</span>
       </a>
       <nav class="hidden lg:flex items-center gap-7" aria-label="Primary">
-        <a href="ar/index.html" class="nav-link text-sm">الرئيسية</a>
-
+        <a href="index.html" class="nav-link text-sm">Home</a>
+        
       <div class="relative group hidden lg:block">
         <button class="nav-link text-sm inline-flex items-center gap-1">
-          البرامج <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          Programs <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
         </button>
-        <div class="absolute start-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-30">
+        <div class="absolute left-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-30">
           <div class="card p-2 w-64">
-            <a href="ar/program-german.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="landmark" class="w-4 h-4" style="color:var(--navy-500)"></i> الألمانية</a>
-            <a href="ar/program-french.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="croissant" class="w-4 h-4" style="color:var(--navy-500)"></i> الفرنسية</a>
-            <a href="ar/courses.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="briefcase" class="w-4 h-4" style="color:var(--navy-500)"></i> الإنجليزية</a>
-            <a href="ar/program-nursing.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="heart-pulse" class="w-4 h-4" style="color:var(--navy-500)"></i> برنامج التمريض</a>
-            <a href="ar/program-nursing-ausbildung.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="plane" class="w-4 h-4" style="color:var(--navy-500)"></i> تدريب وتوظيف Ausbildung</a>
+            <a href="program-german.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="landmark" class="w-4 h-4" style="color:var(--navy-500)"></i> German</a>
+            <a href="program-french.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="croissant" class="w-4 h-4" style="color:var(--navy-500)"></i> French</a>
+            <a href="courses.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="briefcase" class="w-4 h-4" style="color:var(--navy-500)"></i> English</a>
+            <a href="program-nursing.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="heart-pulse" class="w-4 h-4" style="color:var(--navy-500)"></i> Nursing Program</a>
+            <a href="program-nursing-ausbildung.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="plane" class="w-4 h-4" style="color:var(--navy-500)"></i> Ausbildung Training &amp; Placement</a>
           </div>
         </div>
       </div>
-        <a href="ar/test-level.html" class="nav-link text-sm">اختبار المستوى</a>
-        <a href="ar/about.html" class="nav-link text-sm">من نحن</a>
-        <a href="ar/blog.html" class="nav-link text-sm">المدونة</a>
-        <a href="ar/contact.html" class="nav-link text-sm">اتصل بنا</a>
+        <a href="test-level.html" class="nav-link text-sm">Level Test</a>
+        <a href="about.html" class="nav-link text-sm">About</a>
+        <a href="blog.html" class="nav-link text-sm">Blog</a>
+        <a href="contact.html" class="nav-link text-sm">Contact</a>
       </nav>
       <div class="hidden lg:flex items-center gap-3">
+        <div class="lang-switch">
+          <a href="#" class="is-active">EN</a>
+          <a href="ar/index.html" id="lang-switch-ar">AR</a>
+        </div>
         <a href="login.html" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium">
-          <i data-lucide="log-in" class="w-4 h-4" style="color:var(--navy-700)"></i> تسجيل الدخول للبوابة
+          <i data-lucide="log-in" class="w-4 h-4" style="color:var(--navy-700)"></i> Portal Login
         </a>
-        <a href="signup.html" class="btn btn-primary btn-sm">إنشاء حساب وابدأ التعلم</a>
+        <a href="signup.html" class="btn btn-primary btn-sm">Sign Up &amp; Start Learning</a>
       </div>
-      <button id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" class="lg:hidden p-2 -me-2" aria-label="فتح القائمة">
+      <button id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" class="lg:hidden p-2 -mr-2" aria-label="Open menu">
         <i data-lucide="menu" class="w-6 h-6" style="color:var(--navy-700)"></i>
       </button>
     </div>
@@ -97,22 +101,22 @@
 
   <div id="nav-drawer" class="fixed inset-0 z-50 translate-x-full transition-transform duration-300 lg:hidden" aria-hidden="true">
     <div class="absolute inset-0 bg-navy-900/40" onclick="document.getElementById('nav-close').click()"></div>
-    <div class="absolute end-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl overflow-y-auto">
+    <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl overflow-y-auto">
       <div class="flex items-center justify-between mb-6">
-        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span> <span class="text-xs font-sans font-normal" style="color:var(--text-secondary)">مشرف</span></span>
-        <button id="nav-close" aria-label="إغلاق القائمة" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span> <span class="text-xs font-sans font-normal" style="color:var(--text-secondary)">Admin</span></span>
+        <button id="nav-close" aria-label="Close menu" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-      <button onclick="switchTab('admin-shell','overview'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> نظرة عامة</button>
-      <button onclick="switchTab('admin-shell','analytics'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> التحليلات</button>
-      <button onclick="switchTab('admin-shell','enrollments'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="clipboard-check" class="w-4 h-4"></i> التسجيلات</button>
-      <button onclick="switchTab('admin-shell','blog'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="newspaper" class="w-4 h-4"></i> المدونة</button>
-      <button onclick="switchTab('admin-shell','homework'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="clipboard-list" class="w-4 h-4"></i> الواجبات والدرجات</button>
-      <button onclick="switchTab('admin-shell','resources'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="folder-open" class="w-4 h-4"></i> الموارد</button>
-      <button onclick="switchTab('admin-shell','notifications'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="bell" class="w-4 h-4"></i> الإشعارات</button>
-      <button onclick="switchTab('admin-shell','users'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="users" class="w-4 h-4"></i> المستخدمون</button>
-      <button onclick="switchTab('admin-shell','groups'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="users-round" class="w-4 h-4"></i> المجموعات</button>
-      <button onclick="switchTab('admin-shell','settings'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-start" style="border-color:var(--border-default)"><i data-lucide="settings" class="w-4 h-4"></i> الإعدادات</button>
-      <a href="ar/index.html" class="flex items-center gap-3 py-3 mt-4 nav-link" style="color:var(--text-secondary)"><i data-lucide="arrow-left" class="w-4 h-4"></i> العودة إلى الموقع</a>
+      <button onclick="switchTab('admin-shell','overview'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
+      <button onclick="switchTab('admin-shell','analytics'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Analytics</button>
+      <button onclick="switchTab('admin-shell','enrollments'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-check" class="w-4 h-4"></i> Enrollments</button>
+      <button onclick="switchTab('admin-shell','blog'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="newspaper" class="w-4 h-4"></i> Blog</button>
+      <button onclick="switchTab('admin-shell','homework'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Homework &amp; Grades</button>
+      <button onclick="switchTab('admin-shell','resources'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="folder-open" class="w-4 h-4"></i> Resources</button>
+      <button onclick="switchTab('admin-shell','notifications'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="bell" class="w-4 h-4"></i> Notifications</button>
+      <button onclick="switchTab('admin-shell','users'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users" class="w-4 h-4"></i> Users</button>
+      <button onclick="switchTab('admin-shell','groups'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users-round" class="w-4 h-4"></i> Groups</button>
+      <button onclick="switchTab('admin-shell','settings'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="settings" class="w-4 h-4"></i> Settings</button>
+      <a href="index.html" class="flex items-center gap-3 py-3 mt-4 nav-link" style="color:var(--text-secondary)"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Website</a>
     </div>
   </div>
 
@@ -120,138 +124,138 @@
 
 <div id="admin-shell" class="flex min-h-[calc(100vh-4rem)]">
   <aside class="hidden lg:flex flex-col w-64 border-r shrink-0 p-4 gap-1" style="border-color:var(--border-default)">
-
-    <button data-tab-trigger="overview" onclick="switchTab('admin-shell','overview')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
-      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>نظرة عامة
+    
+    <button data-tab-trigger="overview" onclick="switchTab('admin-shell','overview')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>Overview
     </button>
-    <button data-tab-trigger="analytics" onclick="switchTab('admin-shell','analytics')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
-      <i data-lucide="bar-chart-3" class="w-4 h-4"></i>التحليلات
+    <button data-tab-trigger="analytics" onclick="switchTab('admin-shell','analytics')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="bar-chart-3" class="w-4 h-4"></i>Analytics
     </button>
-    <button data-tab-trigger="enrollments" onclick="switchTab('admin-shell','enrollments')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
-      <i data-lucide="clipboard-check" class="w-4 h-4"></i>التسجيلات
+    <button data-tab-trigger="enrollments" onclick="switchTab('admin-shell','enrollments')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="clipboard-check" class="w-4 h-4"></i>Enrollments
     </button>
-    <button data-tab-trigger="blog" onclick="switchTab('admin-shell','blog')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
-      <i data-lucide="newspaper" class="w-4 h-4"></i>المدونة
+    <button data-tab-trigger="blog" onclick="switchTab('admin-shell','blog')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="newspaper" class="w-4 h-4"></i>Blog
     </button>
-    <button data-tab-trigger="homework" onclick="switchTab('admin-shell','homework')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
-      <i data-lucide="clipboard-list" class="w-4 h-4"></i>الواجبات والدرجات
+    <button data-tab-trigger="homework" onclick="switchTab('admin-shell','homework')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="clipboard-list" class="w-4 h-4"></i>Homework &amp; Grades
     </button>
-    <button data-tab-trigger="resources" onclick="switchTab('admin-shell','resources')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
-      <i data-lucide="folder-open" class="w-4 h-4"></i>الموارد
+    <button data-tab-trigger="resources" onclick="switchTab('admin-shell','resources')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="folder-open" class="w-4 h-4"></i>Resources
     </button>
-    <button data-tab-trigger="notifications" onclick="switchTab('admin-shell','notifications')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
-      <i data-lucide="bell" class="w-4 h-4"></i>الإشعارات
+    <button data-tab-trigger="notifications" onclick="switchTab('admin-shell','notifications')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="bell" class="w-4 h-4"></i>Notifications
     </button>
-    <button data-tab-trigger="users" onclick="switchTab('admin-shell','users')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
-      <i data-lucide="users" class="w-4 h-4"></i>المستخدمون
+    <button data-tab-trigger="users" onclick="switchTab('admin-shell','users')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="users" class="w-4 h-4"></i>Users
     </button>
-    <button data-tab-trigger="groups" onclick="switchTab('admin-shell','groups')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
-      <i data-lucide="users-round" class="w-4 h-4"></i>المجموعات
+    <button data-tab-trigger="groups" onclick="switchTab('admin-shell','groups')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="users-round" class="w-4 h-4"></i>Groups
     </button>
-    <button data-tab-trigger="settings" onclick="switchTab('admin-shell','settings')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-start" style="color:var(--text-secondary)">
-      <i data-lucide="settings" class="w-4 h-4"></i>الإعدادات
+    <button data-tab-trigger="settings" onclick="switchTab('admin-shell','settings')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="settings" class="w-4 h-4"></i>Settings
     </button>
   </aside>
   <div class="flex-1 min-w-0">
     <div class="border-b" style="border-color:var(--border-default)">
       <div class="container-ep py-4 flex items-center justify-between">
         <div>
-          <p class="text-xs" style="color:var(--text-secondary)">مرحباً بعودتك،</p>
+          <p class="text-xs" style="color:var(--text-secondary)">Welcome back,</p>
           <p id="portal-user-name" class="font-serif text-lg font-bold" style="color:var(--navy-700)">…</p>
         </div>
         <div class="flex items-center gap-3">
           <div class="relative">
-            <button class="relative p-2 rounded-full" style="background:var(--bg-subtle)" aria-label="الإشعارات" onclick="document.getElementById('bell-popover').classList.toggle('hidden'); event.stopPropagation();">
+            <button class="relative p-2 rounded-full" style="background:var(--bg-subtle)" aria-label="Notifications" onclick="document.getElementById('bell-popover').classList.toggle('hidden'); event.stopPropagation();">
               <i data-lucide="bell" class="w-5 h-5" style="color:var(--navy-700)"></i>
               <span id="portal-bell-dot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style="background:var(--red-600); display:none"></span>
             </button>
-            <div id="bell-popover" class="hidden absolute end-0 mt-2 w-80 card z-30 max-h-96 overflow-y-auto">
+            <div id="bell-popover" class="hidden absolute right-0 mt-2 w-80 card z-30 max-h-96 overflow-y-auto">
               <div id="portal-bell-list"></div>
             </div>
           </div>
           <div class="relative">
-            <button class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:var(--navy-700)" aria-label="قائمة الحساب" onclick="document.getElementById('avatar-popover').classList.toggle('hidden'); event.stopPropagation();">
+            <button class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:var(--navy-700)" aria-label="Account menu" onclick="document.getElementById('avatar-popover').classList.toggle('hidden'); event.stopPropagation();">
               <span id="portal-user-initials"></span>
             </button>
-            <div id="avatar-popover" class="hidden absolute end-0 mt-2 w-44 card z-30 p-1.5">
-              <button id="avatar-settings-btn" class="w-full text-start px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--navy-700)"><i data-lucide="settings" class="w-4 h-4"></i> الإعدادات</button>
-              <button id="portal-logout" class="w-full text-start px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--danger-600)"><i data-lucide="log-out" class="w-4 h-4"></i> تسجيل الخروج</button>
+            <div id="avatar-popover" class="hidden absolute right-0 mt-2 w-44 card z-30 p-1.5">
+              <button id="avatar-settings-btn" class="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--navy-700)"><i data-lucide="settings" class="w-4 h-4"></i> Settings</button>
+              <button id="portal-logout" class="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--danger-600)"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</button>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div class="container-ep py-8">
-
+      
 <div data-tab-panel="overview">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">نظرة عامة</h1>
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Overview</h1>
   <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8" id="admin-kpis"></div>
   <div class="grid lg:grid-cols-2 gap-6">
     <div class="card p-6">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">النشاط الأخير</p>
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Recent Activity</p>
       <div id="admin-activity" class="space-y-3 text-sm"></div>
     </div>
     <div class="card p-6">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">إجراءات سريعة</p>
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Quick Actions</p>
       <div class="grid grid-cols-2 gap-3">
-        <button onclick="switchTab('admin-shell','blog'); openPostForm();" class="btn btn-secondary btn-sm">منشور مدونة جديد</button>
-        <button onclick="switchTab('admin-shell','notifications')" class="btn btn-secondary btn-sm">إرسال إشعار</button>
-        <button onclick="switchTab('admin-shell','users')" class="btn btn-secondary btn-sm">إضافة مستخدم</button>
-        <a href="ar/index.html" class="btn btn-secondary btn-sm text-center">عرض الموقع</a>
+        <button onclick="switchTab('admin-shell','blog'); openPostForm();" class="btn btn-secondary btn-sm">New Blog Post</button>
+        <button onclick="switchTab('admin-shell','notifications')" class="btn btn-secondary btn-sm">Send Notification</button>
+        <button onclick="switchTab('admin-shell','users')" class="btn btn-secondary btn-sm">Add User</button>
+        <a href="index.html" class="btn btn-secondary btn-sm text-center">View Site</a>
       </div>
     </div>
   </div>
 </div>
 
 <div data-tab-panel="analytics" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">التحليلات</h1>
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Analytics</h1>
   <div class="grid sm:grid-cols-3 gap-4 mb-6">
     <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">الإيرادات — هذا الشهر</p>
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue — This Month</p>
       <p id="analytics-revenue-month" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">التسجيلات المفعّلة هذا الشهر</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Enrollments activated this month</p>
     </div>
     <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">الإيرادات — هذا العام</p>
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue — This Year</p>
       <p id="analytics-revenue-year" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">التسجيلات المفعّلة هذا العام</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Enrollments activated this year</p>
     </div>
     <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">الإيرادات — منذ البداية</p>
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue — All Time</p>
       <p id="analytics-revenue-total" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">لا يُعاد ضبطه أبداً — المجموع التراكمي</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Never resets — running total</p>
     </div>
   </div>
   <div class="grid sm:grid-cols-2 gap-4 mb-6">
     <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">الطلاب النشطون</p>
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Active Students</p>
       <p id="analytics-active-students" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">لديهم دورة مسندة</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">With a course assigned</p>
     </div>
     <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">معدل التحويل</p>
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Conversion Rate</p>
       <p id="analytics-conversion" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">التسجيلات التي أصبحت نشطة</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Signups that became active</p>
     </div>
   </div>
   <div class="grid lg:grid-cols-2 gap-6">
     <div class="card p-5">
       <div class="flex items-center justify-between mb-4">
-        <p class="font-semibold" style="color:var(--navy-700)">الإيرادات حسب الشهر</p>
+        <p class="font-semibold" style="color:var(--navy-700)">Revenue by Month</p>
         <select id="analytics-revenue-year-select" class="px-2 py-1 rounded-md border text-xs" style="border-color:var(--border-default)"></select>
       </div>
       <canvas id="analytics-chart-revenue" height="220"></canvas>
     </div>
     <div class="card p-5">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">التسجيلات عبر الزمن</p>
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Enrollments Over Time</p>
       <canvas id="analytics-chart-enrollments" height="220"></canvas>
     </div>
     <div class="card p-5">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">حالة التسجيلات</p>
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Enrollment Status</p>
       <canvas id="analytics-chart-status" height="220"></canvas>
     </div>
     <div class="card p-5 lg:col-span-2">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">أكثر البرامج شعبية</p>
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Most Popular Programs</p>
       <canvas id="analytics-chart-programs" height="200"></canvas>
     </div>
   </div>
@@ -259,10 +263,10 @@
 
 <div data-tab-panel="blog" class="hidden">
   <div class="flex items-center justify-between mb-6">
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">المدونة والمحتوى</h1>
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Blog &amp; Content</h1>
     <div class="flex gap-2">
-      <button onclick="document.getElementById('category-modal').classList.remove('hidden'); loadCategoryManager();" class="btn btn-secondary btn-sm"><i data-lucide="tag" class="w-4 h-4 me-1"></i> إدارة الفئات</button>
-      <button onclick="openPostForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 me-1"></i> منشور جديد</button>
+      <button onclick="document.getElementById('category-modal').classList.remove('hidden'); loadCategoryManager();" class="btn btn-secondary btn-sm"><i data-lucide="tag" class="w-4 h-4 mr-1"></i> Manage Categories</button>
+      <button onclick="openPostForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> New Post</button>
     </div>
   </div>
   <div id="admin-posts-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
@@ -272,32 +276,32 @@
 <div id="category-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
   <div class="card w-full max-w-sm p-6">
     <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">إدارة الفئات</p>
-      <button onclick="closeModal('category-modal')" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Manage Categories</p>
+      <button onclick="closeModal('category-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div id="category-lang-toggle" class="flex gap-2 mb-4">
       <button type="button" data-lang="en" onclick="loadCategoryManager('en')" class="btn btn-primary btn-sm flex-1">English</button>
-      <button type="button" data-lang="fr" onclick="loadCategoryManager('fr')" class="btn btn-secondary btn-sm flex-1">Français</button>
+      <button type="button" data-lang="fr" onclick="loadCategoryManager('fr')" class="btn btn-secondary btn-sm flex-1">Fran\u00e7ais</button>
       <button type="button" data-lang="ar" onclick="loadCategoryManager('ar')" class="btn btn-secondary btn-sm flex-1">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;</button>
     </div>
     <div id="category-list" class="space-y-2 mb-4"></div>
     <form id="category-form" class="flex gap-2">
-      <input id="category-name-input" required placeholder="اسم الفئة الجديدة" class="flex-1 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <button type="submit" class="btn btn-primary btn-sm">إضافة</button>
+      <input id="category-name-input" required placeholder="New category name" class="flex-1 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <button type="submit" class="btn btn-primary btn-sm">Add</button>
     </form>
   </div>
 </div>
 
 <div data-tab-panel="homework" class="hidden">
   <div class="flex items-center justify-between mb-6">
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">الواجبات والدرجات</h1>
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Homework &amp; Grades</h1>
   </div>
   <div class="flex flex-wrap gap-2 mb-6">
     <select id="hw-course-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="">كل الدورات</option>
+      <option value="">All Courses</option>
     </select>
     <select id="hw-teacher-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="">كل المعلمين</option>
+      <option value="">All Teachers</option>
     </select>
   </div>
   <div id="admin-homework-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
@@ -305,12 +309,12 @@
 
 <div data-tab-panel="resources" class="hidden">
   <div class="flex items-center justify-between mb-6">
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">الموارد</h1>
-    <button onclick="openResourceForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 me-1"></i> إضافة مورد</button>
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Resources</h1>
+    <button onclick="openResourceForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Resource</button>
   </div>
   <div class="flex flex-wrap gap-2 mb-6">
     <select id="res-category-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="">كل الفئات</option>
+      <option value="">All Categories</option>
     </select>
   </div>
   <div id="admin-resources-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
@@ -320,38 +324,38 @@
 <div id="resource-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
   <div class="card w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">إضافة مورد</p>
-      <button onclick="closeModal('resource-modal')" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add Resource</p>
+      <button onclick="closeModal('resource-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <form id="resource-form" class="space-y-4">
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">العنوان</label><input id="res-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الوصف (اختياري)</label><textarea id="res-description" rows="2" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea></div>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="res-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Description (optional)</label><textarea id="res-description" rows="2" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea></div>
       <div class="grid sm:grid-cols-2 gap-4">
-        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">النوع</label>
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Type</label>
           <select id="res-type" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-            <option value="pdf">مستند PDF</option>
-            <option value="video">رابط فيديو</option>
-            <option value="link">رابط آخر</option>
+            <option value="pdf">PDF Document</option>
+            <option value="video">Video Link</option>
+            <option value="link">Other Link</option>
           </select>
         </div>
-        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الفئة</label><input id="res-category" list="res-category-suggestions" placeholder="مثال: الألمانية، تعليم عام" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"><datalist id="res-category-suggestions"></datalist></div>
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label><input id="res-category" list="res-category-suggestions" placeholder="e.g. German, General Teaching" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"><datalist id="res-category-suggestions"></datalist></div>
       </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">إرسال إلى</label>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Send To</label>
         <select id="res-target-teacher" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="">كل المعلمين</option>
+          <option value="">All Teachers</option>
         </select>
       </div>
       <div id="res-pdf-field">
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">ملف PDF</label>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">PDF File</label>
         <input id="res-file" type="file" accept="application/pdf" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        <p class="text-xs mt-1" style="color:var(--text-secondary)">حتى 10 ميجابايت.</p>
+        <p class="text-xs mt-1" style="color:var(--text-secondary)">Up to 10MB.</p>
       </div>
       <div id="res-url-field" class="hidden">
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الرابط</label>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Link</label>
         <input id="res-url" type="url" placeholder="https://..." class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        <p id="res-url-hint" class="text-xs mt-1" style="color:var(--text-secondary)">ألصق رابط يوتيوب (أو فيديو آخر).</p>
+        <p id="res-url-hint" class="text-xs mt-1" style="color:var(--text-secondary)">Paste a YouTube (or other video) URL.</p>
       </div>
-      <button type="submit" id="res-submit-btn" class="btn btn-primary w-full">إرسال لجميع المعلمين</button>
+      <button type="submit" id="res-submit-btn" class="btn btn-primary w-full">Send to All Teachers</button>
     </form>
   </div>
 </div>
@@ -360,8 +364,8 @@
 <div id="homework-detail-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
   <div class="card w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-1">
-      <p id="hw-detail-title" class="font-serif font-semibold text-lg" style="color:var(--navy-700)">الواجب</p>
-      <button onclick="closeModal('homework-detail-modal')" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <p id="hw-detail-title" class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Homework</p>
+      <button onclick="closeModal('homework-detail-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <p id="hw-detail-meta" class="text-xs mb-5" style="color:var(--text-secondary)"></p>
     <div id="hw-detail-submissions" class="space-y-3"></div>
@@ -369,32 +373,32 @@
 </div>
 
 <div data-tab-panel="notifications" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">الإشعارات</h1>
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Notifications</h1>
   <div class="grid lg:grid-cols-2 gap-6">
     <div class="card p-6">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">إنشاء وإرسال</p>
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Compose &amp; Send</p>
       <form id="notif-form" class="space-y-4">
         <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الجمهور</label>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Audience</label>
           <select id="notif-audience" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-            <option value="all">الجميع</option>
-            <option value="teachers">كل المعلمين</option>
-            <option value="students">كل الطلاب</option>
+            <option value="all">Everyone</option>
+            <option value="teachers">All Teachers</option>
+            <option value="students">All Students</option>
           </select>
         </div>
         <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">العنوان</label>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label>
           <input id="notif-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
         </div>
         <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الرسالة</label>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Message</label>
           <textarea id="notif-body" required rows="3" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary w-full">إرسال الإشعار</button>
+        <button type="submit" class="btn btn-primary w-full">Send Notification</button>
       </form>
     </div>
     <div class="card p-6">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">سجل الإرسال</p>
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Sent History</p>
       <div id="admin-notif-list" class="space-y-3 max-h-96 overflow-y-auto"></div>
     </div>
   </div>
@@ -402,10 +406,10 @@
 
 <div data-tab-panel="users" class="hidden">
   <div class="flex items-center justify-between mb-6">
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">المعلمون والطلاب</h1>
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Teachers &amp; Students</h1>
     <div class="flex gap-2">
-      <button onclick="exportUsersCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 me-1"></i> تصدير CSV</button>
-      <button onclick="openUserForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 me-1"></i> إضافة مستخدم</button>
+      <button onclick="exportUsersCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export CSV</button>
+      <button onclick="openUserForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add User</button>
     </div>
   </div>
   <div id="admin-users-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
@@ -415,11 +419,11 @@
 <div id="user-detail-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
   <div class="card w-full max-w-md p-6">
     <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">تفاصيل المستخدم</p>
-      <button onclick="closeModal('user-detail-modal')" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">User Details</p>
+      <button onclick="closeModal('user-detail-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div id="user-detail-blocked-banner" class="hidden p-3 rounded-md text-sm mb-4" style="background:var(--danger-50); color:var(--danger-600)">
-      <p class="font-semibold">الوصول محظور حالياً</p>
+      <p class="font-semibold">Access is currently blocked</p>
       <p id="user-detail-blocked-reason" class="text-xs mt-1"></p>
     </div>
     <div class="flex items-center gap-3 mb-5">
@@ -438,22 +442,22 @@
       <div class="flex items-center gap-3"><i data-lucide="banknote" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-payment" style="color:var(--text-primary)">—</span></div>
     </div>
     <div class="grid grid-cols-2 gap-3 mt-6">
-      <a id="user-detail-email-btn" href="#" class="btn btn-secondary btn-sm justify-center"><i data-lucide="mail" class="w-4 h-4 me-1"></i> بريد إلكتروني</a>
-      <a id="user-detail-whatsapp-btn" href="#" target="_blank" rel="noopener" class="btn btn-secondary btn-sm justify-center"><i data-lucide="message-circle" class="w-4 h-4 me-1"></i> واتساب</a>
+      <a id="user-detail-email-btn" href="#" class="btn btn-secondary btn-sm justify-center"><i data-lucide="mail" class="w-4 h-4 mr-1"></i> Email</a>
+      <a id="user-detail-whatsapp-btn" href="#" target="_blank" rel="noopener" class="btn btn-secondary btn-sm justify-center"><i data-lucide="message-circle" class="w-4 h-4 mr-1"></i> WhatsApp</a>
     </div>
     <div class="border-t mt-5 pt-5" style="border-color:var(--border-default)">
-      <p class="text-xs font-semibold uppercase tracking-wide mb-3" style="color:var(--text-secondary)">أدوات المشرف</p>
+      <p class="text-xs font-semibold uppercase tracking-wide mb-3" style="color:var(--text-secondary)">Admin Controls</p>
       <div class="flex items-center gap-2 mb-3">
         <select id="user-detail-role-select" class="flex-1 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="student">طالب</option>
-          <option value="teacher">معلم</option>
-          <option value="admin">مشرف</option>
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+          <option value="admin">Admin</option>
         </select>
-        <button id="user-detail-role-save" class="btn btn-secondary btn-sm shrink-0">تغيير الدور</button>
+        <button id="user-detail-role-save" class="btn btn-secondary btn-sm shrink-0">Change Role</button>
       </div>
       <div class="grid grid-cols-1 gap-2">
-        <button id="user-detail-mark-paid" class="btn btn-secondary btn-sm justify-center"><i data-lucide="check-circle" class="w-4 h-4 me-1"></i> تحديد كمدفوع هذا الشهر</button>
-        <button id="user-detail-block-btn" class="btn btn-sm justify-center" style="background:var(--danger-50); color:var(--danger-600)"><i data-lucide="lock" class="w-4 h-4 me-1"></i> حظر الوصول</button>
+        <button id="user-detail-mark-paid" class="btn btn-secondary btn-sm justify-center"><i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> Mark Paid This Month</button>
+        <button id="user-detail-block-btn" class="btn btn-sm justify-center" style="background:var(--danger-50); color:var(--danger-600)"><i data-lucide="lock" class="w-4 h-4 mr-1"></i> Block Access</button>
       </div>
     </div>
   </div>
@@ -463,45 +467,45 @@
 <div id="post-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
   <div id="post-modal-card" class="card w-full max-w-3xl p-6 max-h-[92vh] overflow-y-auto transition-all">
     <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">منشور مدونة جديد</p>
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">New Blog Post</p>
       <div class="flex items-center gap-3">
-        <button type="button" onclick="toggleFullscreenEditor()" class="text-xs font-semibold flex items-center gap-1" style="color:var(--text-secondary)"><i data-lucide="maximize-2" class="w-4 h-4"></i> <span id="fullscreen-label">توسيع</span></button>
-        <button onclick="closeModal('post-modal')" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <button type="button" onclick="toggleFullscreenEditor()" class="text-xs font-semibold flex items-center gap-1" style="color:var(--text-secondary)"><i data-lucide="maximize-2" class="w-4 h-4"></i> <span id="fullscreen-label">Expand</span></button>
+        <button onclick="closeModal('post-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
     </div>
     <form id="post-form" class="space-y-4">
       <input type="hidden" id="post-id">
       <div class="grid sm:grid-cols-2 gap-4">
-        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">العنوان</label><input id="post-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">اللغة</label>
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="post-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Language</label>
           <select id="post-language" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
             <option value="en">English</option>
-            <option value="fr">Français (الفرنسية)</option>
-            <option value="ar">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577; (العربية)</option>
+            <option value="fr">Fran\u00e7ais (French)</option>
+            <option value="ar">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577; (Arabic)</option>
           </select>
         </div>
       </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الفئة</label>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label>
         <select id="post-category" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
       </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">المقتطف</label><input id="post-excerpt" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Excerpt</label><input id="post-excerpt" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
       <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">صورة الغلاف</label>
-        <p class="text-xs mb-2" style="color:var(--text-secondary)">تظهر كصورة مصغّرة في شبكة منشورات المدونة. ارفع صورة، أو ألصق رابطاً بدلاً من ذلك — اختياري.</p>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Cover Photo</label>
+        <p class="text-xs mb-2" style="color:var(--text-secondary)">Shown as the thumbnail in the blog posts grid. Upload an image, or paste a URL instead — optional.</p>
         <input id="post-cover-file" type="file" accept="image/*" class="w-full px-4 py-3 rounded-md border text-sm mb-2" style="border-color:var(--border-default)">
-        <input id="post-cover-url" type="url" placeholder="...أو ألصق رابط صورة" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <input id="post-cover-url" type="url" placeholder="...or paste an image URL" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
         <p id="post-cover-status" class="text-xs mt-1 hidden"></p>
         <img id="post-cover-preview" class="hidden mt-2 rounded-md" style="max-height:120px; object-fit:cover">
       </div>
       <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">المحتوى</label>
-        <p class="text-xs mb-2" style="color:var(--text-secondary)">استخدم زر الفيديو لروابط يوتيوب (ألصق رابط الفيديو) وزر الصورة لأي رابط صورة. زر "Tx" يزيل التنسيق من النص المحدد — حدد نصاً أولاً ثم اضغط عليه.</p>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Body</label>
+        <p class="text-xs mb-2" style="color:var(--text-secondary)">Use the video button for YouTube (paste the video URL) and the image button for any image URL. The "Tx" button clears formatting from selected text — select some text first, then click it.</p>
         <div id="post-body-editor" style="background:#fff"></div>
-        <textarea id="post-body" required rows="8" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)" placeholder="اكتب منشورك..."></textarea>
+        <textarea id="post-body" required rows="8" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)" placeholder="Write your post..."></textarea>
       </div>
       <div class="flex gap-3">
-        <button type="submit" data-status="draft" class="btn btn-secondary flex-1">حفظ كمسودة</button>
-        <button type="submit" data-status="published" class="btn btn-primary flex-1">نشر</button>
+        <button type="submit" data-status="draft" class="btn btn-secondary flex-1">Save Draft</button>
+        <button type="submit" data-status="published" class="btn btn-primary flex-1">Publish</button>
       </div>
     </form>
   </div>
@@ -511,45 +515,45 @@
 <div id="user-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
   <div class="card w-full max-w-md p-6">
     <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">إضافة مستخدم</p>
-      <button onclick="closeModal('user-modal')" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add User</p>
+      <button onclick="closeModal('user-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <form id="user-form" class="space-y-4">
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الاسم الكامل</label><input id="user-name" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">بريد الدخول</label>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Full Name</label><input id="user-name" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Login Email</label>
         <input id="user-email" required type="email" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        <p class="text-xs mt-1" style="color:var(--text-secondary)">مقترح من الاسم — غيّره إذا كان هذا البريد مستخدماً بالفعل من قبل مستخدم محذوف.</p>
+        <p class="text-xs mt-1" style="color:var(--text-secondary)">Suggested from the name — change it if this email is already taken by a removed user.</p>
       </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">كلمة المرور الأولية</label>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Initial Password</label>
         <div class="flex gap-2">
           <input id="user-password" required minlength="6" type="text" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <button type="button" onclick="generateUserPassword()" class="btn btn-secondary btn-sm shrink-0">توليد</button>
+          <button type="button" onclick="generateUserPassword()" class="btn btn-secondary btn-sm shrink-0">Generate</button>
         </div>
-        <p class="text-xs mt-1" style="color:var(--text-secondary)">6 أحرف على الأقل. شاركها معهم مباشرة — يمكنهم تغييرها بعد تسجيل الدخول.</p>
+        <p class="text-xs mt-1" style="color:var(--text-secondary)">At least 6 characters. Share this with them directly — they can change it after logging in.</p>
       </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الدور</label>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Role</label>
         <select id="user-role" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="teacher">معلم</option><option value="student">طالب</option>
+          <option value="teacher">Teacher</option><option value="student">Student</option>
         </select>
       </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الدورة</label>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course</label>
         <select id="user-course" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
       </div>
-      <button type="submit" class="btn btn-primary w-full">إضافة مستخدم</button>
+      <button type="submit" class="btn btn-primary w-full">Add User</button>
     </form>
   </div>
 </div>
 
 <div data-tab-panel="enrollments" class="hidden">
   <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">التسجيلات</h1>
-    <button onclick="exportEnrollmentsCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 me-1"></i> تصدير CSV</button>
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Enrollments</h1>
+    <button onclick="exportEnrollmentsCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export CSV</button>
   </div>
   <div class="flex flex-wrap gap-2 mb-6" id="enrollment-filter-tabs">
-    <button data-enrollment-filter="pending" class="persona-tab" aria-selected="true">قيد الانتظار</button>
-    <button data-enrollment-filter="active" class="persona-tab" aria-selected="false">نشط</button>
-    <button data-enrollment-filter="cancelled" class="persona-tab" aria-selected="false">ملغى</button>
-    <button data-enrollment-filter="all" class="persona-tab" aria-selected="false">الكل</button>
+    <button data-enrollment-filter="pending" class="persona-tab" aria-selected="true">Pending</button>
+    <button data-enrollment-filter="active" class="persona-tab" aria-selected="false">Active</button>
+    <button data-enrollment-filter="cancelled" class="persona-tab" aria-selected="false">Cancelled</button>
+    <button data-enrollment-filter="all" class="persona-tab" aria-selected="false">All</button>
   </div>
   <div id="admin-enrollments-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
@@ -557,75 +561,75 @@
 <div id="activate-enrollment-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
   <div class="card w-full max-w-sm p-6">
     <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">تفعيل التسجيل</p>
-      <button onclick="document.getElementById('activate-enrollment-modal').classList.add('hidden')" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Activate Enrollment</p>
+      <button onclick="document.getElementById('activate-enrollment-modal').classList.add('hidden')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div id="activate-modal-summary" class="text-sm mb-4 p-3 rounded-lg" style="background:var(--bg-subtle); color:var(--text-secondary)"></div>
     <form id="activate-enrollment-form" class="space-y-4">
       <input type="hidden" id="activate-enrollment-id">
       <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الدورة</label>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course</label>
         <select id="activate-course" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
-        <p id="activate-course-hint" class="text-xs mt-1 hidden" style="color:var(--amber-600)">لم يختر هذا الطالب دورة عند التسجيل — اختر واحدة لتفعيل تسجيله.</p>
+        <p id="activate-course-hint" class="text-xs mt-1 hidden" style="color:var(--amber-600)">This student hadn't chosen a course at signup — pick one to activate their enrollment.</p>
       </div>
       <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">السعر المتفق عليه (درهم)</label>
-        <input id="activate-price" type="number" min="0" step="1" placeholder="مثال: 890" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Agreed price (MAD)</label>
+        <input id="activate-price" type="number" min="0" step="1" placeholder="e.g. 890" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
       </div>
       <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">حالة الدفع</label>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Payment status</label>
         <select id="activate-payment-status" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="paid">مدفوع (نقداً / تحويل بنكي مؤكد)</option>
-          <option value="unpaid">غير مدفوع — تفعيل على أي حال</option>
-          <option value="waived">معفى (منحة / مجاني)</option>
+          <option value="paid">Paid (cash / bank transfer confirmed)</option>
+          <option value="unpaid">Unpaid — activate anyway</option>
+          <option value="waived">Waived (scholarship / free)</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primary w-full">تفعيل التسجيل</button>
-      <button type="button" id="activate-cancel-link" class="hidden text-xs font-semibold w-full text-center" style="color:var(--danger-600)">إلغاء هذا التسجيل</button>
+      <button type="submit" class="btn btn-primary w-full">Activate Enrollment</button>
+      <button type="button" id="activate-cancel-link" class="hidden text-xs font-semibold w-full text-center" style="color:var(--danger-600)">Cancel This Enrollment</button>
     </form>
   </div>
 </div>
 
 <div data-tab-panel="groups" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">مجموعات المجتمع</h1>
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Community Groups</h1>
   <div class="flex flex-wrap gap-2 mb-6" id="admin-group-tabs"></div>
   <div id="admin-group-posts" class="space-y-4"></div>
 </div>
 
 <div data-tab-panel="settings" class="hidden max-w-lg">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">إعدادات الحساب</h1>
+  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Account Settings</h1>
 
   <div class="card p-6 mb-6">
-    <p class="font-semibold mb-1" style="color:var(--navy-700)">الملف الشخصي</p>
-    <p class="text-xs mb-4" style="color:var(--text-secondary)">مسجّل الدخول باسم <span id="settings-email" class="font-medium"></span></p>
+    <p class="font-semibold mb-1" style="color:var(--navy-700)">Profile</p>
+    <p class="text-xs mb-4" style="color:var(--text-secondary)">Signed in as <span id="settings-email" class="font-medium"></span></p>
     <form id="settings-profile-form" class="space-y-4">
       <div>
-        <label for="settings-name" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">الاسم الكامل</label>
+        <label for="settings-name" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Full Name</label>
         <input id="settings-name" required type="text" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
       </div>
-      <button type="submit" class="btn btn-primary">حفظ الملف الشخصي</button>
+      <button type="submit" class="btn btn-primary">Save Profile</button>
     </form>
   </div>
 
   <div class="card p-6 mb-6">
-    <p class="font-semibold mb-4" style="color:var(--navy-700)">تغيير كلمة المرور</p>
+    <p class="font-semibold mb-4" style="color:var(--navy-700)">Change Password</p>
     <form id="settings-password-form" class="space-y-4">
       <div>
-        <label for="settings-new-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">كلمة المرور الجديدة</label>
+        <label for="settings-new-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">New Password</label>
         <input id="settings-new-password" required type="password" minlength="8" autocomplete="new-password" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
       </div>
       <div>
-        <label for="settings-confirm-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">تأكيد كلمة المرور الجديدة</label>
+        <label for="settings-confirm-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Confirm New Password</label>
         <input id="settings-confirm-password" required type="password" autocomplete="new-password" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
       </div>
-      <button type="submit" class="btn btn-secondary">تحديث كلمة المرور</button>
+      <button type="submit" class="btn btn-secondary">Update Password</button>
     </form>
   </div>
 
   <div class="card p-6">
-    <p class="font-semibold mb-1" style="color:var(--navy-700)">تسجيل الخروج</p>
-    <p class="text-xs mb-4" style="color:var(--text-secondary)">إنهاء جلستك على هذا الجهاز.</p>
-    <button id="settings-logout" class="btn btn-secondary" style="color:var(--danger-600); border-color:var(--danger-600)">تسجيل الخروج</button>
+    <p class="font-semibold mb-1" style="color:var(--navy-700)">Log Out</p>
+    <p class="text-xs mb-4" style="color:var(--text-secondary)">End your session on this device.</p>
+    <button id="settings-logout" class="btn btn-secondary" style="color:var(--danger-600); border-color:var(--danger-600)">Log Out</button>
   </div>
 </div>
 
@@ -636,8 +640,8 @@
 <div id="notif-lightbox" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
   <div class="card w-full max-w-md p-6">
     <div class="flex items-center justify-between mb-4">
-      <p class="eyebrow" style="color:var(--teal-600)">إشعار</p>
-      <button id="notif-lightbox-close" aria-label="إغلاق"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <p class="eyebrow" style="color:var(--teal-600)">Notification</p>
+      <button id="notif-lightbox-close" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <h2 id="notif-lightbox-title" class="font-serif text-xl font-bold mb-2" style="color:var(--navy-700)"></h2>
     <p id="notif-lightbox-body" class="text-sm mb-3" style="color:var(--text-secondary)"></p>
@@ -664,49 +668,49 @@ document.getElementById('avatar-settings-btn').addEventListener('click', () => {
     <div class="container-ep py-14 grid grid-cols-2 md:grid-cols-5 gap-8">
       <div class="col-span-2">
         <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
-        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">مركز تدريب في اللغات والتمريض في مدينة الخميسات، المغرب — الألمانية، الفرنسية، الإنجليزية، التمريض، والتوظيف عبر Ausbildung.</p>
+        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">Language and nursing training center based in Khemisset, Morocco — German, French, English, Nursing, and Ausbildung placement.</p>
         <div class="flex gap-3 mt-4">
-          <a href="#" aria-label="فيسبوك" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="facebook" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
-          <a href="#" aria-label="إنستغرام" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="instagram" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
-          <a href="#" aria-label="يوتيوب" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="youtube" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="Facebook" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="facebook" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="Instagram" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="instagram" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
+          <a href="#" aria-label="YouTube" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="youtube" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
         </div>
       </div>
       <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">البرامج</p>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Programs</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
-          <li><a href="ar/program-german.html" class="hover:underline">الألمانية</a></li>
-          <li><a href="ar/program-french.html" class="hover:underline">الفرنسية</a></li>
-          <li><a href="ar/courses.html" class="hover:underline">الإنجليزية</a></li>
-          <li><a href="ar/program-nursing.html" class="hover:underline">برنامج التمريض</a></li>
-          <li><a href="ar/program-nursing-ausbildung.html" class="hover:underline">تدريب وتوظيف Ausbildung</a></li>
+          <li><a href="program-german.html" class="hover:underline">German</a></li>
+          <li><a href="program-french.html" class="hover:underline">French</a></li>
+          <li><a href="courses.html" class="hover:underline">English</a></li>
+          <li><a href="program-nursing.html" class="hover:underline">Nursing Program</a></li>
+          <li><a href="program-nursing-ausbildung.html" class="hover:underline">Ausbildung Training &amp; Placement</a></li>
         </ul>
       </div>
       <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">تعلّم</p>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Learn</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
-          <li><a href="ar/test-level.html" class="hover:underline">اختبر مستواك</a></li>
-          <li><a href="ar/blog.html" class="hover:underline">المدونة</a></li>
-          <li><a href="ar/about.html" class="hover:underline">من نحن</a></li>
-          <li><a href="ar/contact.html" class="hover:underline">الأسئلة الشائعة</a></li>
+          <li><a href="test-level.html" class="hover:underline">Test Your Level</a></li>
+          <li><a href="blog.html" class="hover:underline">Blog</a></li>
+          <li><a href="about.html" class="hover:underline">About</a></li>
+          <li><a href="contact.html" class="hover:underline">FAQ</a></li>
         </ul>
       </div>
       <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">الحساب</p>
+        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Account</p>
         <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
-          <li><a href="login.html" class="hover:underline">تسجيل الدخول للبوابة</a></li>
-          <li><a href="signup.html" class="hover:underline">إنشاء حساب</a></li>
+          <li><a href="login.html" class="hover:underline">Portal Login</a></li>
+          <li><a href="signup.html" class="hover:underline">Create Account</a></li>
                   </ul>
       </div>
     </div>
     <div class="container-ep py-6 border-t flex flex-col md:flex-row justify-between gap-3 text-xs" style="border-color:var(--border-default); color:var(--text-secondary)">
-      <p>© 2026 يوروباس لتعليم اللغات والتمريض، الخميسات. جميع الحقوق محفوظة.</p>
+      <p>© 2026 EuroPass Language &amp; Nursing School, Khemisset. All rights reserved.</p>
       <div class="flex gap-4">
-        <a href="privacy.html" class="hover:underline">سياسة الخصوصية</a>
-        <a href="terms.html" class="hover:underline">الشروط</a>
+        <a href="privacy.html" class="hover:underline">Privacy Policy</a>
+        <a href="terms.html" class="hover:underline">Terms</a>
       </div>
     </div>
   </footer>
-  <div id="toast-container" class="fixed bottom-4 end-4 z-50 w-72"></div>
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
 
 <script src="assets/js/main.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/admin.js"></script>
