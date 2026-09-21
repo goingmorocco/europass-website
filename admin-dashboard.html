@@ -216,6 +216,18 @@
     </div>
   </div>
 
+  <div class="flex flex-wrap gap-2 mb-6" id="finance-tab-tabs">
+    <button data-finance-tab="overview" class="persona-tab" aria-selected="true">Overview</button>
+    <button data-finance-tab="coa" class="persona-tab" aria-selected="false">Chart of Accounts</button>
+    <button data-finance-tab="ledger" class="persona-tab" aria-selected="false">General Ledger</button>
+    <button data-finance-tab="trial-balance" class="persona-tab" aria-selected="false">Trial Balance</button>
+    <button data-finance-tab="balance-sheet" class="persona-tab" aria-selected="false">Balance Sheet</button>
+    <button data-finance-tab="pnl" class="persona-tab" aria-selected="false">P&amp;L</button>
+    <button data-finance-tab="journal-entry" class="persona-tab" aria-selected="false">Journal Entry</button>
+    <button data-finance-tab="payroll" class="persona-tab" aria-selected="false">Payroll</button>
+  </div>
+
+  <div data-finance-panel="overview">
   <div id="payment-due-panel" class="hidden card p-5 mb-6" style="background:var(--danger-50); border-color:var(--danger-600)">
     <p class="font-semibold text-sm mb-1" style="color:var(--danger-600)"><i data-lucide="bell-ring" class="w-4 h-4 inline align-text-bottom mr-1"></i> Payment Due Soon</p>
     <p class="text-xs mb-3" style="color:var(--text-secondary)">Due within a week (or already overdue) with a balance still owed — reach out before it's late.</p>
@@ -317,6 +329,95 @@
     </select>
   </div>
   <div id="admin-expenses-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+  </div>
+  <!-- /overview -->
+
+  <!-- Chart of Accounts -->
+  <div data-finance-panel="coa" class="hidden">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <h2 class="font-serif text-xl font-bold" style="color:var(--navy-700)">Chart of Accounts</h2>
+      <button onclick="openAccountModal()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Account</button>
+    </div>
+    <div id="admin-accounts-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+  </div>
+
+  <!-- General Ledger -->
+  <div data-finance-panel="ledger" class="hidden">
+    <h2 class="font-serif text-xl font-bold mb-4" style="color:var(--navy-700)">General Ledger</h2>
+    <div class="flex flex-wrap gap-2 mb-4 items-end">
+      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">From</label><input id="ledger-from" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">To</label><input id="ledger-to" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">Account</label>
+        <select id="ledger-account" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"><option value="">All Accounts</option></select>
+      </div>
+      <button onclick="renderGeneralLedger()" class="btn btn-secondary btn-sm">Apply Filters</button>
+    </div>
+    <div id="admin-ledger-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+  </div>
+
+  <!-- Trial Balance -->
+  <div data-finance-panel="trial-balance" class="hidden">
+    <h2 class="font-serif text-xl font-bold mb-4" style="color:var(--navy-700)">Trial Balance</h2>
+    <div class="flex flex-wrap gap-2 mb-4 items-end">
+      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">From</label><input id="tb-from" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">To</label><input id="tb-to" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <button onclick="renderTrialBalance()" class="btn btn-secondary btn-sm">Apply Filters</button>
+    </div>
+    <div id="admin-trial-balance-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+  </div>
+
+  <!-- Balance Sheet -->
+  <div data-finance-panel="balance-sheet" class="hidden">
+    <h2 class="font-serif text-xl font-bold mb-4" style="color:var(--navy-700)">Balance Sheet</h2>
+    <div class="flex flex-wrap gap-2 mb-4 items-end">
+      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">As Of (end date)</label><input id="bs-to" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">From (optional)</label><input id="bs-from" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <button onclick="renderBalanceSheet()" class="btn btn-secondary btn-sm">Apply Filters</button>
+    </div>
+    <div id="admin-balance-sheet" class="space-y-6"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+  </div>
+
+  <!-- P&L -->
+  <div data-finance-panel="pnl" class="hidden">
+    <h2 class="font-serif text-xl font-bold mb-4" style="color:var(--navy-700)">Profit &amp; Loss</h2>
+    <div class="flex flex-wrap gap-2 mb-4 items-end">
+      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">From</label><input id="pnl-from" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">To</label><input id="pnl-to" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <button onclick="renderPnl()" class="btn btn-secondary btn-sm">Apply Filters</button>
+    </div>
+    <div id="admin-pnl" class="space-y-6"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+  </div>
+
+  <!-- Journal Entry (manual) -->
+  <div data-finance-panel="journal-entry" class="hidden">
+    <h2 class="font-serif text-xl font-bold mb-4" style="color:var(--navy-700)">Manual Journal Entry</h2>
+    <div class="card p-5 mb-6">
+      <form id="journal-entry-form" class="space-y-4">
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Date</label><input id="je-date" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+          <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Memo</label><input id="je-memo" placeholder="What is this entry for?" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-2" style="color:var(--navy-700)">Lines</label>
+          <div id="je-lines" class="space-y-2"></div>
+          <button type="button" onclick="addJournalEntryLineRow()" class="btn btn-secondary btn-sm mt-2"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Line</button>
+        </div>
+        <div id="je-balance-indicator" class="p-3 rounded-md text-sm font-semibold" style="background:var(--bg-subtle)">Debits: 0.00 · Credits: 0.00</div>
+        <button type="submit" class="btn btn-primary w-full">Post Journal Entry</button>
+      </form>
+    </div>
+    <h3 class="font-serif text-lg font-bold mb-3" style="color:var(--navy-700)">Manual Entries</h3>
+    <div id="admin-manual-entries-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+  </div>
+
+  <!-- Payroll -->
+  <div data-finance-panel="payroll" class="hidden">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <h2 class="font-serif text-xl font-bold" style="color:var(--navy-700)">Payroll</h2>
+      <button onclick="openPayrollModal({})" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Payroll Entry</button>
+    </div>
+    <div id="admin-payroll-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+  </div>
 </div>
 
 <div data-tab-panel="blog" class="hidden">
@@ -492,6 +593,12 @@
       <option value="unenrolled">Not enrolled</option>
     </select>
   </div>
+  <div id="users-bulk-bar" class="hidden card p-3 mb-4 flex flex-wrap items-center gap-3" style="background:var(--navy-50)">
+    <p id="users-bulk-count" class="text-sm font-semibold shrink-0" style="color:var(--navy-700)">0 selected</p>
+    <select id="users-bulk-course" class="px-3 py-2 rounded-md border text-sm flex-1 min-w-[220px]" style="border-color:var(--border-default)"></select>
+    <button id="users-bulk-apply" class="btn btn-primary btn-sm shrink-0">Assign Course &amp; Teacher</button>
+    <button id="users-bulk-clear" class="text-xs font-semibold shrink-0" style="color:var(--text-secondary)">Clear selection</button>
+  </div>
   <div id="admin-users-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
@@ -652,6 +759,95 @@
       <div class="flex gap-3">
         <button type="button" id="expense-void-btn" class="btn btn-secondary btn-sm hidden" style="color:var(--danger-600); border-color:var(--danger-600)">Void</button>
         <button type="submit" class="btn btn-primary flex-1">Save Expense</button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add account modal -->
+<div id="account-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-sm p-6">
+    <div class="flex items-center justify-between mb-4">
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add Account</p>
+      <button onclick="closeModal('account-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <form id="account-form" class="space-y-4">
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Code</label>
+        <input id="account-code" required placeholder="e.g. 5600" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+      </div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Name</label>
+        <input id="account-name" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+      </div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Type</label>
+        <select id="account-type" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+          <option value="asset">Asset</option>
+          <option value="liability">Liability</option>
+          <option value="equity">Equity</option>
+          <option value="revenue">Revenue</option>
+          <option value="expense" selected>Expense</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Normal Balance</label>
+        <select id="account-normal-balance" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+          <option value="debit" selected>Debit</option>
+          <option value="credit">Credit</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary w-full">Add Account</button>
+    </form>
+  </div>
+</div>
+
+<!-- Payroll modal -->
+<div id="payroll-modal" class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
+    <div class="flex items-center justify-between mb-4 shrink-0">
+      <p id="payroll-modal-title" class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add Payroll Entry</p>
+      <button onclick="closeModal('payroll-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="overflow-y-auto min-h-0">
+    <form id="payroll-form" class="space-y-4">
+      <input type="hidden" id="payroll-id">
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Teacher</label>
+        <select id="payroll-teacher" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Period Start</label>
+          <input id="payroll-period-start" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Period End</label>
+          <input id="payroll-period-end" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Gross Amount</label>
+          <input id="payroll-amount" required type="number" min="0.01" step="0.01" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Currency</label>
+          <input id="payroll-currency" value="MAD" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        </div>
+      </div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Paid Date</label>
+        <input id="payroll-paid-at" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+      </div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Notes</label>
+        <textarea id="payroll-notes" rows="2" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
+      </div>
+      <div class="flex gap-3">
+        <button type="button" id="payroll-void-btn" class="btn btn-secondary btn-sm hidden" style="color:var(--danger-600); border-color:var(--danger-600)">Void</button>
+        <button type="submit" class="btn btn-primary flex-1">Save Payroll Entry</button>
       </div>
     </form>
     </div>
@@ -915,7 +1111,7 @@ document.getElementById('avatar-settings-btn').addEventListener('click', () => {
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
 
 <script src="assets/js/main.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/admin.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script><script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/admin.js"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>

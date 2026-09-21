@@ -168,6 +168,56 @@ document.addEventListener('DOMContentLoaded', async () => {
   let usersFilterCourse = '';
   let usersFilterStatus = '';
   let usersFilterBalance = '';
+  // Bulk-select state for the "assign course/teacher to several students at
+  // once" action — courses have exactly one teacher each, so assigning a
+  // course to a group of students is how reassigning their teacher works
+  // in this schema; there's no separate per-student teacher field.
+  let selectedStudentIds = new Set();
+  window.toggleUserSelect = (id, checked) => {
+    if (checked) selectedStudentIds.add(id); else selectedStudentIds.delete(id);
+    updateBulkBar();
+  };
+  window.toggleSelectAllUsers = (checked) => {
+    document.querySelectorAll('.user-select-checkbox').forEach((cb) => {
+      cb.checked = checked;
+      if (checked) selectedStudentIds.add(cb.dataset.userId); else selectedStudentIds.delete(cb.dataset.userId);
+    });
+    updateBulkBar();
+  };
+  async function updateBulkBar() {
+    const bar = document.getElementById('users-bulk-bar');
+    if (!bar) return;
+    if (selectedStudentIds.size === 0) { bar.classList.add('hidden'); return; }
+    bar.classList.remove('hidden');
+    document.getElementById('users-bulk-count').textContent = `${selectedStudentIds.size} selected`;
+    const courseSelect = document.getElementById('users-bulk-course');
+    if (!courseSelect.dataset.populated) {
+      const [courseList, roster] = await Promise.all([EP.courses(), EP.users()]);
+      const teacherById = Object.fromEntries(roster.filter((u) => u.role === 'teacher').map((u) => [u.id, u.name]));
+      courseSelect.innerHTML = courseList.map((c) => `<option value="${c.id}">${escapeHtml(c.name)} — ${escapeHtml(c.teacher_id ? (teacherById[c.teacher_id] || 'No teacher assigned') : 'No teacher assigned')}</option>`).join('');
+      courseSelect.dataset.populated = '1';
+    }
+  }
+  document.getElementById('users-bulk-clear')?.addEventListener('click', () => {
+    selectedStudentIds.clear();
+    renderUsers();
+  });
+  document.getElementById('users-bulk-apply')?.addEventListener('click', async () => {
+    const courseId = document.getElementById('users-bulk-course').value;
+    if (!courseId) { showToast('Choose a course first', 'danger'); return; }
+    const courseName = document.getElementById('users-bulk-course').selectedOptions[0]?.textContent || 'this course';
+    if (!confirm(`Assign ${selectedStudentIds.size} student(s) to ${courseName}? This moves their course access (and creates a billing record for anyone who doesn't have one yet).`)) return;
+    try {
+      const result = await EP.bulkAssignCourse(Array.from(selectedStudentIds), courseId);
+      selectedStudentIds.clear();
+      await Promise.all([renderUsers(), renderEnrollments(), renderAnalytics()]);
+      const parts = [];
+      if (result.moved) parts.push(`${result.moved} moved`);
+      if (result.created) parts.push(`${result.created} newly enrolled`);
+      if (result.failed.length) parts.push(`${result.failed.length} failed`);
+      showToast(`Bulk assign complete — ${parts.join(', ')}`, result.failed.length ? 'danger' : 'success');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
   ['users-search', 'users-filter-role', 'users-filter-course', 'users-filter-status', 'users-filter-balance'].forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -204,14 +254,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (usersFilterBalance === 'settled') teachersAndStudents = teachersAndStudents.filter(u => !!balances[u.id]?.hasEnrollment && (balances[u.id]?.balance || 0) <= 0);
     if (usersFilterBalance === 'unenrolled') teachersAndStudents = teachersAndStudents.filter(u => u.role === 'student' && !balances[u.id]?.hasEnrollment);
 
+    // Selections only ever apply to students still visible/valid in this
+    // render — drop anyone who got filtered out or removed so the bulk bar
+    // count never lies about who's actually selected.
+    const visibleStudentIds = new Set(teachersAndStudents.filter((u) => u.role === 'student').map((u) => u.id));
+    selectedStudentIds.forEach((id) => { if (!visibleStudentIds.has(id)) selectedStudentIds.delete(id); });
+
     document.getElementById('admin-users-list').innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
+      <th class="px-5 py-3"><input type="checkbox" onchange="toggleSelectAllUsers(this.checked)" aria-label="Select all students"></th>
       <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="text-left px-5 py-3 text-white font-semibold">Joined</th><th class="text-left px-5 py-3 text-white font-semibold">Balance</th><th class="text-left px-5 py-3 text-white font-semibold">Next Payment</th><th class="text-left px-5 py-3 text-white font-semibold">Status</th><th class="px-5 py-3"></th></tr></thead><tbody>
       ${teachersAndStudents.map((u, i) => {
         const balInfo = balances[u.id];
         const bal = balInfo?.balance || 0;
         const balanceHtml = u.role === 'student'
           ? (!balInfo?.hasEnrollment
-              ? `<span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary)">Not enrolled</span>`
+              ? (u.courseId
+                  ? `<span class="badge badge-info">No billing record</span>`
+                  : `<span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary)">Not enrolled</span>`)
               : bal > 0 ? `<span class="badge badge-danger">${bal.toLocaleString()} MAD due</span>` : `<span class="badge badge-success">Paid up</span>`)
           : `<span style="color:var(--text-disabled)">\u2014</span>`;
         let nextPaymentHtml = `<span style="color:var(--text-disabled)">\u2014</span>`;
@@ -222,6 +281,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           nextPaymentHtml = `<span style="color:${isUrgent ? 'var(--danger-600)' : 'var(--text-secondary)'}; font-weight:${isUrgent ? '600' : '400'}">${due.toLocaleDateString()}${days < 0 ? ' (overdue)' : ''}</span>`;
         }
         return `<tr onclick="openUserDetailModal('${u.id}')" style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; cursor:pointer">
+        <td class="px-5 py-3" onclick="event.stopPropagation()">${u.role === 'student' ? `<input type="checkbox" class="user-select-checkbox" data-user-id="${u.id}" ${selectedStudentIds.has(u.id) ? 'checked' : ''} onchange="toggleUserSelect('${u.id}', this.checked)">` : ''}</td>
         <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(u.name)}</td>
         <td class="px-5 py-3"><span class="badge ${u.role === 'teacher' ? 'badge-info' : 'badge-amber'}">${u.role}</span></td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(courseList.find(c => c.id === u.courseId)?.name || '\u2014')}</td>
@@ -233,8 +293,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td class="px-5 py-3">${u.blockedAt ? '<span class="badge badge-danger">Blocked</span>' : '<span class="badge badge-success">Active</span>'}</td>
         <td class="px-5 py-3 text-right"><button onclick="event.stopPropagation(); removeUserConfirm('${u.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Remove</button></td>
       </tr>`;
-      }).join('') || `<tr><td colspan="10" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No users match these filters.</td></tr>`}
+      }).join('') || `<tr><td colspan="11" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No users match these filters.</td></tr>`}
     </tbody></table>`;
+    await updateBulkBar();
   }
 
   // ---- User detail modal — shared by both the Users table and the
@@ -288,6 +349,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (user.role === 'student') {
       const balances = await EP.studentBalances();
       enrollBtn.classList.toggle('hidden', !!balances[user.id]?.hasEnrollment);
+      // Same distinction as the Enrollments page: an admin-added student
+      // with course_id already set has real access and just needs a
+      // billing record, which reads very differently from "Enroll Student".
+      enrollBtn.innerHTML = user.courseId
+        ? '<i data-lucide="receipt" class="w-4 h-4 mr-1"></i> Add Billing Record'
+        : '<i data-lucide="graduation-cap" class="w-4 h-4 mr-1"></i> Enroll Student';
+      lucide.createIcons();
     } else {
       enrollBtn.classList.add('hidden');
     }
@@ -366,7 +434,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           <p class="text-xs mt-0.5" style="color:var(--text-secondary)">${new Date(p.paidAt).toLocaleDateString()} · ${escapeHtml(p.method.replace('_', ' '))}${p.courseName ? ` · ${escapeHtml(p.courseName)}` : ''}</p>
           ${p.notes ? `<p class="text-xs mt-0.5" style="color:var(--text-disabled)">${escapeHtml(p.notes)}</p>` : ''}
         </div>
-        <button onclick="openPaymentModal({ id: '${p.id}' })" class="text-xs font-semibold shrink-0" style="color:var(--teal-600)">Edit</button>
+        <div class="flex flex-col gap-1 items-end shrink-0">
+          <button onclick="openPaymentModal({ id: '${p.id}' })" class="text-xs font-semibold" style="color:var(--teal-600)">Edit</button>
+          <button onclick="downloadPaymentReceipt('${p.id}', event)" class="text-xs font-semibold" style="color:var(--teal-600)">Receipt</button>
+        </div>
       </div>`).join('') || `<p class="text-sm" style="color:var(--text-secondary)">No payments recorded yet.</p>`;
   }
 
@@ -722,6 +793,434 @@ document.addEventListener('DOMContentLoaded', async () => {
   let chartRevenue = null, chartExpenses = null;
   let analyticsSelectedYear = new Date().getFullYear();
 
+  // ---- Finance sub-tabs (Overview / Chart of Accounts / General Ledger /
+  // Trial Balance / Balance Sheet / P&L / Journal Entry / Payroll) — same
+  // pattern as the Enrollments page's Pending/Active/... filter tabs, just
+  // switching whole panels instead of filtering one list. ----
+  let financeTab = 'overview';
+  document.querySelectorAll('[data-finance-tab]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      financeTab = btn.dataset.financeTab;
+      document.querySelectorAll('[data-finance-tab]').forEach((b) => b.setAttribute('aria-selected', String(b === btn)));
+      document.querySelectorAll('[data-finance-panel]').forEach((p) => p.classList.toggle('hidden', p.dataset.financePanel !== financeTab));
+      renderFinanceTab(financeTab);
+    });
+  });
+  async function renderFinanceTab(tab) {
+    try {
+      if (tab === 'coa') await renderChartOfAccounts();
+      else if (tab === 'ledger') await renderGeneralLedger();
+      else if (tab === 'trial-balance') await renderTrialBalance();
+      else if (tab === 'balance-sheet') await renderBalanceSheet();
+      else if (tab === 'pnl') await renderPnl();
+      else if (tab === 'journal-entry') await renderJournalEntryTab();
+      else if (tab === 'payroll') await renderPayrollTab();
+    } catch (err) {
+      showToast(err.message, 'danger');
+    }
+    lucide.createIcons();
+  }
+  // Sensible defaults so P&L and Balance Sheet aren't empty on first view —
+  // current month for P&L, today for the Balance Sheet's "as of" date. Set
+  // once here rather than every render, so an admin's own date edits stick.
+  (() => {
+    const now = new Date();
+    const pnlFrom = document.getElementById('pnl-from');
+    const pnlTo = document.getElementById('pnl-to');
+    const bsTo = document.getElementById('bs-to');
+    if (pnlFrom) pnlFrom.value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    if (pnlTo) pnlTo.value = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+    if (bsTo) bsTo.value = now.toISOString().slice(0, 10);
+  })();
+
+  // ---- Chart of Accounts ----
+  let financeAccountsCache = [];
+  async function loadFinanceAccounts() {
+    financeAccountsCache = await EP.accounts();
+    return financeAccountsCache;
+  }
+  async function populateAccountSelect(selectEl, { includeAll = false } = {}) {
+    const accounts = await loadFinanceAccounts();
+    const active = accounts.filter((a) => a.isActive);
+    const current = selectEl.value;
+    selectEl.innerHTML = (includeAll ? '<option value="">All Accounts</option>' : '<option value="">Select account</option>')
+      + active.map((a) => `<option value="${a.id}">${escapeHtml(a.code)} — ${escapeHtml(a.name)}</option>`).join('');
+    if (current) selectEl.value = current;
+    return accounts;
+  }
+  async function renderChartOfAccounts() {
+    const el = document.getElementById('admin-accounts-list');
+    if (!el) return;
+    const list = await loadFinanceAccounts();
+    el.innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
+      <th class="text-left px-5 py-3 text-white font-semibold">Code</th><th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Type</th><th class="text-left px-5 py-3 text-white font-semibold">Normal Balance</th><th class="text-left px-5 py-3 text-white font-semibold">Status</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      ${list.map((a, i) => `<tr style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; opacity:${a.isActive ? '1' : '0.55'}">
+        <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(a.code)}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(a.name)}${a.isSystem ? ' <span class="badge badge-info">System</span>' : ''}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(a.type)}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(a.normalBalance)}</td>
+        <td class="px-5 py-3">${a.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>'}</td>
+        <td class="px-5 py-3 text-right">${a.isSystem ? '' : `<button onclick="toggleAccountActive('${a.id}', ${a.isActive})" class="text-xs font-semibold" style="color:var(--teal-600)">${a.isActive ? 'Deactivate' : 'Activate'}</button>`}</td>
+      </tr>`).join('') || `<tr><td colspan="6" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No accounts yet.</td></tr>`}
+    </tbody></table>`;
+  }
+  window.toggleAccountActive = async (id, currentlyActive) => {
+    try {
+      await EP.updateAccount(id, { isActive: !currentlyActive });
+      await renderChartOfAccounts();
+      showToast(currentlyActive ? 'Account deactivated' : 'Account activated');
+    } catch (err) { showToast(err.message, 'danger'); }
+  };
+  window.openAccountModal = () => {
+    document.getElementById('account-form').reset();
+    document.getElementById('account-modal').classList.remove('hidden');
+  };
+  document.getElementById('account-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await EP.addAccount({
+        code: document.getElementById('account-code').value,
+        name: document.getElementById('account-name').value,
+        type: document.getElementById('account-type').value,
+        normalBalance: document.getElementById('account-normal-balance').value,
+      });
+      closeModal('account-modal');
+      await renderChartOfAccounts();
+      showToast('Account added');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
+
+  // ---- General Ledger ----
+  async function renderGeneralLedger() {
+    const el = document.getElementById('admin-ledger-list');
+    if (!el) return;
+    const accountSelect = document.getElementById('ledger-account');
+    if (!accountSelect.dataset.populated) {
+      await populateAccountSelect(accountSelect, { includeAll: true });
+      accountSelect.dataset.populated = '1';
+    }
+    const from = document.getElementById('ledger-from').value || null;
+    const to = document.getElementById('ledger-to').value || null;
+    const accountId = accountSelect.value || null;
+    const rows = await EP.getJournalEntries(from, to, accountId);
+    const sourceBadge = { payment: 'badge-success', expense: 'badge-danger', enrollment: 'badge-info', payroll: 'badge-amber', manual: 'badge-info', reversal: 'badge-warning' };
+    el.innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
+      <th class="text-left px-5 py-3 text-white font-semibold">Date</th><th class="text-left px-5 py-3 text-white font-semibold">Account</th><th class="text-left px-5 py-3 text-white font-semibold">Memo</th><th class="text-left px-5 py-3 text-white font-semibold">Debit</th><th class="text-left px-5 py-3 text-white font-semibold">Credit</th><th class="text-left px-5 py-3 text-white font-semibold">Source</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      ${rows.map((r, i) => `<tr style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}">
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${new Date(r.entryDate).toLocaleDateString()}</td>
+        <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(r.accountCode)} — ${escapeHtml(r.accountName)}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(r.lineMemo || r.memo || '—')}</td>
+        <td class="px-5 py-3" style="color:var(--navy-700)">${r.debit ? r.debit.toLocaleString() : ''}</td>
+        <td class="px-5 py-3" style="color:var(--navy-700)">${r.credit ? r.credit.toLocaleString() : ''}</td>
+        <td class="px-5 py-3"><span class="badge ${sourceBadge[r.sourceType] || 'badge-info'}">${escapeHtml(r.sourceType)}</span></td>
+        <td class="px-5 py-3 text-right">${r.voidedAt ? '<span class="badge badge-danger">Voided</span>' : ''}</td>
+      </tr>`).join('') || `<tr><td colspan="7" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No journal entries in this range.</td></tr>`}
+    </tbody></table>`;
+  }
+
+  // ---- Trial Balance ----
+  async function renderTrialBalance() {
+    const el = document.getElementById('admin-trial-balance-list');
+    if (!el) return;
+    const from = document.getElementById('tb-from').value || null;
+    const to = document.getElementById('tb-to').value || null;
+    const rows = await EP.getAccountBalances(from, to);
+    const totalDebit = rows.reduce((s, r) => s + r.totalDebit, 0);
+    const totalCredit = rows.reduce((s, r) => s + r.totalCredit, 0);
+    const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01;
+    el.innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
+      <th class="text-left px-5 py-3 text-white font-semibold">Code</th><th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Debit</th><th class="text-left px-5 py-3 text-white font-semibold">Credit</th><th class="text-left px-5 py-3 text-white font-semibold">Balance</th></tr></thead><tbody>
+      ${rows.map((r, i) => `<tr style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}">
+        <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(r.code)}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(r.name)}</td>
+        <td class="px-5 py-3" style="color:var(--navy-700)">${r.totalDebit.toLocaleString()}</td>
+        <td class="px-5 py-3" style="color:var(--navy-700)">${r.totalCredit.toLocaleString()}</td>
+        <td class="px-5 py-3 font-semibold" style="color:var(--navy-700)">${r.balance.toLocaleString()}</td>
+      </tr>`).join('') || `<tr><td colspan="5" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No accounts yet.</td></tr>`}
+      <tr style="background:var(--navy-50); font-weight:700">
+        <td class="px-5 py-3" style="color:var(--navy-700)" colspan="2">Totals</td>
+        <td class="px-5 py-3" style="color:var(--navy-700)">${totalDebit.toLocaleString()}</td>
+        <td class="px-5 py-3" style="color:var(--navy-700)">${totalCredit.toLocaleString()}</td>
+        <td class="px-5 py-3" style="color:${isBalanced ? 'var(--success-600)' : 'var(--danger-600)'}">${isBalanced ? 'Balanced ✓' : 'Out of balance!'}</td>
+      </tr>
+    </tbody></table>`;
+  }
+
+  // ---- Balance Sheet ----
+  async function renderBalanceSheet() {
+    const el = document.getElementById('admin-balance-sheet');
+    if (!el) return;
+    const from = document.getElementById('bs-from').value || null;
+    const to = document.getElementById('bs-to').value || null;
+    const rows = await EP.getAccountBalances(from, to);
+    const byType = (type) => rows.filter((r) => r.type === type);
+    const renderGroup = (title, list) => {
+      const subtotal = list.reduce((s, r) => s + r.balance, 0);
+      return `<div class="card p-5">
+        <p class="font-semibold mb-3" style="color:var(--navy-700)">${title}</p>
+        ${list.map((r) => `<div class="flex justify-between text-sm py-1"><span style="color:var(--text-secondary)">${escapeHtml(r.code)} ${escapeHtml(r.name)}</span><span style="color:var(--navy-700)">${r.balance.toLocaleString()} MAD</span></div>`).join('') || `<p class="text-sm" style="color:var(--text-secondary)">None.</p>`}
+        <div class="flex justify-between text-sm font-semibold pt-2 mt-2 border-t" style="border-color:var(--border-default); color:var(--navy-700)"><span>Total ${title}</span><span>${subtotal.toLocaleString()} MAD</span></div>
+      </div>`;
+    };
+    const assets = byType('asset'), liabilities = byType('liability'), equity = byType('equity');
+    const totalAssets = assets.reduce((s, r) => s + r.balance, 0);
+    const totalLiabEquity = liabilities.reduce((s, r) => s + r.balance, 0) + equity.reduce((s, r) => s + r.balance, 0);
+    const diff = totalAssets - totalLiabEquity;
+    el.innerHTML = renderGroup('Assets', assets) + renderGroup('Liabilities', liabilities) + renderGroup('Equity', equity)
+      + `<div class="card p-5" style="background:var(--navy-50)">
+        <div class="flex justify-between text-sm font-semibold"><span style="color:var(--navy-700)">Total Assets</span><span style="color:var(--navy-700)">${totalAssets.toLocaleString()} MAD</span></div>
+        <div class="flex justify-between text-sm font-semibold mt-1"><span style="color:var(--navy-700)">Total Liabilities + Equity</span><span style="color:var(--navy-700)">${totalLiabEquity.toLocaleString()} MAD</span></div>
+        <div class="flex justify-between text-sm font-semibold mt-1 pt-1 border-t" style="border-color:var(--border-default); color:${Math.abs(diff) < 0.01 ? 'var(--success-600)' : 'var(--danger-600)'}"><span>Difference</span><span>${diff.toLocaleString()} MAD</span></div>
+      </div>`;
+  }
+
+  // ---- P&L (date-range driven — replaces the old fixed This Month/This
+  // Year/All Time buckets so the admin can track any arbitrary range) ----
+  async function renderPnl() {
+    const el = document.getElementById('admin-pnl');
+    if (!el) return;
+    const from = document.getElementById('pnl-from').value || null;
+    const to = document.getElementById('pnl-to').value || null;
+    const rows = await EP.getAccountBalances(from, to);
+    const revenue = rows.filter((r) => r.type === 'revenue');
+    const expense = rows.filter((r) => r.type === 'expense');
+    const totalRevenue = revenue.reduce((s, r) => s + r.balance, 0);
+    const totalExpense = expense.reduce((s, r) => s + r.balance, 0);
+    const netProfit = totalRevenue - totalExpense;
+    el.innerHTML = `
+      <div class="card p-5">
+        <p class="font-semibold mb-3" style="color:var(--navy-700)">Revenue</p>
+        ${revenue.map((r) => `<div class="flex justify-between text-sm py-1"><span style="color:var(--text-secondary)">${escapeHtml(r.code)} ${escapeHtml(r.name)}</span><span style="color:var(--navy-700)">${r.balance.toLocaleString()} MAD</span></div>`).join('') || `<p class="text-sm" style="color:var(--text-secondary)">None.</p>`}
+        <div class="flex justify-between text-sm font-semibold pt-2 mt-2 border-t" style="border-color:var(--border-default)"><span style="color:var(--navy-700)">Total Revenue</span><span style="color:var(--navy-700)">${totalRevenue.toLocaleString()} MAD</span></div>
+      </div>
+      <div class="card p-5">
+        <p class="font-semibold mb-3" style="color:var(--navy-700)">Expenses</p>
+        ${expense.map((r) => `<div class="flex justify-between text-sm py-1"><span style="color:var(--text-secondary)">${escapeHtml(r.code)} ${escapeHtml(r.name)}</span><span style="color:var(--danger-600)">${r.balance.toLocaleString()} MAD</span></div>`).join('') || `<p class="text-sm" style="color:var(--text-secondary)">None.</p>`}
+        <div class="flex justify-between text-sm font-semibold pt-2 mt-2 border-t" style="border-color:var(--border-default)"><span style="color:var(--navy-700)">Total Expenses</span><span style="color:var(--danger-600)">${totalExpense.toLocaleString()} MAD</span></div>
+      </div>
+      <div class="card p-5" style="background:var(--navy-50)">
+        <div class="flex justify-between text-lg font-bold"><span style="color:var(--navy-700)">Net Profit</span><span style="color:${netProfit >= 0 ? 'var(--success-600)' : 'var(--danger-600)'}">${netProfit.toLocaleString()} MAD</span></div>
+      </div>`;
+  }
+
+  // ---- Journal Entry (manual entries) ----
+  let jeLineCounter = 0;
+  window.addJournalEntryLineRow = () => {
+    const container = document.getElementById('je-lines');
+    const rowId = 'je-line-' + (jeLineCounter++);
+    const options = financeAccountsCache.filter((a) => a.isActive).map((a) => `<option value="${a.id}">${escapeHtml(a.code)} — ${escapeHtml(a.name)}</option>`).join('');
+    const row = document.createElement('div');
+    row.className = 'flex gap-2 items-center';
+    row.id = rowId;
+    row.innerHTML = `
+      <select class="je-line-account flex-1 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"><option value="">Select account</option>${options}</select>
+      <input type="number" step="0.01" min="0" placeholder="Debit" class="je-line-debit w-24 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <input type="number" step="0.01" min="0" placeholder="Credit" class="je-line-credit w-24 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <button type="button" onclick="document.getElementById('${rowId}').remove(); updateJeBalanceIndicator();" class="text-xs font-semibold shrink-0" style="color:var(--danger-600)">Remove</button>`;
+    container.appendChild(row);
+    row.querySelectorAll('input').forEach((inp) => inp.addEventListener('input', updateJeBalanceIndicator));
+    updateJeBalanceIndicator();
+  };
+  window.updateJeBalanceIndicator = () => {
+    const indicator = document.getElementById('je-balance-indicator');
+    if (!indicator) return;
+    const debits = [...document.querySelectorAll('.je-line-debit')].reduce((s, i) => s + (parseFloat(i.value) || 0), 0);
+    const credits = [...document.querySelectorAll('.je-line-credit')].reduce((s, i) => s + (parseFloat(i.value) || 0), 0);
+    const balanced = Math.abs(debits - credits) < 0.005 && debits > 0;
+    indicator.textContent = `Debits: ${debits.toFixed(2)} · Credits: ${credits.toFixed(2)}${balanced ? ' — Balanced ✓' : (debits || credits) ? ' — Not balanced yet' : ''}`;
+    indicator.style.color = balanced ? 'var(--success-600)' : (debits || credits) ? 'var(--danger-600)' : 'var(--text-secondary)';
+  };
+  async function renderJournalEntryTab() {
+    await loadFinanceAccounts();
+    const dateInput = document.getElementById('je-date');
+    if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().slice(0, 10);
+    const linesContainer = document.getElementById('je-lines');
+    if (!linesContainer.children.length) {
+      addJournalEntryLineRow();
+      addJournalEntryLineRow();
+    } else {
+      linesContainer.querySelectorAll('select.je-line-account').forEach((sel) => {
+        const current = sel.value;
+        const options = financeAccountsCache.filter((a) => a.isActive).map((a) => `<option value="${a.id}">${escapeHtml(a.code)} — ${escapeHtml(a.name)}</option>`).join('');
+        sel.innerHTML = `<option value="">Select account</option>${options}`;
+        sel.value = current;
+      });
+    }
+    await renderManualJournalEntries();
+  }
+  async function renderManualJournalEntries() {
+    const el = document.getElementById('admin-manual-entries-list');
+    if (!el) return;
+    const rows = await EP.getJournalEntries(null, null, null);
+    const manual = rows.filter((r) => r.sourceType === 'manual' || r.sourceType === 'reversal');
+    const byEntry = {};
+    manual.forEach((r) => {
+      if (!byEntry[r.entryId]) byEntry[r.entryId] = { ...r, lines: [] };
+      byEntry[r.entryId].lines.push(r);
+    });
+    const entries = Object.values(byEntry).sort((a, b) => new Date(b.entryDate) - new Date(a.entryDate));
+    el.innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
+      <th class="text-left px-5 py-3 text-white font-semibold">Date</th><th class="text-left px-5 py-3 text-white font-semibold">Memo</th><th class="text-left px-5 py-3 text-white font-semibold">Lines</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      ${entries.map((e, i) => `<tr style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; opacity:${e.voidedAt ? '0.6' : '1'}">
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${new Date(e.entryDate).toLocaleDateString()}</td>
+        <td class="px-5 py-3" style="color:var(--navy-700)">${escapeHtml(e.memo || '—')}${e.voidedAt ? ' <span class="badge badge-danger">Voided</span>' : ''}${e.sourceType === 'reversal' ? ' <span class="badge badge-warning">Reversal</span>' : ''}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${e.lines.map((l) => `${escapeHtml(l.accountCode)} ${l.debit ? 'Dr ' + l.debit.toLocaleString() : 'Cr ' + l.credit.toLocaleString()}`).join(', ')}</td>
+        <td class="px-5 py-3 text-right">${e.sourceType === 'manual' && !e.voidedAt ? `<button onclick="voidManualEntryConfirm('${e.entryId}')" class="text-xs font-semibold" style="color:var(--danger-600)">Void</button>` : ''}</td>
+      </tr>`).join('') || `<tr><td colspan="4" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No manual entries yet.</td></tr>`}
+    </tbody></table>`;
+  }
+  window.voidManualEntryConfirm = async (entryId) => {
+    const reason = prompt('Why is this journal entry being voided? (shown in the audit history)');
+    if (reason === null) return;
+    try {
+      await EP.voidManualJournalEntry(entryId, reason || null);
+      await renderManualJournalEntries();
+      showToast('Journal entry voided');
+    } catch (err) { showToast(err.message, 'danger'); }
+  };
+  document.getElementById('journal-entry-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const lines = [...document.getElementById('je-lines').children].map((row) => ({
+      accountId: row.querySelector('.je-line-account').value,
+      debit: parseFloat(row.querySelector('.je-line-debit').value) || 0,
+      credit: parseFloat(row.querySelector('.je-line-credit').value) || 0,
+    })).filter((l) => l.accountId && (l.debit > 0 || l.credit > 0));
+    if (lines.length < 2) { showToast('Add at least two lines, each with an account and an amount', 'danger'); return; }
+    try {
+      await EP.createManualJournalEntry(document.getElementById('je-date').value, document.getElementById('je-memo').value, lines);
+      document.getElementById('journal-entry-form').reset();
+      document.getElementById('je-lines').innerHTML = '';
+      addJournalEntryLineRow();
+      addJournalEntryLineRow();
+      document.getElementById('je-date').value = new Date().toISOString().slice(0, 10);
+      await renderManualJournalEntries();
+      showToast('Journal entry posted');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
+
+  // ---- Payroll ----
+  async function renderPayrollTab() {
+    const el = document.getElementById('admin-payroll-list');
+    if (!el) return;
+    const rows = await EP.payrollEntries();
+    el.innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
+      <th class="text-left px-5 py-3 text-white font-semibold">Teacher</th><th class="text-left px-5 py-3 text-white font-semibold">Period</th><th class="text-left px-5 py-3 text-white font-semibold">Gross</th><th class="text-left px-5 py-3 text-white font-semibold">Paid</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      ${rows.map((p, i) => `<tr onclick="openPayrollModal({ id: '${p.id}' })" style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; cursor:pointer; opacity:${p.voidedAt ? '0.55' : '1'}">
+        <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(p.teacherName)}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${new Date(p.periodStart).toLocaleDateString()} – ${new Date(p.periodEnd).toLocaleDateString()}</td>
+        <td class="px-5 py-3 font-semibold" style="color:var(--navy-700)">${p.grossAmount.toLocaleString()} ${escapeHtml(p.currency)}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${new Date(p.paidAt).toLocaleDateString()}</td>
+        <td class="px-5 py-3 text-right">${p.voidedAt ? '<span class="badge badge-danger">Voided</span>' : ''}</td>
+      </tr>`).join('') || `<tr><td colspan="5" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No payroll entries yet.</td></tr>`}
+    </tbody></table>`;
+  }
+  window.openPayrollModal = async ({ id } = {}) => {
+    const [teachers, allPayroll] = await Promise.all([EP.users(), id ? EP.payrollEntries() : Promise.resolve([])]);
+    const teacherSelect = document.getElementById('payroll-teacher');
+    teacherSelect.innerHTML = teachers.filter((u) => u.role === 'teacher').map((t) => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+    document.getElementById('payroll-form').reset();
+    document.getElementById('payroll-currency').value = 'MAD';
+    const existing = id ? allPayroll.find((p) => p.id === id) : null;
+    document.getElementById('payroll-id').value = id || '';
+    document.getElementById('payroll-modal-title').textContent = existing ? 'Edit Payroll Entry' : 'Add Payroll Entry';
+    const voidBtn = document.getElementById('payroll-void-btn');
+    if (existing) {
+      if (existing.teacherId) teacherSelect.value = existing.teacherId;
+      document.getElementById('payroll-period-start').value = existing.periodStart;
+      document.getElementById('payroll-period-end').value = existing.periodEnd;
+      document.getElementById('payroll-amount').value = existing.grossAmount;
+      document.getElementById('payroll-currency').value = existing.currency;
+      document.getElementById('payroll-paid-at').value = new Date(existing.paidAt).toISOString().slice(0, 10);
+      document.getElementById('payroll-notes').value = existing.notes || '';
+      voidBtn.classList.remove('hidden');
+      voidBtn.textContent = existing.voidedAt ? 'Restore (Unvoid)' : 'Void';
+      voidBtn.onclick = async () => {
+        try {
+          if (existing.voidedAt) { await EP.unvoidPayrollEntry(id); showToast('Payroll entry restored'); }
+          else {
+            const reason = prompt('Why is this payroll entry being voided? (shown in the audit history)');
+            if (reason === null) return;
+            await EP.voidPayrollEntry(id, reason || null);
+            showToast('Payroll entry voided');
+          }
+          closeModal('payroll-modal');
+          await renderPayrollTab();
+        } catch (err) { showToast(err.message, 'danger'); }
+      };
+    } else {
+      document.getElementById('payroll-paid-at').value = new Date().toISOString().slice(0, 10);
+      voidBtn.classList.add('hidden');
+    }
+    document.getElementById('payroll-modal').classList.remove('hidden');
+  };
+  document.getElementById('payroll-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('payroll-id').value;
+    const teacherSelect = document.getElementById('payroll-teacher');
+    const teacherName = teacherSelect.selectedOptions[0]?.textContent || '';
+    const payload = {
+      teacherId: teacherSelect.value,
+      teacherName,
+      periodStart: document.getElementById('payroll-period-start').value,
+      periodEnd: document.getElementById('payroll-period-end').value,
+      grossAmount: parseFloat(document.getElementById('payroll-amount').value),
+      currency: document.getElementById('payroll-currency').value || 'MAD',
+      notes: document.getElementById('payroll-notes').value,
+      paidAt: document.getElementById('payroll-paid-at').value,
+    };
+    try {
+      if (id) await EP.updatePayrollEntry(id, payload);
+      else await EP.addPayrollEntry(payload);
+      closeModal('payroll-modal');
+      await renderPayrollTab();
+      showToast(id ? 'Payroll entry updated' : 'Payroll entry recorded');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
+
+  // ---- PDF receipts (jsPDF, loaded via CDN in admin-dashboard.html) ----
+  window.downloadPaymentReceipt = async (paymentId, event) => {
+    if (event) event.stopPropagation();
+    try {
+      if (!window.jspdf) { showToast('PDF library failed to load — check your connection and try again', 'danger'); return; }
+      const payments = await EP.payments();
+      const p = payments.find((x) => x.id === paymentId);
+      if (!p) { showToast('Payment not found', 'danger'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a5' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      doc.setTextColor(20, 20, 20);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.text('EuroPass', 14, 18);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Payment Receipt', 14, 26);
+      doc.setDrawColor(11, 29, 58);
+      doc.setLineWidth(0.4);
+      doc.line(14, 30, pageWidth - 14, 30);
+      doc.setFontSize(10);
+      let y = 42;
+      const row = (label, value) => {
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, 14, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(String(value ?? '—'), 60, y);
+        y += 8;
+      };
+      row('Receipt #:', p.id.slice(0, 8).toUpperCase());
+      row('Student:', p.studentName);
+      row('Amount:', `${p.amount.toLocaleString()} ${p.currency}`);
+      row('Date:', new Date(p.paidAt).toLocaleDateString());
+      row('Method:', p.method.replace('_', ' '));
+      if (p.courseName) row('Course:', p.courseName);
+      if (p.notes) row('Notes:', p.notes);
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text('EuroPass Language & Nursing School, Khemisset', 14, y + 6);
+      doc.save(`receipt-${p.id.slice(0, 8)}.pdf`);
+    } catch (err) { showToast(err.message, 'danger'); }
+  };
+
   // ---- Ledger table filter state (Payments + Expenses, on Analytics) ----
   let paymentsSearchTerm = '', paymentsShowVoided = false;
   let expensesSearchTerm = '', expensesShowVoided = false;
@@ -744,7 +1243,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td class="px-5 py-3 font-semibold" style="color:var(--navy-700)">${p.amount.toLocaleString()} ${escapeHtml(p.currency)}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(p.method.replace('_', ' '))}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${new Date(p.paidAt).toLocaleDateString()}</td>
-        <td class="px-5 py-3 text-right">${p.voidedAt ? '<span class="badge badge-danger">Voided</span>' : ''}</td>
+        <td class="px-5 py-3 text-right">
+          ${p.voidedAt ? '<span class="badge badge-danger">Voided</span>' : ''}
+          <button onclick="downloadPaymentReceipt('${p.id}', event)" class="text-xs font-semibold ml-2" style="color:var(--teal-600)">Receipt</button>
+        </td>
       </tr>`).join('') || `<tr><td colspan="6" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No payments yet.</td></tr>`}
     </tbody></table>`;
   }
@@ -901,6 +1403,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   await renderAll();
   EP.onChange([EP.KEYS.posts, EP.KEYS.notifications, EP.KEYS.profiles, EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.enrollments, EP.KEYS.resources, EP.KEYS.payments, EP.KEYS.expenses], renderAll);
+  // Accounting sub-tabs (Chart of Accounts / General Ledger / Trial Balance /
+  // Balance Sheet / P&L / Journal Entry / Payroll) have their own data that
+  // isn't part of renderAll() — refresh whichever one is currently open.
+  EP.onChange([EP.KEYS.accounts, EP.KEYS.journal_entries, EP.KEYS.journal_entry_lines, EP.KEYS.payroll_entries], () => renderFinanceTab(financeTab));
 
   // ---- Fullscreen editor toggle ----
   window.toggleFullscreenEditor = () => {
@@ -1207,23 +1713,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     const listEl = document.getElementById('admin-enrollments-list');
 
     // "No Enrollment" isn't a status on any enrollment row \u2014 it's students
-    // with zero rows at all (e.g. added directly via Add User, or who
-    // signed up but haven't logged in since \u2014 see login()/
-    // ensurePendingEnrollment). They'd otherwise never appear on this page,
-    // which is exactly why they were invisible here before.
+    // with zero rows at all. Two genuinely different situations land here,
+    // and they need different framing so this list doesn't look like a
+    // pile of mistakes:
+    //  - Already has course access (profiles.course_id is set) \u2014 an admin
+    //    added them directly with a course picked at creation time, which
+    //    grants real access immediately without ever going through the
+    //    enrollment table. They're not missing anything to use the
+    //    platform; they're only missing a billing/payment record.
+    //  - No course access at all \u2014 a self-signup student whose enrollment
+    //    request never got created (the historical login()/
+    //    ensurePendingEnrollment bug) or someone added without a course.
+    //    They can't do anything on the platform yet.
     if (enrollmentFilter === 'unenrolled') {
       const unenrolled = roster.filter(u => u.role === 'student' && !balances[u.id]?.hasEnrollment);
-      listEl.innerHTML = unenrolled.map(u => `
+      listEl.innerHTML = unenrolled.map(u => {
+        const hasAccess = !!u.courseId;
+        const badge = hasAccess
+          ? `<span class="badge badge-info">Has course access \u2014 no billing record</span>`
+          : `<span class="badge badge-warning">No course access</span>`;
+        const courseLine = hasAccess ? `${escapeHtml(courseById[u.courseId] || 'Unknown course')} \u00b7 ` : '';
+        return `
         <div class="card p-5 flex items-center justify-between gap-4">
           <div class="min-w-0">
-            <div class="flex items-center gap-2 mb-1"><span class="badge" style="background:var(--bg-subtle); color:var(--text-secondary)">No enrollment</span></div>
+            <div class="flex items-center gap-2 mb-1">${badge}</div>
             <p class="font-semibold truncate" style="color:var(--navy-700)"><a href="#" onclick="event.preventDefault(); openUserDetailModal('${u.id}')" class="hover:underline">${escapeHtml(u.name)}</a></p>
-            <p class="text-xs mt-1" style="color:var(--text-secondary)">${escapeHtml(u.email || 'No email on file')}</p>
+            <p class="text-xs mt-1" style="color:var(--text-secondary)">${courseLine}${escapeHtml(u.email || 'No email on file')}</p>
           </div>
           <div class="flex gap-2 shrink-0">
-            <button onclick="openEnrollStudentModal('${u.id}')" class="btn btn-primary btn-sm">Enroll</button>
+            <button onclick="openEnrollStudentModal('${u.id}')" class="btn btn-primary btn-sm">${hasAccess ? 'Add Billing Record' : 'Enroll'}</button>
           </div>
-        </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">Every student has an enrollment record.</p></div>`;
+        </div>`;
+      }).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">Every student has an enrollment record.</p></div>`;
       return;
     }
 
@@ -1303,12 +1824,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     let user;
     try { user = await EP.userById(studentId); } catch (err) { showToast(err.message, 'danger'); return; }
     if (!user) { showToast('Could not find that user', 'danger'); return; }
+    const hasAccess = !!user.courseId;
     document.getElementById('activate-enrollment-id').value = '';
     document.getElementById('activate-student-id').value = studentId;
-    document.getElementById('activate-modal-summary').innerHTML = `<strong>${escapeHtml(user.name)}</strong> has no enrollment yet — create one to bill and give course access.`;
+    document.getElementById('activate-modal-summary').innerHTML = hasAccess
+      ? `<strong>${escapeHtml(user.name)}</strong> already has course access (added directly) but no billing record — this creates one without changing their access.`
+      : `<strong>${escapeHtml(user.name)}</strong> has no enrollment yet — create one to bill and give course access.`;
     document.getElementById('activate-enrollment-form').reset();
-    document.querySelector('#activate-enrollment-modal p.font-serif').textContent = 'Enroll Student';
-    document.querySelector('#activate-enrollment-form button[type="submit"]').textContent = 'Create Enrollment';
+    document.querySelector('#activate-enrollment-modal p.font-serif').textContent = hasAccess ? 'Add Billing Record' : 'Enroll Student';
+    document.querySelector('#activate-enrollment-form button[type="submit"]').textContent = hasAccess ? 'Add Billing Record' : 'Create Enrollment';
     const courseSelect = document.getElementById('activate-course');
     const courseList = await EP.courses();
     courseSelect.innerHTML = courseList.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
@@ -1360,7 +1884,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('activate-enrollment-modal').classList.add('hidden');
       closeModal('user-detail-modal');
       await Promise.all([renderEnrollments(), refreshFinanceViews()]);
-      showToast(enrollmentId ? 'Enrollment activated \u2014 student now has course access' : 'Student enrolled \u2014 they now have course access and appear on Enrollments');
+      showToast(enrollmentId ? 'Enrollment activated \u2014 student now has course access' : 'Enrollment created \u2014 student now has a billing record and appears on Enrollments');
     } catch (err) { showToast(err.message, 'danger'); }
   });
   await renderEnrollments();

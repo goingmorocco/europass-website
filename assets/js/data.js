@@ -31,6 +31,8 @@ const EP = (() => {
     enrollments: 'enrollments', resources: 'resources', attendance: 'attendance', announcements: 'announcements',
     classroomResources: 'classroom_resources',
     payments: 'payments', expenses: 'expenses',
+    accounts: 'accounts', journal_entries: 'journal_entries', journal_entry_lines: 'journal_entry_lines',
+    payroll_entries: 'payroll_entries',
   };
 
   function timeAgo(iso) {
@@ -108,8 +110,16 @@ const EP = (() => {
     // a student waiting to be accepted. Checking the actual current role
     // (not signup-time metadata, which can go stale after a role change)
     // is what prevents that.
-    const { data: profile } = await client.from('profiles').select('role').eq('id', authUser.id).single();
+    const { data: profile } = await client.from('profiles').select('role, course_id').eq('id', authUser.id).single();
     if (!profile || profile.role !== 'student') return;
+    // A student an admin created directly (Add User, with a course picked
+    // there and then) already has real access via profiles.course_id, set
+    // straight from signup metadata by handle_new_user — no self-signup
+    // request ever happened, and none should be invented for them now.
+    // Without this check, that student's very next login would spawn a
+    // spurious 'pending' request sitting in the admin's queue asking them
+    // to "approve" access the student already has.
+    if (profile.course_id) return;
     // This function only exists to bootstrap a FIRST enrollment record for
     // a brand new student — it must never fire again once they have any
     // record at all. The previous check matched on course_id = the
@@ -171,6 +181,43 @@ const EP = (() => {
       activated_at: new Date().toISOString(),
     });
     if (error) throw error;
+  }
+  // Assigns a course (and, since every course has exactly one teacher, a
+  // teacher) to several students in one action — the Users page has no
+  // per-student "assign teacher" field because teachers aren't linked to
+  // students directly, only via the course they teach, so reassigning a
+  // group of students to a course is what moving them to a different
+  // teacher actually means in this schema.
+  // For a student with an active enrollment already, this moves it to the
+  // new course in place (their billing/price history stays on the same
+  // row). Everyone else gets a brand new active enrollment, same as
+  // adminEnrollStudent, so no student silently ends up with course access
+  // but no enrollment record.
+  async function bulkAssignCourse(studentIds, courseId) {
+    const client = await db();
+    const all = await allEnrollments();
+    const results = { moved: 0, created: 0, failed: [] };
+    for (const studentId of studentIds) {
+      const mine = all.filter((e) => e.studentId === studentId);
+      const activeOne = mine.find((e) => e.status === 'active');
+      try {
+        if (activeOne) {
+          const { error } = await client.from('enrollments').update({ course_id: courseId }).eq('id', activeOne.id);
+          if (error) throw error;
+          results.moved += 1;
+        } else {
+          const { error } = await client.from('enrollments').insert({
+            student_id: studentId, course_id: courseId, status: 'active',
+            payment_status: 'unpaid', activated_at: new Date().toISOString(),
+          });
+          if (error) throw error;
+          results.created += 1;
+        }
+      } catch (err) {
+        results.failed.push({ studentId, message: err.message });
+      }
+    }
+    return results;
   }
   async function rejectEnrollment(id) {
     const client = await db();
@@ -497,6 +544,129 @@ const EP = (() => {
       .filter((e) => new Date(e.paymentDueAt) <= cutoff)
       .filter((e) => (balances[e.studentId]?.balance || 0) > 0)
       .sort((a, b) => new Date(a.paymentDueAt) - new Date(b.paymentDueAt));
+  }
+
+  // ---- Accounting (double-entry: chart of accounts, journal, payroll) ----
+  // Everything here reads/writes the tables and RPCs from migrations
+  // 035-038. Payments/expenses/enrollments still work exactly as before —
+  // they now also auto-post a balanced journal entry behind the scenes
+  // (see those migrations), so these functions are additive: a real
+  // trial balance / balance sheet / P&L / general ledger / payroll ledger
+  // on top of the same everyday flows, not a second system to maintain.
+  async function accounts() {
+    const client = await db();
+    const { data, error } = await client.from('accounts').select('*').order('code');
+    if (error) throw error;
+    return data.map(mapAccount);
+  }
+  function mapAccount(a) {
+    return { id: a.id, code: a.code, name: a.name, type: a.type, normalBalance: a.normal_balance, isSystem: a.is_system, isActive: a.is_active };
+  }
+  async function addAccount({ code, name, type, normalBalance }) {
+    const client = await db();
+    const { error } = await client.from('accounts').insert({ code, name, type, normal_balance: normalBalance, is_system: false });
+    if (error) throw error;
+  }
+  async function updateAccount(id, { name, isActive }) {
+    const client = await db();
+    const update = {};
+    if (name !== undefined) update.name = name;
+    if (isActive !== undefined) update.is_active = isActive;
+    const { error } = await client.from('accounts').update(update).eq('id', id);
+    if (error) throw error;
+  }
+
+  // Trial balance / balance sheet / P&L all read from this one RPC — the
+  // client groups the rows by account.type for whichever report it's
+  // building. startDate/endDate are optional ISO date strings ('YYYY-MM-DD');
+  // omit both for "across all dates".
+  async function getAccountBalances(startDate = null, endDate = null) {
+    const client = await db();
+    const { data, error } = await client.rpc('get_account_balances', { p_start_date: startDate || null, p_end_date: endDate || null });
+    if (error) throw error;
+    return data.map(r => ({
+      accountId: r.account_id, code: r.code, name: r.name, type: r.type, normalBalance: r.normal_balance,
+      isActive: r.is_active, totalDebit: Number(r.total_debit), totalCredit: Number(r.total_credit), balance: Number(r.balance),
+    }));
+  }
+
+  // The general ledger — one row per journal line, newest first. Filter by
+  // date range and/or a single account (e.g. drilling into "Cash & Bank").
+  async function getJournalEntries(startDate = null, endDate = null, accountId = null) {
+    const client = await db();
+    const { data, error } = await client.rpc('get_journal_entries', { p_start_date: startDate || null, p_end_date: endDate || null, p_account_id: accountId || null });
+    if (error) throw error;
+    return data.map(r => ({
+      entryId: r.entry_id, entryDate: r.entry_date, memo: r.memo, sourceType: r.source_type, sourceId: r.source_id,
+      voidedAt: r.entry_voided_at, voidReason: r.entry_void_reason, createdAt: r.entry_created_at,
+      accountId: r.account_id, accountCode: r.account_code, accountName: r.account_name,
+      lineId: r.line_id, debit: Number(r.debit), credit: Number(r.credit), lineMemo: r.line_memo,
+    }));
+  }
+
+  // lines: [{ accountId, debit, credit, memo }] — needs at least two lines
+  // and must balance (enforced by the database itself; an unbalanced
+  // attempt throws and nothing is posted).
+  async function createManualJournalEntry(entryDate, memo, lines) {
+    const client = await db();
+    const payload = lines.map(l => ({ account_id: l.accountId, debit: l.debit || 0, credit: l.credit || 0, memo: l.memo || null }));
+    const { data, error } = await client.rpc('create_manual_journal_entry', { p_entry_date: entryDate || null, p_memo: memo || null, p_lines: payload });
+    if (error) throw error;
+    return data;
+  }
+  async function voidManualJournalEntry(entryId, reason) {
+    const client = await db();
+    const { data, error } = await client.rpc('void_manual_journal_entry', { p_entry_id: entryId, p_reason: reason || null });
+    if (error) throw error;
+    return data;
+  }
+
+  // ---- Payroll ----
+  function mapPayrollEntry(p) {
+    return {
+      id: p.id, teacherId: p.teacher_id, teacherName: p.teacher_name,
+      periodStart: p.period_start, periodEnd: p.period_end, grossAmount: Number(p.gross_amount), currency: p.currency,
+      notes: p.notes, paidAt: p.paid_at, voidedAt: p.voided_at, voidReason: p.void_reason,
+      createdBy: p.created_by, createdAt: p.created_at, updatedAt: p.updated_at,
+    };
+  }
+  async function payrollEntries() {
+    const client = await db();
+    const { data, error } = await client.from('payroll_entries').select('*').order('period_start', { ascending: false });
+    if (error) throw error;
+    return data.map(mapPayrollEntry);
+  }
+  async function addPayrollEntry({ teacherId, teacherName, periodStart, periodEnd, grossAmount, currency, notes, paidAt }) {
+    const client = await db();
+    const { data: { user } } = await client.auth.getUser();
+    const { error } = await client.from('payroll_entries').insert({
+      teacher_id: teacherId || null, teacher_name: teacherName,
+      period_start: periodStart, period_end: periodEnd, gross_amount: grossAmount, currency: currency || 'MAD',
+      notes: notes || null, paid_at: paidAt ? new Date(paidAt).toISOString() : new Date().toISOString(),
+      created_by: user?.id || null,
+    });
+    if (error) throw error;
+  }
+  async function updatePayrollEntry(id, { periodStart, periodEnd, grossAmount, notes, paidAt }) {
+    const client = await db();
+    const update = {};
+    if (periodStart !== undefined) update.period_start = periodStart;
+    if (periodEnd !== undefined) update.period_end = periodEnd;
+    if (grossAmount !== undefined) update.gross_amount = grossAmount;
+    if (notes !== undefined) update.notes = notes || null;
+    if (paidAt !== undefined) update.paid_at = new Date(paidAt).toISOString();
+    const { error } = await client.from('payroll_entries').update(update).eq('id', id);
+    if (error) throw error;
+  }
+  async function voidPayrollEntry(id, reason) {
+    const client = await db();
+    const { error } = await client.from('payroll_entries').update({ voided_at: new Date().toISOString(), void_reason: reason || null }).eq('id', id);
+    if (error) throw error;
+  }
+  async function unvoidPayrollEntry(id) {
+    const client = await db();
+    const { error } = await client.from('payroll_entries').update({ voided_at: null, void_reason: null }).eq('id', id);
+    if (error) throw error;
   }
 
   // ---- Blog posts ----
@@ -1120,6 +1290,8 @@ const EP = (() => {
     legacyPaymentFlagsNeedingReview, studentBalances, upcomingPaymentsDue,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
     groupMessages, sendGroupMessage, reportPost, reportsForGroup, dismissReport,
-    ensurePendingEnrollment, requestEnrollment, myEnrollments, cancelEnrollment, allEnrollments, activateEnrollment, adminEnrollStudent, rejectEnrollment, revertEnrollment,
+    ensurePendingEnrollment, requestEnrollment, myEnrollments, cancelEnrollment, allEnrollments, activateEnrollment, adminEnrollStudent, bulkAssignCourse, rejectEnrollment, revertEnrollment,
+    accounts, addAccount, updateAccount, getAccountBalances, getJournalEntries, createManualJournalEntry, voidManualJournalEntry,
+    payrollEntries, addPayrollEntry, updatePayrollEntry, voidPayrollEntry, unvoidPayrollEntry,
   };
 })();
