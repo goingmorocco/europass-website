@@ -23,12 +23,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // A student with no course assigned yet either has a pending enrollment
   // request or, in rare cases, none at all (e.g. an admin created the login
   // directly without an enrollment) — either way there's nothing useful to
-  // show them yet, so stop before any dashboard UI initializes. Homework
-  // and announcements are matched to a specific teacher now, not just the
-  // course, so a course assigned without a teacher yet is just as
-  // incomplete as no course at all — the student would see an empty
-  // dashboard either way.
-  if (!user.courseId || !user.teacherId) {
+  // show them yet, so stop before any dashboard UI initializes.
+  if (!user.courseId) {
     const enrollments = await EP.myEnrollments(user.id).catch(() => []);
     const isPending = enrollments.length === 0 || enrollments.some((e) => e.status === 'pending');
     if (isPending) {
@@ -54,9 +50,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const [courseList, allUsers] = await Promise.all([EP.courses(), EP.users()]);
   const course = courseList.find(c => c.id === user.courseId);
-  const teacher = allUsers.find(u => u.id === user.teacherId);
+  const teacher = allUsers.find(u => u.id === course?.teacher_id);
 
-  async function myHomework() { return EP.homeworkByTeacher(user.teacherId); }
+  async function myHomework() { return EP.homeworkByCourse(user.courseId); }
 
   function renderCourseInfo() {
     if (!course) {
@@ -77,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // to act on or be told about — showing it anyway is exactly the
     // "enrollment pending" banner that kept appearing even after a
     // student was already approved and looking at their actual course.
-    if (user.courseId && user.teacherId) { el.innerHTML = ''; return; }
+    if (user.courseId) { el.innerHTML = ''; return; }
     const enrollments = await EP.myEnrollments(user.id);
     const pending = enrollments.filter(e => e.status === 'pending');
     if (!pending.length) { el.innerHTML = ''; return; }
@@ -116,34 +112,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('student-progress-sub').textContent = total > 0 ? `${completed} of ${total} homework completed` : 'Your teacher hasn\u2019t assigned any yet';
   }
 
-  // Same staleness fix as the teacher side — a quiz-derived grade is
-  // frozen at submission time and goes stale if the teacher later fixes
-  // the quiz's answer key. Recomputes live; falls back to the stored
-  // grade for anything manually entered (writing/file submissions).
-  async function computeLiveGradeText(h, s) {
-    if (!h) return null;
-    if (h.submissionMode === 'quiz') {
-      const questions = await EP.homeworkQuestions(h.id);
-      if (!questions.length) return null;
-      const correct = questions.reduce((sum, q, qi) => sum + ((Array.isArray(s.quizAnswers) ? s.quizAnswers[qi] : undefined) === q.correctIndex ? 1 : 0), 0);
-      return `${Math.round((correct / questions.length) * 100)}%`;
-    }
-    if (h.submissionMode === 'multi') {
-      const tasks = await EP.homeworkTasks(h.id);
-      if (tasks.length && tasks.every((t) => t.type === 'quiz')) {
-        const responseByTask = new Map((s.taskResponses || []).map((tr) => [tr.taskId, tr]));
-        const pcts = tasks.map((t) => {
-          const tr = responseByTask.get(t.id);
-          const answers = tr?.answers || [];
-          const correct = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
-          return t.questions?.length ? Math.round((correct / t.questions.length) * 100) : 0;
-        });
-        return pcts.length ? `${Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length)}%` : null;
-      }
-    }
-    return null;
-  }
-
   async function renderOverviewLists() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
     const mySubs = allSubs.filter(s => s.studentId === user.id);
@@ -153,26 +121,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.getElementById('student-hw-due').innerHTML = due.map(h => {
       const sub = mySubs.find(x => x.homeworkId === h.id);
-      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-left hover:opacity-70 transition"><span>${escapeHtml(h.title)}</span><span class="badge ${sub ? 'badge-warning' : 'badge-danger'}">${sub ? 'Submitted' : 'Due ' + h.dueDate}</span></button>`;
+      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-left hover:opacity-70 transition"><span>${escapeHtml(h.title)}</span><span class="badge ${sub ? 'badge-warning' : 'badge-info'}">${sub ? 'Submitted' : 'Not started'}</span></button>`;
     }).join('') || `<p style="color:var(--text-secondary)">You\u2019re all caught up!</p>`;
 
     const graded = mySubs.filter(s => s.status === 'graded');
-    const gradeRows = await Promise.all(graded.map(async (s) => {
+    document.getElementById('student-recent-grades').innerHTML = graded.map(s => {
       const h = hw.find(x => x.id === s.homeworkId);
-      const gradeText = (await computeLiveGradeText(h, s)) ?? s.grade;
-      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-left hover:opacity-70 transition"><span>${escapeHtml(h?.title)}</span><span class="badge badge-success">${escapeHtml(gradeText)}</span></button>`;
-    }));
-    document.getElementById('student-recent-grades').innerHTML = gradeRows.join('') || `<p style="color:var(--text-secondary)">No grades yet.</p>`;
+      return `<button onclick="switchTab('student-shell','homework')" class="w-full flex items-center justify-between text-left hover:opacity-70 transition"><span>${escapeHtml(h?.title)}</span><span class="badge badge-success">${escapeHtml(s.grade)}</span></button>`;
+    }).join('') || `<p style="color:var(--text-secondary)">No grades yet.</p>`;
   }
-
-  function isRtlText(str) { return /[\u0600-\u06FF]/.test(str || ''); }
 
   async function renderHwList() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
     const mySubs = allSubs.filter(s => s.studentId === user.id);
-    document.getElementById('student-hw-list').innerHTML = (await Promise.all(hw.map(async h => {
+    document.getElementById('student-hw-list').innerHTML = hw.map(h => {
       const sub = mySubs.find(x => x.homeworkId === h.id);
-      const isPast = h.dueDate && new Date(h.dueDate) < new Date();
       const modeLabel = { text: 'Written', file: 'File Upload', quiz: 'Quiz', multi: 'Multi-Task' }[h.submissionMode] || 'Written';
       const statusBadge = !sub ? 'badge-danger'
         : sub.status === 'graded' ? 'badge-success'
@@ -190,19 +153,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       let actionHtml;
       if (sub && sub.status === 'graded') {
-        const liveGrade = await computeLiveGradeText(h, sub);
-        const gradeText = liveGrade ?? sub.grade;
-        actionHtml = `<div class="p-3 rounded-lg text-sm" style="background:var(--success-50)"><span class="font-semibold" style="color:var(--success-600)">Grade: ${escapeHtml(gradeText)} ${h.maxPoints && h.submissionMode !== 'quiz' && liveGrade == null ? `/ ${h.maxPoints}` : ''}</span>${sub.feedback ? `<p class="mt-1" dir="${isRtlText(sub.feedback) ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">${escapeHtml(sub.feedback)}</p>` : ''}</div>`;
+        actionHtml = `<div class="p-3 rounded-lg text-sm" style="background:var(--success-50)"><span class="font-semibold" style="color:var(--success-600)">Grade: ${escapeHtml(sub.grade)} ${h.maxPoints && h.submissionMode !== 'quiz' ? `/ ${h.maxPoints}` : ''}</span>${sub.feedback ? `<p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback)}</p>` : ''}</div>`;
       } else if (sub && sub.status === 'needs_revision') {
-        actionHtml = `<div class="p-3 rounded-lg text-sm mb-3" style="background:var(--amber-100)"><span class="font-semibold" style="color:var(--amber-600)">Needs revision</span><p class="mt-1" dir="${isRtlText(sub.feedback) ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">${escapeHtml(sub.feedback || '')}</p></div>
+        actionHtml = `<div class="p-3 rounded-lg text-sm mb-3" style="background:var(--amber-100)"><span class="font-semibold" style="color:var(--amber-600)">Needs revision</span><p class="mt-1" style="color:var(--text-secondary)">${escapeHtml(sub.feedback || '')}</p></div>
           <button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">Resubmit</button>`;
       } else if (sub && sub.status === 'draft') {
         actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-secondary btn-sm">Continue Draft</button>`;
       } else if (sub) {
-        actionHtml = isPast || h.submissionMode === 'quiz'
-          ? `<p class="text-xs" style="color:var(--text-secondary)">Submitted ${EP.timeAgo(sub.submittedAt)} \u2014 waiting for your teacher to grade it.</p>`
-          : `<p class="text-xs mb-2" style="color:var(--text-secondary)">Submitted ${EP.timeAgo(sub.submittedAt)} \u2014 waiting for your teacher to grade it.</p>
-          <button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-secondary btn-sm">Edit Submission</button>`;
+        actionHtml = `<p class="text-xs" style="color:var(--text-secondary)">Submitted ${EP.timeAgo(sub.submittedAt)} \u2014 waiting for your teacher to grade it.</p>`;
       } else {
         actionHtml = `<button onclick='openSubmitModal(${JSON.stringify(h.id)})' class="btn btn-primary btn-sm">${h.submissionMode === 'quiz' ? 'Take Quiz' : 'Submit'}</button>`;
       }
@@ -217,10 +175,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
         <div class="text-sm mb-3 post-body-rendered" dir="${h.instructionsDirection === 'rtl' ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">${h.instructions || ''}</div>
         ${attachmentHtml}
-        <p class="text-xs mb-3" style="color:${isPast && !sub ? 'var(--danger-600)' : 'var(--text-disabled)'}">Due ${h.dueDate ? new Date(h.dueDate).toLocaleString() : '\u2014'}${isPast && !sub ? ' \u2014 overdue' : ''}</p>
         ${actionHtml}
       </div>`;
-    }))).join('') || `<p style="color:var(--text-secondary)">No homework assigned yet.</p>`;
+    }).join('') || `<p style="color:var(--text-secondary)">No homework assigned yet.</p>`;
     if (window.lucide) lucide.createIcons();
   }
 
@@ -327,7 +284,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const revisionNote = document.getElementById('submit-modal-revision-note');
     if (existing && existing.status === 'needs_revision' && existing.feedback) {
       revisionNote.textContent = `Your teacher asked for a revision: ${existing.feedback}`;
-      revisionNote.dir = isRtlText(existing.feedback) ? 'rtl' : 'ltr';
       revisionNote.classList.remove('hidden');
     } else {
       revisionNote.classList.add('hidden');
@@ -340,38 +296,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       draftBtn.classList.remove('hidden');
       const tasks = await EP.homeworkTasks(hwId);
       const savedByTask = new Map((existing?.taskResponses || []).map((tr) => [tr.taskId, tr]));
-      // When the teacher flags specific tasks for revision (rather than
-      // the whole exercise), everything else stays locked — this is what
-      // stops a student from accidentally touching a part that was
-      // already correct (e.g. a 100% quiz) while fixing the one part
-      // that actually needs work. An empty/missing list means the
-      // original, simpler behavior: the whole exercise is editable.
-      const revisionIds = Array.isArray(existing?.revisionTaskIds) ? existing.revisionTaskIds : null;
-      const isLocked = (taskId) => existing?.status === 'needs_revision' && revisionIds && !revisionIds.includes(taskId);
       body.innerHTML = tasks.map((t, ti) => {
         const saved = savedByTask.get(t.id);
-        const locked = isLocked(t.id);
         const taskInstructions = t.instructions
           ? `<div class="post-body-rendered text-sm mb-2" dir="${t.direction === 'rtl' ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">${t.instructions}</div>` : '';
         let responseHtml;
-        if (locked) {
-          // Read-only summary of what was already submitted — no inputs
-          // at all, so there's nothing here to accidentally change.
-          if (t.type === 'writing') {
-            responseHtml = saved?.content
-              ? `<div class="post-body-rendered text-sm p-3 rounded-md" style="background:var(--bg-subtle); color:var(--text-secondary)">${saved.content}</div>`
-              : '<p class="text-sm" style="color:var(--text-secondary)">No response was submitted.</p>';
-          } else if (t.type === 'quiz') {
-            const answers = saved?.answers || [];
-            const correct = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
-            const pct = t.questions?.length ? Math.round((correct / t.questions.length) * 100) : 0;
-            responseHtml = `<p class="text-sm font-semibold" style="color:var(--success-600)">Already correct \u2014 ${pct}%. No changes needed here.</p>`;
-          } else {
-            const mediaHtml = (t.mediaItems || []).map(renderMediaItem).join('');
-            responseHtml = `${mediaHtml}${saved?.content ? `<p class="text-sm mt-2" style="color:var(--text-secondary)">Your note: ${escapeHtml(saved.content)}</p>` : ''}`;
-          }
-          responseHtml = `<div class="opacity-75">${responseHtml}</div><p class="text-xs mt-2 flex items-center gap-1" style="color:var(--text-disabled)"><i data-lucide="lock" class="w-3 h-3"></i> Locked \u2014 this part is already correct</p>`;
-        } else if (t.type === 'writing') {
+        if (t.type === 'writing') {
           responseHtml = `
             <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="task-rtl-${t.id}"> Right-to-left (Arabic)</label>
             <div id="task-editor-${t.id}" data-writing-task="${t.id}"></div>`;
@@ -391,19 +321,15 @@ document.addEventListener('DOMContentLoaded', async () => {
           const mediaHtml = (t.mediaItems || []).map(renderMediaItem).join('');
           responseHtml = `${mediaHtml}<textarea class="task-response w-full px-3 py-2 rounded-md border text-sm mt-2" data-task-id="${t.id}" data-task-type="media" rows="2" placeholder="Add a note (optional)">${escapeHtml(saved?.content || '')}</textarea>`;
         }
-        const needsRevisionBadge = revisionIds && !locked && existing?.status === 'needs_revision'
-          ? `<span class="badge badge-warning ml-2">Needs revision</span>` : '';
-        return `<div class="p-4 rounded-lg border" style="border-color:${locked ? 'var(--border-default)' : 'var(--warning-600)'}; ${locked ? '' : 'background:var(--amber-100)'}">
-          <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--teal-600)">${escapeHtml(t.title || `Task ${ti + 1}`)}${needsRevisionBadge}</p>
+        return `<div class="p-4 rounded-lg border" style="border-color:var(--border-default)">
+          <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--teal-600)">${escapeHtml(t.title || `Task ${ti + 1}`)}</p>
           ${taskInstructions}
           ${responseHtml}
         </div>`;
       }).join('');
       // Quill needs a real element in the DOM to bind to, so writing-task
       // editors are created after the HTML above is actually inserted.
-      // Locked writing tasks never get an editor at all, since they have
-      // no editable element in the HTML above.
-      tasks.filter((t) => t.type === 'writing' && !isLocked(t.id)).forEach((t) => {
+      tasks.filter((t) => t.type === 'writing').forEach((t) => {
         const saved = savedByTask.get(t.id);
         initQuillEditor(`task-editor-${t.id}`, `task-rtl-${t.id}`, saved?.content || '');
       });
@@ -463,19 +389,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!el) return;
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
     const mySubs = allSubs.filter(s => s.studentId === user.id);
-    // Sort assigned homework by due date, most recent first, and count how
-    // many in a row (starting from the most recent) were submitted on or
-    // before their due date — breaks on the first late-or-missing one.
-    const sorted = [...hw].sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+    // Exercises have no deadline, so this is a completion streak, not an
+    // on-time one: sort assigned homework newest-first (by when it was
+    // assigned) and count how many in a row, starting from the newest,
+    // the student has actually finished — breaks on the first one that's
+    // still unfinished.
+    const sorted = [...hw].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     let streak = 0;
     for (const h of sorted) {
       const sub = mySubs.find((s) => s.homeworkId === h.id);
       // A draft has submittedAt set (it's really "last saved at") but isn't
-      // a finished submission, so it must not count toward the streak —
-      // and due_date is now a full timestamp, not a bare date, so it
-      // compares directly with no string concatenation needed.
+      // a finished submission, so it must not count toward the streak.
       const isComplete = sub && sub.status !== 'draft' && sub.submittedAt;
-      if (isComplete && new Date(sub.submittedAt) <= new Date(h.dueDate)) streak++;
+      if (isComplete) streak++;
       else break;
     }
     el.textContent = String(streak);
@@ -485,7 +411,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const el = document.getElementById('student-announcements-list');
     if (!el) return;
     let list = [];
-    try { list = await EP.myAnnouncements(user.teacherId); } catch (e) { console.warn('Could not load announcements:', e); }
+    try { list = await EP.myAnnouncements(user.courseId); } catch (e) { console.warn('Could not load announcements:', e); }
     el.innerHTML = list.map((a) => `
       <div class="card p-5">
         <p class="font-semibold" style="color:var(--navy-700)">${escapeHtml(a.title)}</p>
@@ -494,32 +420,107 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>`).join('') || `<div class="card p-8 text-center"><p style="color:var(--text-secondary)">No announcements from your teacher yet.</p></div>`;
   }
 
+  // ---- Classroom (PDFs / images / video & other links the teacher has
+  // shared with this student's course — the learning hub) ----
+  let classroomResourcesCache = [];
+  const SCLASS_TYPE_ICON = { pdf: 'file-text', image: 'image', video: 'youtube', link: 'link' };
+  const SCLASS_TYPE_LABEL = { pdf: 'PDF', image: 'Image', video: 'Video', link: 'Link' };
+
+  // Turns a YouTube watch/share/shorts URL into its embeddable form. Any
+  // other video host's URL is passed straight into the iframe as-is, since
+  // most (Vimeo, etc.) already hand out embeddable links directly.
+  function toEmbeddableVideoUrl(url) {
+    try {
+      const u = new URL(url);
+      if (u.hostname.includes('youtu.be')) return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+      if (u.hostname.includes('youtube.com')) {
+        if (u.pathname.startsWith('/shorts/')) return `https://www.youtube.com/embed/${u.pathname.split('/')[2]}`;
+        const id = u.searchParams.get('v');
+        if (id) return `https://www.youtube.com/embed/${id}`;
+      }
+    } catch (e) { /* not a valid URL — fall through */ }
+    return url;
+  }
+
+  async function renderClassroom() {
+    const list = document.getElementById('classroom-resources-list');
+    if (!list) return; // classroom tab not present on this page
+    try {
+      classroomResourcesCache = await EP.classroomResourcesByCourse(user.courseId);
+    } catch (err) {
+      console.error('Could not load classroom resources:', err);
+      list.innerHTML = `<p class="text-sm col-span-full" style="color:var(--danger-600)">Could not load your classroom right now.</p>`;
+      return;
+    }
+    const catFilter = document.getElementById('sclass-category-filter');
+    if (catFilter && !catFilter.dataset.populated) {
+      catFilter.addEventListener('change', renderClassroomList);
+      catFilter.dataset.populated = '1';
+    }
+    if (catFilter) {
+      const cats = [...new Set(classroomResourcesCache.map(r => r.category))].sort();
+      const current = catFilter.value;
+      catFilter.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+      catFilter.value = current;
+    }
+    renderClassroomList();
+  }
+
+  function renderClassroomList() {
+    const list = document.getElementById('classroom-resources-list');
+    if (!list) return;
+    const filterEl = document.getElementById('sclass-category-filter');
+    const filter = filterEl ? filterEl.value : '';
+    const items = filter ? classroomResourcesCache.filter(r => r.category === filter) : classroomResourcesCache;
+    list.innerHTML = items.map(r => `
+      <div class="card p-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="${SCLASS_TYPE_ICON[r.type]}" class="w-4 h-4 shrink-0" style="color:var(--teal-600)"></i>
+          <p class="font-semibold text-sm truncate" style="color:var(--navy-700)">${escapeHtml(r.title)}</p>
+        </div>
+        ${r.type === 'image' ? `<img src="${escapeHtml(r.url)}" alt="${escapeHtml(r.title)}" class="w-full rounded-md mt-3 object-cover cursor-pointer" style="max-height:10rem" onclick='window.open(${JSON.stringify(r.url)}, "_blank")'>` : ''}
+        ${r.description ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">${escapeHtml(r.description)}</p>` : ''}
+        <div class="flex items-center gap-2 mt-3 flex-wrap">
+          <span class="badge badge-info">${escapeHtml(r.category)}</span>
+          <span class="text-xs" style="color:var(--text-disabled)">${SCLASS_TYPE_LABEL[r.type]}</span>
+        </div>
+        ${r.type === 'pdf'
+          ? `<button onclick='openPdfViewer(${JSON.stringify(r.url)}, ${JSON.stringify(r.title)})' class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--teal-600)">View PDF <i data-lucide="eye" class="w-3 h-3"></i></button>`
+          : r.type === 'video'
+          ? `<button onclick='openVideoViewer(${JSON.stringify(r.url)}, ${JSON.stringify(r.title)})' class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--teal-600)">Watch <i data-lucide="play" class="w-3 h-3"></i></button>`
+          : r.type === 'image'
+          ? ''
+          : `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener" class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--teal-600)">Open <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a>`}
+      </div>`).join('') || `<p class="text-sm col-span-full text-center py-10" style="color:var(--text-secondary)">Your teacher hasn’t shared anything here yet.</p>`;
+    if (window.lucide) lucide.createIcons();
+  }
+
+  window.openPdfViewer = (url, title) => {
+    document.getElementById('pdf-viewer-title').textContent = title;
+    document.getElementById('pdf-viewer-frame').src = url;
+    document.getElementById('pdf-viewer-download').href = url;
+    document.getElementById('pdf-viewer-modal').classList.remove('hidden');
+  };
+  window.openVideoViewer = (url, title) => {
+    document.getElementById('video-viewer-title').textContent = title;
+    document.getElementById('video-viewer-frame').src = toEmbeddableVideoUrl(url);
+    document.getElementById('video-viewer-modal').classList.remove('hidden');
+  };
+
   async function renderAll() {
     renderCourseInfo();
-    await Promise.all([renderEnrollmentBanner(), renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat(), renderAttendanceSummary(), renderStreak(), renderStudentAnnouncements()]);
+    await Promise.all([renderEnrollmentBanner(), renderProgress(), renderOverviewLists(), renderHwList(), renderNotifications(), renderChat(), renderAttendanceSummary(), renderStreak(), renderStudentAnnouncements(), renderClassroom()]);
     lucide.createIcons();
   }
   await renderAll();
-  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.notifications, EP.KEYS.messages, EP.KEYS.enrollments, EP.KEYS.attendance, EP.KEYS.announcements], renderAll);
+  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.notifications, EP.KEYS.messages, EP.KEYS.enrollments, EP.KEYS.attendance, EP.KEYS.announcements, EP.KEYS.classroomResources], renderAll);
 
   async function collectSubmissionPayload(hwId, isDraft = false) {
     const h = (await myHomework()).find(x => x.id === hwId);
     if (h.submissionMode === 'multi') {
       const tasks = await EP.homeworkTasks(hwId);
-      const existing = await EP.submissionFor(hwId, user.id).catch(() => null);
-      const revisionIds = Array.isArray(existing?.revisionTaskIds) ? existing.revisionTaskIds : null;
-      const isLocked = (taskId) => existing?.status === 'needs_revision' && revisionIds && !revisionIds.includes(taskId);
-      const savedByTask = new Map((existing?.taskResponses || []).map((tr) => [tr.taskId, tr]));
       const taskResponses = [];
       for (const t of tasks) {
-        if (isLocked(t.id)) {
-          // No inputs were rendered for a locked task, so there's nothing
-          // on the page to read — carry its previous answer through
-          // unchanged instead of losing it.
-          const saved = savedByTask.get(t.id);
-          if (saved) taskResponses.push(saved);
-          continue;
-        }
         if (t.type === 'quiz') {
           const answers = t.questions.map((_, qi) => {
             const checked = document.querySelector(`input[name="task-${t.id}-q-${qi}"]:checked`);

@@ -114,6 +114,7 @@
       <button onclick="switchTab('teacher-shell','grade'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="check-circle" class="w-4 h-4"></i> Grade Submissions</button>
       <button onclick="switchTab('teacher-shell','messages'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="messages-square" class="w-4 h-4"></i> Messages</button>
       <button onclick="switchTab('teacher-shell','community'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users-round" class="w-4 h-4"></i> Community</button>
+      <button onclick="switchTab('teacher-shell','classroom'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="graduation-cap" class="w-4 h-4"></i> Classroom</button>
       <button onclick="switchTab('teacher-shell','resources'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="folder-open" class="w-4 h-4"></i> Resources</button>
       <button onclick="switchTab('teacher-shell','settings'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="settings" class="w-4 h-4"></i> Settings</button>
       <a href="index.html" class="flex items-center gap-3 py-3 mt-4 nav-link" style="color:var(--text-secondary)"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Website</a>
@@ -160,6 +161,9 @@
     </button>
     <button data-tab-trigger="community" onclick="switchTab('teacher-shell','community')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="users-round" class="w-4 h-4"></i>Community
+    </button>
+    <button data-tab-trigger="classroom" onclick="switchTab('teacher-shell','classroom')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="graduation-cap" class="w-4 h-4"></i>Classroom
     </button>
     <button data-tab-trigger="resources" onclick="switchTab('teacher-shell','resources')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="folder-open" class="w-4 h-4"></i>Resources
@@ -252,7 +256,7 @@
 <div data-tab-panel="assign" class="hidden">
   <div class="grid lg:grid-cols-2 gap-6">
     <div class="card p-6">
-      <p id="hw-form-heading" class="font-semibold mb-4" style="color:var(--navy-700)">Assign New Exercise</p>
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Assign New Exercise</p>
       <form id="hw-form" class="space-y-4">
         <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="hw-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
         <div>
@@ -280,10 +284,7 @@
           <p id="hw-attachment-status" class="text-xs mt-1" style="color:var(--text-secondary)"></p>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Due</label><input id="hw-due" required type="datetime-local" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-          <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Points</label><input id="hw-points" type="number" min="1" value="100" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-        </div>
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Points</label><input id="hw-points" type="number" min="1" value="100" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
 
         <div id="hw-quiz-builder" class="hidden border-t pt-4" style="border-color:var(--border-default)">
           <div class="flex items-center justify-between mb-3">
@@ -347,37 +348,19 @@
   </div>
 </div>
 
-<div id="view-exercise-modal" class="hidden fixed inset-0 z-40 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-2xl p-6 my-8">
+<div id="view-exercise-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-lg p-6 my-8">
     <div class="flex items-center justify-between mb-4">
       <p id="view-exercise-title" class="font-serif font-semibold text-lg" style="color:var(--navy-700)"></p>
       <button onclick="closeModal('view-exercise-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div id="view-exercise-meta" class="flex flex-wrap items-center gap-2 mb-4"></div>
     <div id="view-exercise-body" class="space-y-4"></div>
-    <button id="view-exercise-edit-btn" class="btn btn-secondary w-full mt-4">Edit This Exercise</button>
   </div>
 </div>
 
-<div id="revision-modal" class="hidden fixed inset-0 z-40 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-lg p-6 my-8">
-    <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Give Another Chance</p>
-      <button onclick="closeModal('revision-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div id="revision-tasks-picker" class="hidden mb-4">
-      <p class="text-sm font-medium mb-2" style="color:var(--navy-700)">Which parts need another attempt?</p>
-      <p class="text-xs mb-3" style="color:var(--text-secondary)">Unchecked parts stay locked — the student won't be able to touch what's already correct.</p>
-      <div id="revision-tasks-list" class="space-y-2"></div>
-    </div>
-    <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Note to the student</label>
-    <textarea id="revision-feedback" rows="3" required class="w-full px-4 py-3 rounded-md border text-sm mb-4" style="border-color:var(--border-default)" placeholder="What should they fix?"></textarea>
-    <button id="revision-submit-btn" class="btn btn-primary w-full">Send Back for Revision</button>
-  </div>
-</div>
-
-<div id="grade-modal" class="hidden fixed inset-0 z-40 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-xl p-6 my-8">
+<div id="grade-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-md p-6 my-8">
     <div class="flex items-center justify-between mb-4">
       <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Grade Submission</p>
       <button onclick="closeModal('grade-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -432,6 +415,57 @@
         <button type="submit" class="btn btn-teal btn-sm">Send</button>
       </form>
     </div>
+  </div>
+</div>
+
+<div data-tab-panel="classroom" class="hidden">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Classroom</h1>
+    <button onclick="openClassroomResourceForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Share Resource</button>
+  </div>
+  <p class="text-sm mb-6" style="color:var(--text-secondary)">Your students' learning hub — share PDFs, images, YouTube videos, or any other link with everyone in your course.</p>
+  <div class="flex flex-wrap gap-2 mb-6">
+    <select id="cres-category-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="">All Categories</option>
+    </select>
+  </div>
+  <div id="classroom-resources-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</div>
+
+<!-- Share classroom resource modal -->
+<div id="classroom-resource-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-4">
+      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Share with Your Class</p>
+      <button onclick="closeModal('classroom-resource-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <p class="text-xs mb-4" style="color:var(--text-secondary)">Every student in your course will see this.</p>
+    <form id="classroom-resource-form" class="space-y-4">
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="cres-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
+      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Description (optional)</label><textarea id="cres-description" rows="2" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea></div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Type</label>
+          <select id="cres-type" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+            <option value="pdf">PDF Document</option>
+            <option value="image">Image</option>
+            <option value="video">YouTube / Video Link</option>
+            <option value="link">Other Link</option>
+          </select>
+        </div>
+        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label><input id="cres-category" list="cres-category-suggestions" placeholder="e.g. Grammar, Listening" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"><datalist id="cres-category-suggestions"></datalist></div>
+      </div>
+      <div id="cres-file-field">
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">File</label>
+        <input id="cres-file" type="file" accept="application/pdf" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <p class="text-xs mt-1" style="color:var(--text-secondary)">Up to 15MB.</p>
+      </div>
+      <div id="cres-url-field" class="hidden">
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Link</label>
+        <input id="cres-url" type="url" placeholder="https://..." class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <p id="cres-url-hint" class="text-xs mt-1" style="color:var(--text-secondary)">Paste a YouTube (or other video) URL.</p>
+      </div>
+      <button type="submit" id="cres-submit-btn" class="btn btn-primary w-full">Share with Class</button>
+    </form>
   </div>
 </div>
 

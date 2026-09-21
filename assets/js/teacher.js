@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let myStudents = [];
   let activeThreadStudentId = null;
 
-  async function myHomework() { return EP.homeworkByTeacher(user.id); }
+  async function myHomework() { return EP.homeworkByCourse(myCourseId); }
   async function pendingSubs() {
     const hw = await myHomework();
     const hwIds = hw.map(h => h.id);
@@ -59,50 +59,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }).join('') || `<p class="text-sm" style="color:var(--text-secondary)">Nothing pending \u2014 you\u2019re all caught up.</p>`;
   }
 
-  // Same staleness issue as renderGradeList's quiz displays — a
-  // quiz-derived grade is frozen at submission time and goes stale if the
-  // teacher fixes the quiz's answer key afterward. This recomputes it
-  // live for the Students overview table; falls back to the stored grade
-  // for anything manually entered (writing/file submissions).
-  async function computeLiveGradeText(h, s) {
-    if (!h) return s.grade;
-    if (h.submissionMode === 'quiz') {
-      const questions = await EP.homeworkQuestions(h.id);
-      if (!questions.length) return s.grade;
-      const correct = questions.reduce((sum, q, qi) => sum + ((Array.isArray(s.quizAnswers) ? s.quizAnswers[qi] : undefined) === q.correctIndex ? 1 : 0), 0);
-      return `${Math.round((correct / questions.length) * 100)}%`;
-    }
-    if (h.submissionMode === 'multi') {
-      const tasks = await EP.homeworkTasks(h.id);
-      if (tasks.length && tasks.every((t) => t.type === 'quiz')) {
-        const responseByTask = new Map((s.taskResponses || []).map((tr) => [tr.taskId, tr]));
-        const pcts = tasks.map((t) => {
-          const tr = responseByTask.get(t.id);
-          const answers = tr?.answers || [];
-          const correct = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
-          return t.questions?.length ? Math.round((correct / t.questions.length) * 100) : 0;
-        });
-        return pcts.length ? `${Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length)}%` : s.grade;
-      }
-    }
-    return s.grade;
-  }
-
   async function renderStudents() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
-    const rows = await Promise.all(myStudents.map(async (s, i) => {
-      const subs = allSubs.filter(x => x.studentId === s.id);
-      const graded = subs.filter(x => x.status === 'graded');
-      const gradeTexts = await Promise.all(graded.map((g) => computeLiveGradeText(hw.find((h) => h.id === g.homeworkId), g)));
-      return `<tr style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}">
-        <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(s.name)}</td>
-        <td class="px-5 py-3" style="color:var(--text-secondary)">${subs.length} / ${hw.length}</td>
-        <td class="px-5 py-3" style="color:var(--text-secondary)">${gradeTexts.length ? gradeTexts.map(escapeHtml).join(', ') : '\u2014'}</td>
-      </tr>`;
-    }));
     document.getElementById('teacher-students-list').innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
       <th class="text-left px-5 py-3 text-white font-semibold">Student</th><th class="text-left px-5 py-3 text-white font-semibold">Homework Submitted</th><th class="text-left px-5 py-3 text-white font-semibold">Avg. Grade</th></tr></thead><tbody>
-      ${rows.join('')}
+      ${myStudents.map((s, i) => {
+        const subs = allSubs.filter(x => x.studentId === s.id);
+        const graded = subs.filter(x => x.status === 'graded');
+        return `<tr style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}">
+          <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(s.name)}</td>
+          <td class="px-5 py-3" style="color:var(--text-secondary)">${subs.length} / ${hw.length}</td>
+          <td class="px-5 py-3" style="color:var(--text-secondary)">${graded.length ? graded.map(g => g.grade).join(', ') : '\u2014'}</td>
+        </tr>`;
+      }).join('')}
     </tbody></table>`;
   }
 
@@ -111,17 +80,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('teacher-hw-list').innerHTML = hw.map(h => `
       <div class="card p-4" onclick="openViewExerciseModal('${h.id}')" style="cursor:pointer">
         <p class="font-semibold text-sm" style="color:var(--navy-700)">${escapeHtml(h.title)}</p>
-        <p class="text-xs mt-1" style="color:var(--text-secondary)">Due ${h.dueDate ? new Date(h.dueDate).toLocaleString() : '\u2014'} \u00b7 ${allSubs.filter(s => s.homeworkId === h.id).length}/${myStudents.length} submitted</p>
+        <p class="text-xs mt-1" style="color:var(--text-secondary)">${allSubs.filter(s => s.homeworkId === h.id).length}/${myStudents.length} submitted</p>
       </div>`).join('') || `<p class="text-sm" style="color:var(--text-secondary)">No homework assigned yet.</p>`;
   }
-
-  // Feedback is free text a teacher types with no language picker attached
-  // (a native prompt() for "Give Another Chance", a plain textarea for
-  // grading) — detecting Arabic script directly is simpler and more
-  // reliable here than adding an RTL toggle to every place feedback gets
-  // written, and it's how the rest of the site already infers direction
-  // for content that doesn't carry an explicit flag.
-  function isRtlText(str) { return /[\u0600-\u06FF]/.test(str || ''); }
 
   async function renderGradeList() {
     const [hw, allSubs] = await Promise.all([myHomework(), EP.submissions()]);
@@ -134,24 +95,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const statusLabel = s.status === 'needs_revision' ? 'needs revision' : s.status;
 
       let bodyHtml;
-      let liveGradeText = null; // overrides the frozen s.grade for display when a live percentage can be recomputed
       if (h?.submissionMode === 'quiz') {
         const questions = await EP.homeworkQuestions(h.id);
-        // s.autoScore is a snapshot frozen at the moment the student
-        // submitted — if the teacher edits the quiz afterward (e.g. to
-        // fix a wrong answer key), that stored number goes stale and can
-        // disagree with the live, correct comparison right below it. This
-        // recomputes the percentage from the same per-question checks
-        // used for the breakdown, so the two can never contradict each
-        // other again.
-        const liveCorrect = questions.reduce((sum, q, qi) => {
-          const picked = Array.isArray(s.quizAnswers) ? s.quizAnswers[qi] : undefined;
-          return sum + (picked === q.correctIndex ? 1 : 0);
-        }, 0);
-        const livePct = questions.length ? Math.round((liveCorrect / questions.length) * 100) : 0;
-        liveGradeText = `${livePct}%`;
         bodyHtml = `<div class="p-3 rounded-lg" style="background:var(--bg-subtle)">
-          <p class="text-sm font-semibold mb-2" style="color:var(--navy-700)">Auto-graded: ${livePct}%</p>
+          <p class="text-sm font-semibold mb-2" style="color:var(--navy-700)">Auto-graded: ${s.autoScore}%</p>
           <div class="space-y-2">
             ${questions.map((q, qi) => {
               const picked = Array.isArray(s.quizAnswers) ? s.quizAnswers[qi] : undefined;
@@ -160,51 +107,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }).join('')}
           </div>
         </div>`;
-      } else if (h?.submissionMode === 'multi') {
-        // Multi-task submissions store one response per task in
-        // task_responses, not the flat content/attachmentUrl fields those
-        // only apply to single-mode exercises — this was previously
-        // falling through to the generic branch below, which checks
-        // exactly those flat fields and found nothing, so the teacher saw
-        // no response at all for any multi-task exercise.
-        const tasks = await EP.homeworkTasks(h.id);
-        const responseByTask = new Map((s.taskResponses || []).map((tr) => [tr.taskId, tr]));
-        const liveTaskPcts = []; // only populated for quiz-type tasks, used below to recompute the overall grade live
-        bodyHtml = tasks.map((t, ti) => {
-          const tr = responseByTask.get(t.id);
-          let inner;
-          if (t.type === 'quiz') {
-            const answers = tr?.answers || [];
-            const liveCorrect = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
-            const livePct = t.questions?.length ? Math.round((liveCorrect / t.questions.length) * 100) : 0;
-            liveTaskPcts.push(livePct);
-            inner = (t.questions || []).map((q, qi) => {
-              const picked = answers[qi];
-              const isRight = picked === q.correctIndex;
-              return `<p class="text-xs" style="color:var(--text-secondary)">${qi + 1}. ${escapeHtml(q.questionText)} \u2014 <span style="color:${isRight ? 'var(--success-600)' : 'var(--danger-600)'}">${picked != null ? escapeHtml(q.options[picked] || '?') : 'no answer'}</span>${!isRight ? ` (correct: ${escapeHtml(q.options[q.correctIndex])})` : ''}</p>`;
-            }).join('');
-            inner = `${tr ? `<p class="text-xs font-semibold mb-1" style="color:var(--navy-700)">Auto-graded: ${livePct}%</p>` : ''}${inner || '<p class="text-xs" style="color:var(--text-secondary)">Not answered.</p>'}`;
-          } else {
-            // writing or media — both store their answer as HTML/plain
-            // text in tr.content (rendered as HTML since student writing
-            // responses come from the same rich text editor as instructions).
-            inner = tr?.content
-              ? `<div class="text-xs post-body-rendered" style="color:var(--text-secondary)">${tr.content}</div>`
-              : '<p class="text-xs" style="color:var(--text-secondary)">No response.</p>';
-          }
-          return `<div class="p-3 rounded-lg border mb-2" style="border-color:var(--border-default)">
-            <p class="text-xs font-semibold uppercase tracking-wide mb-1" style="color:var(--teal-600)">${escapeHtml(t.title || `Task ${ti + 1}`)} \u00b7 ${t.type}</p>
-            ${inner}
-          </div>`;
-        }).join('');
-        // Matches the exact condition data.js uses when deciding whether
-        // to auto-grade the whole submission (every task is a quiz) — if
-        // so, the overall grade shown here needs the same live-recompute
-        // treatment as each individual task's percentage above it.
-        if (tasks.length && tasks.every((t) => t.type === 'quiz') && liveTaskPcts.length === tasks.length) {
-          const overall = Math.round(liveTaskPcts.reduce((a, b) => a + b, 0) / liveTaskPcts.length);
-          liveGradeText = `${overall}%`;
-        }
       } else {
         const isAudio = s.attachmentUrl && /\.(mp3|wav|ogg|m4a)(\?|$)/i.test(s.attachmentUrl);
         bodyHtml = `${s.content ? `<div class="text-sm p-3 rounded-lg post-body-rendered" style="background:var(--bg-subtle); color:var(--text-secondary)">${s.content}</div>` : ''}
@@ -214,12 +116,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       const canGrade = h?.submissionMode !== 'quiz' && (s.status === 'submitted' || s.status === 'needs_revision');
-      const displayGrade = liveGradeText ?? s.grade;
       const actionHtml = s.status === 'graded'
-        ? `<p class="text-sm mt-3"><span class="font-semibold" style="color:var(--navy-700)">Grade: ${escapeHtml(displayGrade)}${h?.maxPoints && h.submissionMode !== 'quiz' && liveGradeText == null ? ` / ${h.maxPoints}` : ''}</span>${s.feedback ? ` \u2014 <span dir="${isRtlText(s.feedback) ? 'rtl' : 'ltr'}">${escapeHtml(s.feedback)}</span>` : ''}</p>
-          <button onclick="giveAnotherChance('${s.id}')" class="btn btn-secondary btn-sm mt-2">Give Another Chance</button>`
+        ? `<p class="text-sm mt-3"><span class="font-semibold" style="color:var(--navy-700)">Grade: ${escapeHtml(s.grade)}${h?.maxPoints && h.submissionMode !== 'quiz' ? ` / ${h.maxPoints}` : ''}</span>${s.feedback ? ` \u2014 ${escapeHtml(s.feedback)}` : ''}</p>`
         : s.status === 'needs_revision'
-        ? `<p class="text-xs mt-2" dir="${isRtlText(s.feedback) ? 'rtl' : 'ltr'}" style="color:var(--text-secondary)">Sent back: ${escapeHtml(s.feedback || '')}</p>${canGrade ? `<button onclick="openGradeModal('${s.id}')" class="btn btn-secondary btn-sm mt-2">Grade Now</button>` : ''}`
+        ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">Sent back: ${escapeHtml(s.feedback || '')}</p>${canGrade ? `<button onclick="openGradeModal('${s.id}')" class="btn btn-secondary btn-sm mt-2">Grade Now</button>` : ''}`
         : canGrade
         ? `<button onclick="openGradeModal('${s.id}')" class="btn btn-primary btn-sm mt-3">Grade This</button>`
         : '';
@@ -272,8 +172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('view-exercise-meta').innerHTML = `
       <span class="badge badge-info">${modeLabel}</span>
       <span class="badge badge-success">${h.maxPoints} pts</span>
-      <span class="text-xs" style="color:var(--text-secondary)">Due ${h.dueDate ? new Date(h.dueDate).toLocaleString() : '\u2014'}</span>
-      <span class="text-xs" style="color:var(--text-secondary)">\u00b7 ${subs.length}/${myStudents.length} submitted</span>`;
+      <span class="text-xs" style="color:var(--text-secondary)">${subs.length}/${myStudents.length} submitted</span>`;
 
     const body = document.getElementById('view-exercise-body');
     let html = h.instructions
@@ -315,10 +214,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     body.innerHTML = html || `<p class="text-sm" style="color:var(--text-secondary)">No additional details.</p>`;
-    document.getElementById('view-exercise-edit-btn').onclick = () => {
-      closeModal('view-exercise-modal');
-      populateFormForEdit(hwId);
-    };
     document.getElementById('view-exercise-modal').classList.remove('hidden');
     if (window.lucide) lucide.createIcons();
   };
@@ -330,33 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const student = myStudents.find(x => x.id === sub?.studentId);
 
     document.getElementById('grade-sub-id').value = subId;
-    let contentPreview = sub?.content ? `<br><br><div class="post-body-rendered">${sub.content}</div>` : '';
-    if (h?.submissionMode === 'multi' && Array.isArray(sub?.taskResponses)) {
-      const tasks = await EP.homeworkTasks(h.id);
-      const responseByTask = new Map(sub.taskResponses.map((tr) => [tr.taskId, tr]));
-      contentPreview = '<br>' + tasks.map((t, ti) => {
-        const tr = responseByTask.get(t.id);
-        let inner;
-        if (t.type === 'quiz') {
-          const answers = tr?.answers || [];
-          const liveCorrect = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
-          const livePct = t.questions?.length ? Math.round((liveCorrect / t.questions.length) * 100) : 0;
-          inner = (t.questions || []).map((q, qi) => {
-            const picked = answers[qi];
-            const isRight = picked === q.correctIndex;
-            return `<p class="text-xs" style="color:var(--text-secondary)">${qi + 1}. ${escapeHtml(q.questionText)} \u2014 <span style="color:${isRight ? 'var(--success-600)' : 'var(--danger-600)'}">${picked != null ? escapeHtml(q.options[picked] || '?') : 'no answer'}</span>${!isRight ? ` (correct: ${escapeHtml(q.options[q.correctIndex])})` : ''}</p>`;
-          }).join('');
-          inner = `${tr ? `<p class="text-xs font-semibold mb-1" style="color:var(--navy-700)">Auto-graded: ${livePct}%</p>` : ''}${inner || '<p class="text-xs" style="color:var(--text-secondary)">Not answered.</p>'}`;
-        } else {
-          inner = tr?.content ? `<div class="text-xs post-body-rendered" style="color:var(--text-secondary)">${tr.content}</div>` : '<p class="text-xs" style="color:var(--text-secondary)">No response.</p>';
-        }
-        return `<div class="p-2 rounded-md mb-2" style="background:var(--bg-subtle)">
-          <p class="text-xs font-semibold uppercase tracking-wide mb-1" style="color:var(--teal-600)">${escapeHtml(t.title || `Task ${ti + 1}`)} \u00b7 ${t.type}</p>
-          ${inner}
-        </div>`;
-      }).join('');
-    }
-    document.getElementById('grade-modal-content').innerHTML = `<strong>${escapeHtml(student?.name)}</strong> \u2014 ${escapeHtml(h?.title)}${contentPreview}`;
+    document.getElementById('grade-modal-content').innerHTML = `<strong>${escapeHtml(student?.name)}</strong> \u2014 ${escapeHtml(h?.title)}${sub?.content ? `<br><br><div class="post-body-rendered">${sub.content}</div>` : ''}`;
     document.getElementById('grade-value-label').textContent = h?.maxPoints ? `Grade (out of ${h.maxPoints})` : 'Grade';
     document.getElementById('grade-value').placeholder = h?.maxPoints ? `e.g. ${Math.round(h.maxPoints * 0.8)}` : 'e.g. B+ or 8/10';
 
@@ -386,61 +255,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
-  // Reopens an already-graded submission for another attempt — works the
-  // same way regardless of exercise type, including quiz (which can't be
-  // manually graded, so it never goes through the grade modal at all).
-  // Once back at 'needs_revision', the student's existing Resubmit flow
-  // already knows how to reopen any mode correctly, quiz included.
-  window.giveAnotherChance = async (subId) => {
-    const sub = (await EP.submissions()).find(s => s.id === subId);
-    const h = (await myHomework()).find(x => x.id === sub?.homeworkId);
-    document.getElementById('revision-feedback').value = '';
-
-    const picker = document.getElementById('revision-tasks-picker');
-    const list = document.getElementById('revision-tasks-list');
-    if (h?.submissionMode === 'multi') {
-      const tasks = await EP.homeworkTasks(h.id);
-      const responseByTask = new Map((sub?.taskResponses || []).map((tr) => [tr.taskId, tr]));
-      list.innerHTML = tasks.map((t, ti) => {
-        let context = '';
-        if (t.type === 'quiz') {
-          const tr = responseByTask.get(t.id);
-          const answers = tr?.answers || [];
-          const correct = (t.questions || []).reduce((sum, q, qi) => sum + (answers[qi] === q.correctIndex ? 1 : 0), 0);
-          const pct = t.questions?.length ? Math.round((correct / t.questions.length) * 100) : 0;
-          context = ` \u2014 ${pct}%`;
-        }
-        return `<label class="flex items-center gap-2 text-sm p-2 rounded-md" style="background:var(--bg-subtle)">
-          <input type="checkbox" class="revision-task-check" value="${t.id}">
-          ${escapeHtml(t.title || `Task ${ti + 1}`)} <span style="color:var(--text-secondary)">(${t.type}${context})</span>
-        </label>`;
-      }).join('');
-      picker.classList.remove('hidden');
-    } else {
-      picker.classList.add('hidden');
-      list.innerHTML = '';
-    }
-
-    document.getElementById('revision-submit-btn').onclick = async () => {
-      const feedback = document.getElementById('revision-feedback').value.trim();
-      if (!feedback) { showToast('Add a note so the student knows what to fix', 'danger'); return; }
-      const checked = [...document.querySelectorAll('.revision-task-check:checked')].map((c) => c.value);
-      if (h?.submissionMode === 'multi' && !checked.length) {
-        showToast('Select at least one part that needs another attempt', 'danger');
-        return;
-      }
-      try {
-        await EP.requestRevision(subId, feedback, checked.length ? checked : undefined);
-        if (sub) await EP.sendNotification({ fromId: user.id, audience: 'user', audienceId: sub.studentId, title: 'Another chance to revise', body: feedback }).catch(() => {});
-        closeModal('revision-modal');
-        await renderAll();
-        showToast('Student can now revise and resubmit');
-      } catch (err) { showToast(err.message, 'danger'); }
-    };
-
-    document.getElementById('revision-modal').classList.remove('hidden');
-  };
-
   // ---- Resources (materials the admin has shared) ----
   // These must be declared before renderAll() is called below — renderAll()
   // calls renderTeacherResources(), which reads teacherResourcesCache, and
@@ -460,7 +274,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dateInput = document.getElementById('attendance-date');
     const classDate = dateInput.value || todayISO();
     let existing = [];
-    try { existing = await EP.attendanceFor(user.id, classDate); } catch (e) { console.warn('Could not load attendance:', e); }
+    try { existing = await EP.attendanceFor(myCourseId, classDate); } catch (e) { console.warn('Could not load attendance:', e); }
     const existingByStudent = Object.fromEntries(existing.map((a) => [a.studentId, a.status]));
     attendanceDraft = { ...existingByStudent };
     renderAttendanceList();
@@ -500,7 +314,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ---- Announcements ----
   async function renderAnnouncements() {
     let list = [];
-    try { list = await EP.announcementsFor(user.id); } catch (e) { console.warn('Could not load announcements:', e); }
+    try { list = await EP.announcementsFor(myCourseId); } catch (e) { console.warn('Could not load announcements:', e); }
     document.getElementById('teacher-announcements-list').innerHTML = list.map((a) => `
       <div class="card p-5">
         <div class="flex items-start justify-between gap-3">
@@ -535,15 +349,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   async function renderAll() {
-    myStudents = await EP.studentsOf(user.id);
+    myStudents = await EP.studentsOf(myCourseId);
     if (!activeThreadStudentId && myStudents.length) activeThreadStudentId = myStudents[0].id;
-    await Promise.all([renderKPIs(), renderPending(), renderStudents(), renderHwList(), renderGradeList(), renderTeacherResources(), renderAttendance(), renderAnnouncements()]);
+    await Promise.all([renderKPIs(), renderPending(), renderStudents(), renderHwList(), renderGradeList(), renderTeacherResources(), renderAttendance(), renderAnnouncements(), renderClassroom()]);
     renderThreads();
     await renderChat();
     lucide.createIcons();
   }
   await renderAll();
-  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.messages, EP.KEYS.resources, EP.KEYS.attendance, EP.KEYS.announcements], renderAll);
+  EP.onChange([EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.messages, EP.KEYS.resources, EP.KEYS.attendance, EP.KEYS.announcements, EP.KEYS.classroomResources], renderAll);
 
   async function renderTeacherResources() {
     const list = document.getElementById('teacher-resources-list');
@@ -601,6 +415,123 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('pdf-viewer-modal').classList.remove('hidden');
   };
 
+  // ---- Classroom (this teacher sharing PDFs / images / video & other
+  // links directly with their own students — the learning hub) ----
+  let classroomResourcesCache = [];
+  const CRES_TYPE_ICON = { pdf: 'file-text', image: 'image', video: 'youtube', link: 'link' };
+  const CRES_TYPE_LABEL = { pdf: 'PDF', image: 'Image', video: 'Video', link: 'Link' };
+
+  window.openClassroomResourceForm = () => {
+    document.getElementById('classroom-resource-form').reset();
+    document.getElementById('cres-file-field').classList.remove('hidden');
+    document.getElementById('cres-url-field').classList.add('hidden');
+    document.getElementById('cres-file').setAttribute('accept', 'application/pdf');
+    document.getElementById('classroom-resource-modal').classList.remove('hidden');
+  };
+  document.getElementById('cres-type').addEventListener('change', (e) => {
+    const type = e.target.value;
+    const isFile = type === 'pdf' || type === 'image';
+    document.getElementById('cres-file-field').classList.toggle('hidden', !isFile);
+    document.getElementById('cres-url-field').classList.toggle('hidden', isFile);
+    if (isFile) document.getElementById('cres-file').setAttribute('accept', type === 'pdf' ? 'application/pdf' : 'image/*');
+    document.getElementById('cres-url-hint').textContent = type === 'video'
+      ? 'Paste a YouTube (or other video) URL.' : 'Paste any link — a Google Drive folder, an article, anything useful.';
+  });
+
+  async function renderClassroom() {
+    const list = document.getElementById('classroom-resources-list');
+    if (!list) return; // classroom tab not present on this page
+    try {
+      classroomResourcesCache = await EP.classroomResourcesByCourse(myCourseId);
+    } catch (err) {
+      console.error('Could not load classroom resources:', err);
+      list.innerHTML = `<p class="text-sm col-span-full" style="color:var(--danger-600)">Could not load your classroom right now.</p>`;
+      return;
+    }
+    const catFilter = document.getElementById('cres-category-filter');
+    if (catFilter && !catFilter.dataset.populated) {
+      catFilter.addEventListener('change', renderClassroomList);
+      catFilter.dataset.populated = '1';
+    }
+    if (catFilter) {
+      const cats = [...new Set(classroomResourcesCache.map(r => r.category))].sort();
+      const current = catFilter.value;
+      catFilter.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+      catFilter.value = current;
+      const suggestions = document.getElementById('cres-category-suggestions');
+      if (suggestions) suggestions.innerHTML = cats.map(c => `<option value="${escapeHtml(c)}">`).join('');
+    }
+    renderClassroomList();
+  }
+
+  function renderClassroomList() {
+    const list = document.getElementById('classroom-resources-list');
+    if (!list) return;
+    const filterEl = document.getElementById('cres-category-filter');
+    const filter = filterEl ? filterEl.value : '';
+    const items = filter ? classroomResourcesCache.filter(r => r.category === filter) : classroomResourcesCache;
+    list.innerHTML = items.map(r => `
+      <div class="card p-4">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <i data-lucide="${CRES_TYPE_ICON[r.type]}" class="w-4 h-4 shrink-0" style="color:var(--red-600)"></i>
+            <p class="font-semibold text-sm truncate" style="color:var(--navy-700)">${escapeHtml(r.title)}</p>
+          </div>
+          <button onclick="deleteClassroomResourceConfirm('${r.id}','${escapeHtml(r.title).replace(/'/g, "\\'")}')" class="shrink-0" aria-label="Delete"><i data-lucide="trash-2" class="w-4 h-4" style="color:var(--danger-600)"></i></button>
+        </div>
+        ${r.type === 'image' ? `<img src="${escapeHtml(r.url)}" alt="${escapeHtml(r.title)}" class="w-full rounded-md mt-3 object-cover" style="max-height:10rem">` : ''}
+        ${r.description ? `<p class="text-xs mt-2" style="color:var(--text-secondary)">${escapeHtml(r.description)}</p>` : ''}
+        <div class="flex items-center gap-2 mt-3 flex-wrap">
+          <span class="badge badge-info">${escapeHtml(r.category)}</span>
+          <span class="text-xs" style="color:var(--text-disabled)">${CRES_TYPE_LABEL[r.type]}</span>
+        </div>
+        ${r.type === 'pdf'
+          ? `<button onclick='openPdfViewer(${JSON.stringify(r.url)}, ${JSON.stringify(r.title)})' class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--red-600)">View PDF <i data-lucide="eye" class="w-3 h-3"></i></button>`
+          : r.type === 'image'
+          ? ''
+          : `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener" class="text-xs font-semibold mt-3 inline-flex items-center gap-1" style="color:var(--red-600)">Open <i data-lucide="arrow-up-right" class="w-3 h-3"></i></a>`}
+      </div>`).join('') || `<p class="text-sm col-span-full text-center py-10" style="color:var(--text-secondary)">Nothing shared with your class yet.</p>`;
+    lucide.createIcons();
+  }
+
+  window.deleteClassroomResourceConfirm = async (id, title) => {
+    if (!confirm(`Remove "${title}"? Students will no longer see it.`)) return;
+    try {
+      await EP.deleteClassroomResource(id);
+      await renderClassroom();
+      showToast('Removed from Classroom', 'info');
+    } catch (err) { showToast(err.message, 'danger'); }
+  };
+
+  document.getElementById('classroom-resource-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = document.getElementById('cres-submit-btn');
+    const type = document.getElementById('cres-type').value;
+    const isFile = type === 'pdf' || type === 'image';
+    const originalLabel = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = isFile ? 'Uploading...' : 'Sharing...';
+    try {
+      await EP.addClassroomResource({
+        courseId: myCourseId, teacherId: user.id,
+        title: document.getElementById('cres-title').value,
+        description: document.getElementById('cres-description').value,
+        type,
+        category: document.getElementById('cres-category').value,
+        file: isFile ? document.getElementById('cres-file').files[0] : null,
+        externalUrl: isFile ? null : document.getElementById('cres-url').value,
+      });
+      closeModal('classroom-resource-modal');
+      await renderClassroom();
+      showToast('Shared with your class');
+    } catch (err) {
+      showToast(err.message, 'danger');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+    }
+  });
+
   // ---- Exercise builder: mode tabs, rich text, dynamic quiz questions, tasks ----
   // Blog posts only ever need one Quill editor, so admin.js just keeps a
   // single global instance. An exercise can have several rich text fields
@@ -641,7 +572,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let hwQuestionCount = 0;
   let hwTaskCount = 0;
-  let editingHomeworkId = null;
   document.querySelectorAll('#hw-mode-tabs [data-mode]').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#hw-mode-tabs [data-mode]').forEach((b) => b.setAttribute('aria-selected', 'false'));
@@ -656,7 +586,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  function addQuestionRow(container, existing) {
+  function addQuestionRow(container) {
     const qId = ++hwQuestionCount;
     const row = document.createElement('div');
     row.className = 'p-4 rounded-md border';
@@ -671,51 +601,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="space-y-2">
         ${[0, 1, 2, 3].map(i => `
           <div class="flex items-center gap-2">
-            <input type="radio" name="hw-correct-${qId}" value="${i}" ${(existing ? existing.correctIndex === i : i === 0) ? 'checked' : ''} class="hw-q-correct">
+            <input type="radio" name="hw-correct-${qId}" value="${i}" ${i === 0 ? 'checked' : ''} class="hw-q-correct">
             <input class="hw-q-option flex-1 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)" placeholder="Option ${i + 1}${i >= 2 ? ' (optional)' : ''}" ${i < 2 ? 'required' : ''}>
           </div>`).join('')}
       </div>
       <p class="text-xs mt-1" style="color:var(--text-secondary)">Select the radio button next to the correct answer.</p>`;
-    if (existing) {
-      row.querySelector('.hw-q-text').value = existing.questionText || '';
-      const optionInputs = row.querySelectorAll('.hw-q-option');
-      (existing.options || []).forEach((opt, i) => { if (optionInputs[i]) optionInputs[i].value = opt; });
-    }
     container.appendChild(row);
   }
   document.getElementById('hw-add-question').addEventListener('click', () => addQuestionRow(document.getElementById('hw-questions-list')));
 
   function collectQuestions(container) {
     return [...container.querySelectorAll('[data-qrow]')].map((row) => {
-      const optionInputs = [...row.querySelectorAll('.hw-q-option')];
+      const options = [...row.querySelectorAll('.hw-q-option')].map((i) => i.value.trim()).filter(Boolean);
       const correctInput = row.querySelector('.hw-q-correct:checked');
-      const correctSlot = correctInput ? parseInt(correctInput.value, 10) : 0;
-      // Building the options array and figuring out where the correct
-      // answer actually lands has to happen in the same pass — filtering
-      // blank slots first and looking up the original slot index
-      // afterward silently shifts everything once any slot before the
-      // correct one is left empty, which pointed the stored answer at the
-      // wrong option (this was a real, confirmed bug: leaving slot 0
-      // blank while marking slot 1 correct stored slot 1's *neighbor* as
-      // the correct answer instead).
-      const options = [];
-      let correctIndex = 0;
-      optionInputs.forEach((input, slotIndex) => {
-        const val = input.value.trim();
-        if (!val) return;
-        if (slotIndex === correctSlot) correctIndex = options.length;
-        options.push(val);
-      });
       return {
         questionText: row.querySelector('.hw-q-text').value.trim(),
         options,
-        correctIndex,
+        correctIndex: correctInput ? parseInt(correctInput.value, 10) : 0,
       };
     });
   }
 
   // ---- Multi-task builder ----
-  function addMediaItemRow(container, existing) {
+  function addMediaItemRow(container) {
     const row = document.createElement('div');
     row.className = 'flex items-start gap-2 p-3 rounded-md';
     row.style.background = 'var(--bg-subtle)';
@@ -746,16 +654,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       fileInput.classList.toggle('hidden', !needsUpload);
     }
     kindSelect.addEventListener('change', syncKind);
-    if (existing) {
-      kindSelect.value = existing.kind;
-      row.querySelector('.hw-media-label').value = existing.name || '';
-      if (['pdf', 'audio', 'image', 'file'].includes(existing.kind)) {
-        row.dataset.uploadedUrl = existing.url;
-        statusEl.textContent = `Current: ${existing.name || 'uploaded file'} (choose a new file to replace it)`;
-      } else {
-        urlInput.value = existing.url || '';
-      }
-    }
     syncKind();
     fileInput.addEventListener('change', async () => {
       const file = fileInput.files[0];
@@ -774,7 +672,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     container.appendChild(row);
   }
 
-  function addTaskCard(type, existing) {
+  function addTaskCard(type) {
     const taskId = ++hwTaskCount;
     const card = document.createElement('div');
     card.className = 'p-4 rounded-md border';
@@ -790,7 +688,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
       <input class="hw-task-title w-full px-3 py-2 rounded-md border text-sm mb-3" style="border-color:var(--border-default)" placeholder="Task title (e.g. \u2018Part 1: Listening\u2019)">
       <div id="${bodyId}"></div>`;
-    card.querySelector('.hw-task-title').value = existing?.title || '';
     document.getElementById('hw-tasks-list').appendChild(card);
     document.getElementById('hw-tasks-empty').classList.add('hidden');
 
@@ -799,16 +696,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const editorId = `hw-task-editor-${taskId}`;
       const rtlId = `hw-task-rtl-${taskId}`;
       body.innerHTML = `
-        <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="${rtlId}" ${existing?.direction === 'rtl' ? 'checked' : ''}> Right-to-left (Arabic)</label>
+        <label class="text-xs flex items-center gap-1 justify-end mb-1" style="color:var(--text-secondary)"><input type="checkbox" id="${rtlId}"> Right-to-left (Arabic)</label>
         <div id="${editorId}" style="min-height:100px"></div>`;
-      const editor = initQuillEditor(editorId, rtlId);
-      if (existing?.instructions && editor) {
-        editor.root.innerHTML = existing.instructions;
-        if (existing.direction === 'rtl') {
-          editor.root.style.direction = 'rtl';
-          editor.root.style.textAlign = 'right';
-        }
-      }
+      initQuillEditor(editorId, rtlId);
       card.dataset.editorId = editorId;
     } else if (type === 'quiz') {
       body.innerHTML = `
@@ -819,11 +709,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="hw-task-questions space-y-3"></div>`;
       const list = body.querySelector('.hw-task-questions');
       body.querySelector('.hw-task-add-question').addEventListener('click', () => addQuestionRow(list));
-      if (existing?.questions?.length) {
-        existing.questions.forEach((q) => addQuestionRow(list, q));
-      } else {
-        addQuestionRow(list);
-      }
+      addQuestionRow(list);
     } else if (type === 'media') {
       body.innerHTML = `
         <div class="flex items-center justify-between mb-2">
@@ -833,70 +719,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="hw-task-media space-y-2"></div>`;
       const list = body.querySelector('.hw-task-media');
       body.querySelector('.hw-task-add-media').addEventListener('click', () => addMediaItemRow(list));
-      if (existing?.mediaItems?.length) {
-        existing.mediaItems.forEach((item) => addMediaItemRow(list, item));
-      } else {
-        addMediaItemRow(list);
-      }
+      addMediaItemRow(list);
     }
   }
   document.querySelectorAll('#hw-multi-builder [data-add-task]').forEach((btn) => {
     btn.addEventListener('click', () => addTaskCard(btn.dataset.addTask));
   });
 
-  window.populateFormForEdit = async (homeworkId) => {
-    const h = (await myHomework()).find(x => x.id === homeworkId);
-    if (!h) return;
-    editingHomeworkId = homeworkId;
-    switchTab('teacher-shell', 'assign');
-    document.getElementById('hw-form-heading').textContent = 'Edit Exercise';
-    document.querySelector('#hw-form button[type="submit"]').textContent = 'Save Changes';
-
-    document.getElementById('hw-title').value = h.title;
-    if (h.dueDate) {
-      const d = new Date(h.dueDate);
-      const pad = (n) => String(n).padStart(2, '0');
-      document.getElementById('hw-due').value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    }
-    document.getElementById('hw-points').value = h.maxPoints || 100;
-    document.getElementById('hw-instructions-rtl').checked = h.instructionsDirection === 'rtl';
-    const instrEditor = quillEditors.get('hw-instructions-editor');
-    if (instrEditor) {
-      instrEditor.root.innerHTML = h.instructions || '';
-      if (h.instructionsDirection === 'rtl') {
-        instrEditor.root.style.direction = 'rtl';
-        instrEditor.root.style.textAlign = 'right';
-      }
-    }
-
-    // Reset the builder areas before repopulating, same as after a fresh submit.
-    document.getElementById('hw-questions-list').innerHTML = '';
-    document.getElementById('hw-tasks-list').innerHTML = '';
-    document.getElementById('hw-tasks-empty').classList.remove('hidden');
-
-    document.querySelectorAll('#hw-mode-tabs [data-mode]').forEach((b) => b.setAttribute('aria-selected', b.dataset.mode === h.submissionMode));
-    document.getElementById('hw-mode').value = h.submissionMode;
-    document.getElementById('hw-quiz-builder').classList.toggle('hidden', h.submissionMode !== 'quiz');
-    document.getElementById('hw-multi-builder').classList.toggle('hidden', h.submissionMode !== 'multi');
-    document.getElementById('hw-single-attachment').classList.toggle('hidden', h.submissionMode === 'multi');
-
-    existingAttachment = h.attachmentUrl ? { url: h.attachmentUrl, name: h.attachmentName } : null;
-    document.getElementById('hw-attachment-status').textContent = existingAttachment ? `Current: ${existingAttachment.name || 'attached file'} (choose a new file to replace it)` : '';
-
-    if (h.submissionMode === 'quiz') {
-      const questions = await EP.homeworkQuestions(homeworkId);
-      const list = document.getElementById('hw-questions-list');
-      questions.forEach((q) => addQuestionRow(list, q));
-    } else if (h.submissionMode === 'multi') {
-      const tasks = await EP.homeworkTasks(homeworkId);
-      tasks.forEach((t) => addTaskCard(t.type, t));
-    }
-    document.getElementById('hw-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
 
   let pendingAttachment = null;
-  let existingAttachment = null; // set during populateFormForEdit — the attachment already on the exercise, kept unless a new file replaces it
   document.getElementById('hw-attachment').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     const statusEl = document.getElementById('hw-attachment-status');
@@ -958,30 +789,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
     try {
-      const payload = {
+      await EP.addHomework({
         courseId: myCourseId, teacherId: user.id,
         title: document.getElementById('hw-title').value,
         instructions: quillHtml('hw-instructions-editor'),
         instructionsDirection: document.getElementById('hw-instructions-rtl').checked ? 'rtl' : 'ltr',
-        dueDate: document.getElementById('hw-due').value,
         submissionMode: mode,
-        // A teacher editing without touching the attachment field must not
-        // accidentally wipe out the existing one — only fall back to it
-        // when actually editing and no new file was chosen this time.
-        attachmentUrl: pendingAttachment?.url ?? (editingHomeworkId ? existingAttachment?.url : undefined),
-        attachmentName: pendingAttachment?.name ?? (editingHomeworkId ? existingAttachment?.name : undefined),
+        attachmentUrl: pendingAttachment?.url,
+        attachmentName: pendingAttachment?.name,
         maxPoints: parseInt(document.getElementById('hw-points').value, 10) || 100,
         questions,
         tasks,
-      };
-      if (editingHomeworkId) {
-        await EP.updateHomework(editingHomeworkId, payload);
-      } else {
-        await EP.addHomework(payload);
-      }
+      });
       e.target.reset();
       pendingAttachment = null;
-      existingAttachment = null;
       document.getElementById('hw-attachment-status').textContent = '';
       document.getElementById('hw-questions-list').innerHTML = '';
       document.getElementById('hw-quiz-builder').classList.add('hidden');
@@ -993,12 +814,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       quillEditors.forEach((editor, id) => { if (id !== 'hw-instructions-editor') quillEditors.delete(id); });
       document.querySelectorAll('#hw-mode-tabs [data-mode]').forEach((b) => b.setAttribute('aria-selected', b.dataset.mode === 'text'));
       document.getElementById('hw-mode').value = 'text';
-      const wasEditing = !!editingHomeworkId;
-      editingHomeworkId = null;
-      document.querySelector('#hw-form button[type="submit"]').textContent = 'Assign Exercise';
-      document.getElementById('hw-form-heading').textContent = 'Assign New Exercise';
       await renderAll();
-      showToast(wasEditing ? 'Exercise updated' : 'Exercise assigned to all students in your course');
+      showToast('Exercise assigned to all students in your course');
     } catch (err) { showToast(err.message, 'danger'); }
   });
 
@@ -1028,7 +845,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     try {
       await EP.sendNotification({
-        fromId: user.id, audience: 'teacher_class', audienceId: user.id,
+        fromId: user.id, audience: 'course', audienceId: myCourseId,
         title: document.getElementById('announce-title').value,
         body: document.getElementById('announce-body').value,
       });

@@ -111,6 +111,7 @@
       <button onclick="switchTab('student-shell','announcements'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="megaphone" class="w-4 h-4"></i> Announcements</button>
       <button onclick="switchTab('student-shell','messages'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="messages-square" class="w-4 h-4"></i> Messages</button>
       <button onclick="switchTab('student-shell','community'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users-round" class="w-4 h-4"></i> Community</button>
+      <button onclick="switchTab('student-shell','classroom'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="graduation-cap" class="w-4 h-4"></i> Classroom</button>
       <button onclick="switchTab('student-shell','notifications'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="bell" class="w-4 h-4"></i> Notifications</button>
       <button onclick="switchTab('student-shell','settings'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="settings" class="w-4 h-4"></i> Settings</button>
       <a href="index.html" class="flex items-center gap-3 py-3 mt-4 nav-link" style="color:var(--text-secondary)"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Website</a>
@@ -160,6 +161,9 @@
     </button>
     <button data-tab-trigger="community" onclick="switchTab('student-shell','community')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="users-round" class="w-4 h-4"></i>Community
+    </button>
+    <button data-tab-trigger="classroom" onclick="switchTab('student-shell','classroom')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
+      <i data-lucide="graduation-cap" class="w-4 h-4"></i>Classroom
     </button>
     <button data-tab-trigger="notifications" onclick="switchTab('student-shell','notifications')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
       <i data-lucide="bell" class="w-4 h-4"></i>Notifications
@@ -217,7 +221,7 @@
     </div>
   </div>
   <div class="grid md:grid-cols-2 gap-6">
-    <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">Homework Due</p><div id="student-hw-due" class="space-y-2 text-sm"></div></div>
+    <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">To Do</p><div id="student-hw-due" class="space-y-2 text-sm"></div></div>
     <div class="card p-6"><p class="font-semibold mb-3" style="color:var(--navy-700)">Recent Grades</p><div id="student-recent-grades" class="space-y-2 text-sm"></div></div>
   </div>
   <div class="grid md:grid-cols-2 gap-6 mt-6">
@@ -262,8 +266,8 @@
   <div id="student-notif-list" class="space-y-3 max-w-2xl"></div>
 </div>
 
-<div id="submit-modal" class="hidden fixed inset-0 z-40 flex items-start justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-2xl p-6 my-8">
+<div id="submit-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-lg p-6 my-8">
     <div class="flex items-center justify-between mb-4">
       <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Submit Exercise</p>
       <button onclick="closeModal('submit-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -320,6 +324,44 @@
         <input id="community-chat-input" placeholder="Message your group..." class="flex-1 px-4 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
         <button type="submit" class="btn btn-teal btn-sm">Send</button>
       </form>
+    </div>
+  </div>
+</div>
+
+<div data-tab-panel="classroom" class="hidden">
+  <h1 class="font-serif text-2xl font-bold mb-2" style="color:var(--navy-700)">Classroom</h1>
+  <p class="text-sm mb-6" style="color:var(--text-secondary)">Everything your teacher has shared with your class — PDFs, images, and videos.</p>
+  <div class="flex flex-wrap gap-2 mb-6">
+    <select id="sclass-category-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="">All Categories</option>
+    </select>
+  </div>
+  <div id="classroom-resources-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</div>
+
+<!-- PDF viewer modal -->
+<div id="pdf-viewer-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.7)">
+  <div class="card w-full max-w-4xl p-4 flex flex-col" style="height:90vh">
+    <div class="flex items-center justify-between mb-3 shrink-0">
+      <p id="pdf-viewer-title" class="font-serif font-semibold" style="color:var(--navy-700)">Document</p>
+      <div class="flex items-center gap-3">
+        <a id="pdf-viewer-download" href="#" download class="text-sm font-semibold inline-flex items-center gap-1" style="color:var(--red-600)"><i data-lucide="download" class="w-4 h-4"></i> Download</a>
+        <button onclick="closeModal('pdf-viewer-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+    </div>
+    <iframe id="pdf-viewer-frame" src="" class="flex-1 w-full rounded-md" style="border:1px solid var(--border-default)" title="PDF viewer"></iframe>
+  </div>
+</div>
+
+<!-- Video viewer modal -->
+<div id="video-viewer-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.7)">
+  <div class="card w-full max-w-3xl p-4 flex flex-col">
+    <div class="flex items-center justify-between mb-3 shrink-0">
+      <p id="video-viewer-title" class="font-serif font-semibold" style="color:var(--navy-700)">Video</p>
+      <button onclick="document.getElementById('video-viewer-frame').src=''; closeModal('video-viewer-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="w-full" style="aspect-ratio:16/9">
+      <iframe id="video-viewer-frame" src="" class="w-full h-full rounded-md" style="border:1px solid var(--border-default)" title="Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
   </div>
 </div>

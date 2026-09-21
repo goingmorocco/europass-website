@@ -29,6 +29,7 @@ const EP = (() => {
     groups: 'groups', group_posts: 'group_posts', group_post_likes: 'group_post_likes',
     group_post_comments: 'group_post_comments', group_messages: 'group_messages', group_post_reports: 'group_post_reports',
     enrollments: 'enrollments', resources: 'resources', attendance: 'attendance', announcements: 'announcements',
+    classroomResources: 'classroom_resources',
   };
 
   function timeAgo(iso) {
@@ -46,7 +47,7 @@ const EP = (() => {
     if (!session) return null;
     const { data: profile, error } = await client.from('profiles').select('*').eq('id', session.user.id).single();
     if (error || !profile || !profile.is_active) return null;
-    return { id: profile.id, name: profile.full_name, role: profile.role, courseId: profile.course_id, teacherId: profile.teacher_id, title: profile.title, email: session.user.email, blockedAt: profile.blocked_at, blockedReason: profile.blocked_reason };
+    return { id: profile.id, name: profile.full_name, role: profile.role, courseId: profile.course_id, title: profile.title, email: session.user.email, blockedAt: profile.blocked_at, blockedReason: profile.blocked_reason };
   }
 
   async function requireRole(role, redirectTo = 'login.html') {
@@ -138,11 +139,10 @@ const EP = (() => {
     if (error) throw error;
     return data.map(mapEnrollment);
   }
-  async function activateEnrollment(id, { priceMad, paymentStatus, courseId, teacherId }) {
+  async function activateEnrollment(id, { priceMad, paymentStatus, courseId }) {
     const client = await db();
     const update = { status: 'active', price_mad: priceMad || null, payment_status: paymentStatus };
     if (courseId) update.course_id = courseId;
-    if (teacherId !== undefined) update.teacher_id = teacherId || null;
     const { error } = await client.from('enrollments').update(update).eq('id', id);
     if (error) throw error;
   }
@@ -161,7 +161,7 @@ const EP = (() => {
     if (error) throw error;
   }
   function mapEnrollment(e) {
-    return { id: e.id, studentId: e.student_id, courseId: e.course_id, teacherId: e.teacher_id, status: e.status, paymentStatus: e.payment_status, priceMad: e.price_mad, requestedAt: e.requested_at, activatedAt: e.activated_at };
+    return { id: e.id, studentId: e.student_id, courseId: e.course_id, status: e.status, paymentStatus: e.payment_status, priceMad: e.price_mad, requestedAt: e.requested_at, activatedAt: e.activated_at };
   }
 
   async function logout() {
@@ -176,7 +176,7 @@ const EP = (() => {
     if (error) throw error;
     return data.map(mapProfile);
   }
-  function mapProfile(p) { return { id: p.id, name: p.full_name, role: p.role, courseId: p.course_id, teacherId: p.teacher_id, title: p.title, city: p.city, phone: p.phone, email: p.email, createdAt: p.created_at, blockedAt: p.blocked_at, blockedReason: p.blocked_reason, lastPaymentAt: p.last_payment_at }; }
+  function mapProfile(p) { return { id: p.id, name: p.full_name, role: p.role, courseId: p.course_id, title: p.title, city: p.city, phone: p.phone, email: p.email, createdAt: p.created_at, blockedAt: p.blocked_at, blockedReason: p.blocked_reason, lastPaymentAt: p.last_payment_at }; }
 
   async function courses() {
     const client = await db();
@@ -186,8 +186,7 @@ const EP = (() => {
   }
 
   async function userById(id) { return (await users()).find(u => u.id === id); }
-  async function studentsOf(teacherId) { return (await users()).filter(u => u.role === 'student' && u.teacherId === teacherId); }
-  async function teachersOf(courseId) { return (await users()).filter(u => u.role === 'teacher' && u.courseId === courseId); }
+  async function studentsOf(courseId) { return (await users()).filter(u => u.role === 'student' && u.courseId === courseId); }
 
   // Self-service profile editing — any signed-in user can update their own name/password.
   async function updateProfile({ fullName }) {
@@ -270,23 +269,8 @@ const EP = (() => {
   // admin to reassign afterward through the normal enrollment/course flow.
   async function changeUserRole(id, newRole) {
     const client = await db();
-    const { error } = await client.from('profiles').update({ role: newRole, course_id: null, teacher_id: null }).eq('id', id);
+    const { error } = await client.from('profiles').update({ role: newRole, course_id: null }).eq('id', id);
     if (error) throw error;
-  }
-  // Assigns a teacher to several students at once — mainly for catching up
-  // students who were already active before per-teacher assignment existed.
-  // Updates both profiles (what everything actually filters by) and each
-  // student's active enrollment — the enrollment sync trigger would
-  // otherwise silently revert this the next time that enrollment is
-  // edited or re-activated, since it treats the enrollment as the source
-  // of truth for profiles.teacher_id.
-  async function bulkAssignTeacher(studentIds, teacherId) {
-    if (!studentIds.length) return;
-    const client = await db();
-    const { error: profileErr } = await client.from('profiles').update({ teacher_id: teacherId }).in('id', studentIds);
-    if (profileErr) throw profileErr;
-    const { error: enrollErr } = await client.from('enrollments').update({ teacher_id: teacherId }).in('student_id', studentIds).eq('status', 'active');
-    if (enrollErr) throw enrollErr;
   }
   // Blocking is deliberately separate from removeUser (is_active) — it's
   // meant to be a temporary, reversible suspension (e.g. non-payment), not
@@ -398,6 +382,61 @@ const EP = (() => {
     if (error) throw error;
   }
 
+  // ---- Classroom (teacher shares PDFs / images / video & other links
+  // directly with their own students — the "learning hub") ----
+  const MAX_CLASSROOM_FILE_BYTES = 15728640; // 15MB, matches the storage bucket's own limit
+
+  async function uploadClassroomFile(file) {
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowed.includes(file.type)) throw new Error('Choose a PDF or image file.');
+    if (file.size > MAX_CLASSROOM_FILE_BYTES) throw new Error('File must be under 15MB.');
+    const client = await db();
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name}`.replace(/\s+/g, '_');
+    const { error } = await client.storage.from('classroom-resources').upload(path, file, { contentType: file.type });
+    if (error) throw error;
+    const { data } = client.storage.from('classroom-resources').getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  function mapClassroomResource(r) {
+    return {
+      id: r.id, courseId: r.course_id, teacherId: r.teacher_id, title: r.title, description: r.description,
+      type: r.type, category: r.category, createdAt: r.created_at,
+      url: (r.type === 'pdf' || r.type === 'image') ? r.file_path : r.external_url,
+    };
+  }
+
+  async function classroomResourcesByCourse(courseId) {
+    const client = await db();
+    const { data, error } = await client.from('classroom_resources').select('*').eq('course_id', courseId).order('created_at', { ascending: false });
+    if (error) throw error;
+    return data.map(mapClassroomResource);
+  }
+
+  async function addClassroomResource({ courseId, teacherId, title, description, type, category, file, externalUrl }) {
+    const client = await db();
+    let filePath = null;
+    if (type === 'pdf' || type === 'image') {
+      if (!file) throw new Error(type === 'pdf' ? 'Choose a PDF file to upload.' : 'Choose an image to upload.');
+      filePath = await uploadClassroomFile(file);
+    } else {
+      if (!externalUrl || !externalUrl.trim()) throw new Error('Add a link for this resource.');
+    }
+    const { error } = await client.from('classroom_resources').insert({
+      course_id: courseId, teacher_id: teacherId, title, description: description || null, type,
+      category: category || 'General',
+      file_path: (type === 'pdf' || type === 'image') ? filePath : null,
+      external_url: (type === 'pdf' || type === 'image') ? null : externalUrl.trim(),
+    });
+    if (error) throw error;
+  }
+
+  async function deleteClassroomResource(id) {
+    const client = await db();
+    const { error } = await client.from('classroom_resources').delete().eq('id', id);
+    if (error) throw error;
+  }
+
   async function postById(id) {
     const client = await db();
     const { data, error } = await client.from('posts').select('*').eq('id', id).eq('status', 'published').single();
@@ -439,7 +478,7 @@ const EP = (() => {
       attachmentUrl: h.attachment_url, attachmentName: h.attachment_name, maxPoints: h.max_points,
     };
   }
-  async function homeworkByTeacher(teacherId) { return (await homework()).filter(h => h.teacherId === teacherId); }
+  async function homeworkByCourse(courseId) { return (await homework()).filter(h => h.courseId === courseId); }
 
   async function homeworkQuestions(homeworkId) {
     const client = await db();
@@ -471,9 +510,18 @@ const EP = (() => {
   // for submissionMode 'quiz'. tasks is optional — an array of
   // { type, title, instructions, mediaItems, questions } for submissionMode
   // 'multi', where a task's own questions follow the same shape as above.
-  async function insertQuestionsAndTasks(client, homeworkId, submissionMode, questions, tasks) {
+  async function addHomework({ courseId, teacherId, title, instructions, instructionsDirection = 'ltr', submissionMode = 'text', attachmentUrl, attachmentName, maxPoints = 100, questions, tasks }) {
+    const client = await db();
+    // Exercises are open-ended by design — no due date. They're often
+    // reused for later cohorts of students, so a fixed deadline from
+    // whoever was assigned it first would be stale and misleading.
+    const { data, error } = await client.from('homework').insert({
+      course_id: courseId, teacher_id: teacherId, title, instructions, instructions_direction: instructionsDirection,
+      submission_mode: submissionMode, attachment_url: attachmentUrl || null, attachment_name: attachmentName || null, max_points: maxPoints,
+    }).select().single();
+    if (error) throw error;
     if (submissionMode === 'quiz' && Array.isArray(questions) && questions.length) {
-      const rows = questions.map((q, i) => ({ homework_id: homeworkId, question_text: q.questionText, options: q.options, correct_index: q.correctIndex, position: i }));
+      const rows = questions.map((q, i) => ({ homework_id: data.id, question_text: q.questionText, options: q.options, correct_index: q.correctIndex, position: i }));
       const { error: qErr } = await client.from('homework_questions').insert(rows);
       if (qErr) throw qErr;
     }
@@ -481,53 +529,18 @@ const EP = (() => {
       for (let i = 0; i < tasks.length; i++) {
         const t = tasks[i];
         const { data: taskRow, error: tErr } = await client.from('homework_tasks').insert({
-          homework_id: homeworkId, type: t.type, position: i, title: t.title || null,
+          homework_id: data.id, type: t.type, position: i, title: t.title || null,
           instructions: t.instructions || null, direction: t.direction || 'ltr', media_items: t.type === 'media' ? (t.mediaItems || []) : null,
         }).select().single();
         if (tErr) throw tErr;
         if (t.type === 'quiz' && Array.isArray(t.questions) && t.questions.length) {
-          const qRows = t.questions.map((q, qi) => ({ homework_id: homeworkId, task_id: taskRow.id, question_text: q.questionText, options: q.options, correct_index: q.correctIndex, position: qi }));
+          const qRows = t.questions.map((q, qi) => ({ homework_id: data.id, task_id: taskRow.id, question_text: q.questionText, options: q.options, correct_index: q.correctIndex, position: qi }));
           const { error: qErr } = await client.from('homework_questions').insert(qRows);
           if (qErr) throw qErr;
         }
       }
     }
-  }
-
-  async function addHomework({ courseId, teacherId, title, instructions, instructionsDirection = 'ltr', dueDate, submissionMode = 'text', attachmentUrl, attachmentName, maxPoints = 100, questions, tasks }) {
-    const client = await db();
-    const { data, error } = await client.from('homework').insert({
-      course_id: courseId, teacher_id: teacherId, title, instructions, instructions_direction: instructionsDirection, due_date: dueDate,
-      submission_mode: submissionMode, attachment_url: attachmentUrl || null, attachment_name: attachmentName || null, max_points: maxPoints,
-    }).select().single();
-    if (error) throw error;
-    await insertQuestionsAndTasks(client, data.id, submissionMode, questions, tasks);
     return data.id;
-  }
-
-  // Edits an existing exercise in place. Rather than trying to diff which
-  // individual questions/tasks changed (a teacher could add, remove, or
-  // reorder any of them), this clears everything under the homework and
-  // rebuilds it fresh from the current form state — the same shape
-  // addHomework already knows how to build, just reused here. Existing
-  // student submissions are untouched; they reference the homework, not
-  // its now-replaced questions/tasks, so nothing is lost for anyone who
-  // already submitted.
-  async function updateHomework(id, { title, instructions, instructionsDirection = 'ltr', dueDate, submissionMode = 'text', attachmentUrl, attachmentName, maxPoints = 100, questions, tasks }) {
-    const client = await db();
-    const { error } = await client.from('homework').update({
-      title, instructions, instructions_direction: instructionsDirection, due_date: dueDate,
-      submission_mode: submissionMode, attachment_url: attachmentUrl || null, attachment_name: attachmentName || null, max_points: maxPoints,
-    }).eq('id', id);
-    if (error) throw error;
-    // homework_tasks cascades its own linked homework_questions on delete;
-    // the old single-quiz-mode questions (task_id null) need their own
-    // explicit clear since they're not attached to any task row.
-    const { error: tDelErr } = await client.from('homework_tasks').delete().eq('homework_id', id);
-    if (tDelErr) throw tDelErr;
-    const { error: qDelErr } = await client.from('homework_questions').delete().eq('homework_id', id).is('task_id', null);
-    if (qDelErr) throw qDelErr;
-    await insertQuestionsAndTasks(client, id, submissionMode, questions, tasks);
   }
 
   const MAX_HOMEWORK_FILE_BYTES = 15 * 1024 * 1024;
@@ -551,7 +564,7 @@ const EP = (() => {
     return {
       id: s.id, homeworkId: s.homework_id, studentId: s.student_id, content: s.content, status: s.status,
       grade: s.grade, feedback: s.feedback, submittedAt: s.submitted_at, gradedAt: s.graded_at,
-      attachmentUrl: s.attachment_url, attachmentName: s.attachment_name, quizAnswers: s.quiz_answers, autoScore: s.auto_score, taskResponses: s.task_responses, revisionTaskIds: s.revision_task_ids,
+      attachmentUrl: s.attachment_url, attachmentName: s.attachment_name, quizAnswers: s.quiz_answers, autoScore: s.auto_score, taskResponses: s.task_responses,
     };
   }
   async function submissionFor(homeworkId, studentId) { return (await submissions()).find(s => s.homeworkId === homeworkId && s.studentId === studentId); }
@@ -596,7 +609,6 @@ const EP = (() => {
         row.status = 'graded';
         row.grade = `${overall}%`;
         row.graded_at = new Date().toISOString();
-        row.feedback = null; // a fresh auto-grade replaces any earlier "here's what to fix" note from a prior revision request
       } else {
         row.status = 'submitted';
       }
@@ -609,7 +621,6 @@ const EP = (() => {
       row.status = 'graded';
       row.grade = `${scorePct}%`;
       row.graded_at = new Date().toISOString();
-      row.feedback = null; // a fresh auto-grade replaces any earlier "here's what to fix" note from a prior revision request
     } else {
       row.status = 'submitted';
     }
@@ -634,12 +645,9 @@ const EP = (() => {
   }
   // Sends work back for another pass instead of grading it outright — the
   // student sees the feedback and can resubmit through the same form.
-  async function requestRevision(subId, feedback, taskIds) {
+  async function requestRevision(subId, feedback) {
     const client = await db();
-    const { error } = await client.from('submissions').update({
-      status: 'needs_revision', feedback, graded_at: new Date().toISOString(),
-      revision_task_ids: Array.isArray(taskIds) && taskIds.length ? taskIds : null,
-    }).eq('id', subId);
+    const { error } = await client.from('submissions').update({ status: 'needs_revision', feedback, graded_at: new Date().toISOString() }).eq('id', subId);
     if (error) throw error;
   }
 
@@ -654,7 +662,6 @@ const EP = (() => {
         (n.audience_type === 'teachers' && user.role === 'teacher') ||
         (n.audience_type === 'students' && user.role === 'student') ||
         (n.audience_type === 'course' && n.audience_id === user.courseId) ||
-        (n.audience_type === 'teacher_class' && n.audience_id === user.teacherId) ||
         (n.audience_type === 'user' && n.audience_id === user.id) ||
         n.from_id === user.id
       )
@@ -817,9 +824,9 @@ const EP = (() => {
   }
 
   // ---- Attendance ----
-  async function attendanceFor(teacherId, classDate) {
+  async function attendanceFor(courseId, classDate) {
     const client = await db();
-    const { data, error } = await client.from('attendance').select('*').eq('teacher_id', teacherId).eq('class_date', classDate);
+    const { data, error } = await client.from('attendance').select('*').eq('course_id', courseId).eq('class_date', classDate);
     if (error) throw error;
     return data.map(mapAttendance);
   }
@@ -840,15 +847,15 @@ const EP = (() => {
   function mapAttendance(a) { return { id: a.id, courseId: a.course_id, studentId: a.student_id, teacherId: a.teacher_id, classDate: a.class_date, status: a.status }; }
 
   // ---- Announcements ----
-  async function announcementsFor(teacherId) {
+  async function announcementsFor(courseId) {
     const client = await db();
-    const { data, error } = await client.from('announcements').select('*').eq('teacher_id', teacherId).order('created_at', { ascending: false });
+    const { data, error } = await client.from('announcements').select('*').eq('course_id', courseId).order('created_at', { ascending: false });
     if (error) throw error;
     return data.map(mapAnnouncement);
   }
-  async function myAnnouncements(teacherId) {
-    if (!teacherId) return [];
-    return announcementsFor(teacherId);
+  async function myAnnouncements(courseId) {
+    if (!courseId) return [];
+    return announcementsFor(courseId);
   }
   async function addAnnouncement({ courseId, teacherId, title, body }) {
     const client = await db();
@@ -865,13 +872,14 @@ const EP = (() => {
   return {
     KEYS, timeAgo,
     getSession, requireRole, login, signup, logout,
-    users, courses, addUser, removeUser, blockUser, unblockUser, markPaid, changeUserRole, bulkAssignTeacher, suggestEmail, studentsOf, teachersOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
+    users, courses, addUser, removeUser, blockUser, unblockUser, markPaid, changeUserRole, suggestEmail, studentsOf, userById, updateProfile, updatePassword, resetPasswordForEmail, onAuthEvent,
     posts, postById, savePost, deletePost,
     categories, addCategory, deleteCategory,
     resources, addResource, deleteResource, uploadPostCover,
+    classroomResourcesByCourse, addClassroomResource, deleteClassroomResource,
     attendanceFor, myAttendance, markAttendance,
     announcementsFor, myAnnouncements, addAnnouncement, deleteAnnouncement,
-    homework, homeworkByTeacher, addHomework, updateHomework, homeworkQuestions, questionsForTask, homeworkTasks, uploadHomeworkFile, submissions, submissionFor, submitHomework, saveDraft, gradeSubmission, requestRevision,
+    homework, homeworkByCourse, addHomework, homeworkQuestions, questionsForTask, homeworkTasks, uploadHomeworkFile, submissions, submissionFor, submitHomework, saveDraft, gradeSubmission, requestRevision,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, onChange,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
