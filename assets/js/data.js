@@ -61,6 +61,15 @@ const EP = (() => {
     const client = await db();
     const { error } = await client.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    // Safety net for the case signup() itself couldn't handle: if the
+    // project requires email confirmation, signUp() returns no session, so
+    // the inline ensurePendingEnrollment() call below never ran at signup
+    // time — and until now, nothing ever called it again. A student could
+    // confirm their email and log in successfully while still having zero
+    // enrollment records, invisible to admin review. ensurePendingEnrollment
+    // is a no-op for anyone who already has a record (or isn't a student),
+    // so it's safe to attempt on every login.
+    await ensurePendingEnrollment().catch((e) => console.warn('Could not create enrollment request:', e));
     return getSession();
   }
 
