@@ -156,33 +156,80 @@ document.addEventListener('DOMContentLoaded', async () => {
     exportToCsv('europass-enrollments.csv', data);
   };
 
+  // ---- Users page search/filter state ----
+  let usersSearchTerm = '';
+  let usersFilterRole = '';
+  let usersFilterCourse = '';
+  let usersFilterStatus = '';
+  let usersFilterBalance = '';
+  ['users-search', 'users-filter-role', 'users-filter-course', 'users-filter-status', 'users-filter-balance'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => {
+      usersSearchTerm = document.getElementById('users-search').value.trim().toLowerCase();
+      usersFilterRole = document.getElementById('users-filter-role').value;
+      usersFilterCourse = document.getElementById('users-filter-course').value;
+      usersFilterStatus = document.getElementById('users-filter-status').value;
+      usersFilterBalance = document.getElementById('users-filter-balance').value;
+      renderUsers();
+    });
+  });
+
   async function renderUsers() {
-    const [rows, courseList] = await Promise.all([EP.users(), EP.courses()]);
-    const teachersAndStudents = rows.filter(u => u.role !== 'admin');
+    const [rows, courseList, balances] = await Promise.all([EP.users(), EP.courses(), EP.studentBalances()]);
+    const courseSelect = document.getElementById('users-filter-course');
+    if (courseSelect && !courseSelect.dataset.populated) {
+      courseSelect.innerHTML = `<option value="">All Courses</option>` + courseList.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+      courseSelect.dataset.populated = '1';
+    }
+
+    let teachersAndStudents = rows.filter(u => u.role !== 'admin');
+    if (usersSearchTerm) {
+      teachersAndStudents = teachersAndStudents.filter(u =>
+        u.name?.toLowerCase().includes(usersSearchTerm) ||
+        u.email?.toLowerCase().includes(usersSearchTerm) ||
+        u.phone?.toLowerCase().includes(usersSearchTerm));
+    }
+    if (usersFilterRole) teachersAndStudents = teachersAndStudents.filter(u => u.role === usersFilterRole);
+    if (usersFilterCourse) teachersAndStudents = teachersAndStudents.filter(u => u.courseId === usersFilterCourse);
+    if (usersFilterStatus === 'active') teachersAndStudents = teachersAndStudents.filter(u => !u.blockedAt);
+    if (usersFilterStatus === 'blocked') teachersAndStudents = teachersAndStudents.filter(u => !!u.blockedAt);
+    if (usersFilterBalance === 'owing') teachersAndStudents = teachersAndStudents.filter(u => (balances[u.id]?.balance || 0) > 0);
+    if (usersFilterBalance === 'settled') teachersAndStudents = teachersAndStudents.filter(u => (balances[u.id]?.balance || 0) <= 0);
+
     document.getElementById('admin-users-list').innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
-      <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="text-left px-5 py-3 text-white font-semibold">Joined</th><th class="text-left px-5 py-3 text-white font-semibold">Status</th><th class="px-5 py-3"></th></tr></thead><tbody>
-      ${teachersAndStudents.map((u, i) => `<tr onclick="openUserDetailModal('${u.id}')" style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; cursor:pointer">
+      <th class="text-left px-5 py-3 text-white font-semibold">Name</th><th class="text-left px-5 py-3 text-white font-semibold">Role</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">City</th><th class="text-left px-5 py-3 text-white font-semibold">Phone</th><th class="text-left px-5 py-3 text-white font-semibold">Joined</th><th class="text-left px-5 py-3 text-white font-semibold">Balance</th><th class="text-left px-5 py-3 text-white font-semibold">Status</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      ${teachersAndStudents.map((u, i) => {
+        const bal = balances[u.id]?.balance || 0;
+        const balanceHtml = u.role === 'student'
+          ? (bal > 0 ? `<span class="badge badge-danger">${bal.toLocaleString()} MAD due</span>` : `<span class="badge badge-success">Paid up</span>`)
+          : `<span style="color:var(--text-disabled)">\u2014</span>`;
+        return `<tr onclick="openUserDetailModal('${u.id}')" style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; cursor:pointer">
         <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(u.name)}</td>
         <td class="px-5 py-3"><span class="badge ${u.role === 'teacher' ? 'badge-info' : 'badge-amber'}">${u.role}</span></td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(courseList.find(c => c.id === u.courseId)?.name || '\u2014')}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(u.city || '\u2014')}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)" dir="ltr">${escapeHtml(u.phone || '\u2014')}</td>
         <td class="px-5 py-3" style="color:var(--text-secondary)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '\u2014'}</td>
+        <td class="px-5 py-3">${balanceHtml}</td>
         <td class="px-5 py-3">${u.blockedAt ? '<span class="badge badge-danger">Blocked</span>' : '<span class="badge badge-success">Active</span>'}</td>
         <td class="px-5 py-3 text-right"><button onclick="event.stopPropagation(); removeUserConfirm('${u.id}')" class="text-xs font-semibold" style="color:var(--danger-600)">Remove</button></td>
-      </tr>`).join('')}
+      </tr>`;
+      }).join('') || `<tr><td colspan="9" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No users match these filters.</td></tr>`}
     </tbody></table>`;
   }
 
   // ---- User detail modal — shared by both the Users table and the
   // Enrollments list, so it's self-contained and fetches its own data
   // rather than depending on whatever's cached in either view. ----
+  let currentUserDetailId = null;
   window.openUserDetailModal = async (userId) => {
     let user, courseList;
     try {
       [user, courseList] = await Promise.all([EP.userById(userId), EP.courses()]);
     } catch (err) { showToast(err.message, 'danger'); return; }
     if (!user) { showToast('Could not find that user', 'danger'); return; }
+    currentUserDetailId = userId;
 
     document.getElementById('user-detail-name').textContent = user.name;
     document.getElementById('user-detail-role').textContent = user.role;
@@ -209,17 +256,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       } catch (err) { showToast(err.message, 'danger'); }
     };
 
-    // Payment display — a plain informational marker the admin sets by
-    // hand, not an automated calculation of what's actually owed.
-    const paymentEl = document.getElementById('user-detail-payment');
-    if (user.lastPaymentAt) {
-      const daysSince = Math.floor((Date.now() - new Date(user.lastPaymentAt)) / 86400000);
-      paymentEl.textContent = `Last marked paid ${EP.timeAgo(user.lastPaymentAt)}`;
-      paymentEl.style.color = daysSince > 30 ? 'var(--danger-600)' : 'var(--text-primary)';
-    } else {
-      paymentEl.textContent = 'Never marked as paid';
-      paymentEl.style.color = 'var(--danger-600)';
-    }
+    // Balance + full payment history from the real ledger — replaces the
+    // old one-click "marked paid" flag, which recorded no amount at all.
+    await renderUserDetailPayments(user.id);
 
     const blockedBanner = document.getElementById('user-detail-blocked-banner');
     const blockBtn = document.getElementById('user-detail-block-btn');
@@ -246,11 +285,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
     }
 
-    document.getElementById('user-detail-mark-paid').onclick = async () => {
-      try { await EP.markPaid(user.id); openUserDetailModal(user.id); showToast('Marked as paid'); }
-      catch (err) { showToast(err.message, 'danger'); }
-    };
-
     const emailBtn = document.getElementById('user-detail-email-btn');
     const waBtn = document.getElementById('user-detail-whatsapp-btn');
     if (user.email) {
@@ -269,6 +303,180 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('user-detail-modal').classList.remove('hidden');
     lucide.createIcons();
+  };
+
+  // Balance summary + full payment history for one student, shown inside
+  // the User Details modal — this is the ledger, not a flag.
+  async function renderUserDetailPayments(userId) {
+    const balanceEl = document.getElementById('user-detail-balance');
+    const listEl = document.getElementById('user-detail-payments-list');
+    const [balances, allPayments] = await Promise.all([EP.studentBalances(), EP.payments()]);
+    const bal = balances[userId] || { invoiced: 0, paid: 0, balance: 0 };
+    balanceEl.innerHTML = bal.balance > 0
+      ? `<span class="font-semibold" style="color:var(--danger-600)">${bal.balance.toLocaleString()} MAD still owed</span> <span style="color:var(--text-secondary)">(${bal.paid.toLocaleString()} of ${bal.invoiced.toLocaleString()} MAD paid)</span>`
+      : bal.invoiced > 0
+        ? `<span class="font-semibold" style="color:var(--success-600)">Paid up</span> <span style="color:var(--text-secondary)">(${bal.paid.toLocaleString()} of ${bal.invoiced.toLocaleString()} MAD)</span>`
+        : `<span style="color:var(--text-secondary)">No priced enrollment on file yet.</span>`;
+
+    const mine = allPayments.filter((p) => p.studentId === userId);
+    listEl.innerHTML = mine.map((p) => `
+      <div class="p-3 rounded-lg text-sm flex items-center justify-between gap-2" style="background:${p.voidedAt ? 'var(--bg-subtle)' : 'var(--success-50)'}; opacity:${p.voidedAt ? '0.6' : '1'}">
+        <div class="min-w-0">
+          <p class="font-semibold" style="color:var(--navy-700)">${p.amount.toLocaleString()} ${escapeHtml(p.currency)}${p.voidedAt ? ' <span class="badge badge-danger">Voided</span>' : ''}</p>
+          <p class="text-xs mt-0.5" style="color:var(--text-secondary)">${new Date(p.paidAt).toLocaleDateString()} · ${escapeHtml(p.method.replace('_', ' '))}${p.courseName ? ` · ${escapeHtml(p.courseName)}` : ''}</p>
+          ${p.notes ? `<p class="text-xs mt-0.5" style="color:var(--text-disabled)">${escapeHtml(p.notes)}</p>` : ''}
+        </div>
+        <button onclick="openPaymentModal({ id: '${p.id}' })" class="text-xs font-semibold shrink-0" style="color:var(--teal-600)">Edit</button>
+      </div>`).join('') || `<p class="text-sm" style="color:var(--text-secondary)">No payments recorded yet.</p>`;
+  }
+
+  // ---- Finance: payments & expenses (the ledger behind the Users page
+  // balance column and the whole Analytics/Finance hub) ----
+  async function refreshFinanceViews() {
+    await Promise.all([renderUsers(), renderAnalytics()]);
+    if (currentUserDetailId && !document.getElementById('user-detail-modal').classList.contains('hidden')) {
+      await renderUserDetailPayments(currentUserDetailId);
+    }
+  }
+
+  window.openPaymentModal = async ({ id, studentId } = {}) => {
+    const [studentList, courseList, allPayments] = await Promise.all([EP.users(), EP.courses(), id ? EP.payments() : Promise.resolve([])]);
+    const students = studentList.filter((u) => u.role === 'student');
+    const studentSelect = document.getElementById('payment-student');
+    studentSelect.innerHTML = students.map((s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+    const courseSelect = document.getElementById('payment-course');
+    courseSelect.innerHTML = `<option value="">Not linked to a specific course</option>` + courseList.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+
+    const voidBtn = document.getElementById('payment-void-btn');
+    const auditNote = document.getElementById('payment-audit-note');
+    document.getElementById('payment-form').reset();
+
+    const existing = id ? allPayments.find((p) => p.id === id) : null;
+    document.getElementById('payment-id').value = id || '';
+    document.getElementById('payment-modal-title').textContent = existing ? 'Edit Payment' : 'Record Payment';
+
+    if (existing) {
+      studentSelect.value = existing.studentId;
+      courseSelect.value = existing.courseId || '';
+      document.getElementById('payment-amount').value = existing.amount;
+      document.getElementById('payment-method').value = existing.method;
+      document.getElementById('payment-date').value = new Date(existing.paidAt).toISOString().slice(0, 10);
+      document.getElementById('payment-notes').value = existing.notes || '';
+      voidBtn.classList.remove('hidden');
+      voidBtn.textContent = existing.voidedAt ? 'Restore (Unvoid)' : 'Void';
+      voidBtn.onclick = async () => {
+        try {
+          if (existing.voidedAt) { await EP.unvoidPayment(id); showToast('Payment restored'); }
+          else {
+            const reason = prompt('Why is this payment being voided? (shown in the audit history)');
+            if (reason === null) return;
+            await EP.voidPayment(id, reason || null);
+            showToast('Payment voided');
+          }
+          closeModal('payment-modal');
+          await refreshFinanceViews();
+        } catch (err) { showToast(err.message, 'danger'); }
+      };
+      auditNote.classList.remove('hidden');
+      auditNote.textContent = existing.updatedAt && existing.updatedAt !== existing.createdAt
+        ? `Recorded ${EP.timeAgo(existing.createdAt)}, last edited ${EP.timeAgo(existing.updatedAt)}. Every change is kept in the audit log.`
+        : `Recorded ${EP.timeAgo(existing.createdAt)}. Every change is kept in the audit log.`;
+    } else {
+      document.getElementById('payment-date').value = new Date().toISOString().slice(0, 10);
+      if (studentId) studentSelect.value = studentId;
+      voidBtn.classList.add('hidden');
+      auditNote.classList.add('hidden');
+    }
+    document.getElementById('payment-modal').classList.remove('hidden');
+  };
+
+  document.getElementById('payment-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('payment-id').value;
+    const payload = {
+      studentId: document.getElementById('payment-student').value,
+      courseId: document.getElementById('payment-course').value || null,
+      amount: parseFloat(document.getElementById('payment-amount').value),
+      method: document.getElementById('payment-method').value,
+      paidAt: document.getElementById('payment-date').value,
+      notes: document.getElementById('payment-notes').value,
+    };
+    try {
+      if (id) await EP.updatePayment(id, payload);
+      else await EP.addPayment(payload);
+      closeModal('payment-modal');
+      await refreshFinanceViews();
+      showToast(id ? 'Payment updated' : 'Payment recorded');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
+
+  window.openExpenseModal = async ({ id } = {}) => {
+    const allExpenses = id ? await EP.expenses() : [];
+    const existing = id ? allExpenses.find((x) => x.id === id) : null;
+    document.getElementById('expense-form').reset();
+    document.getElementById('expense-id').value = id || '';
+    document.getElementById('expense-modal-title').textContent = existing ? 'Edit Expense' : 'Record Expense';
+    const voidBtn = document.getElementById('expense-void-btn');
+    if (existing) {
+      document.getElementById('expense-category').value = existing.category;
+      document.getElementById('expense-vendor').value = existing.vendor || '';
+      document.getElementById('expense-amount').value = existing.amount;
+      document.getElementById('expense-date').value = new Date(existing.incurredAt).toISOString().slice(0, 10);
+      document.getElementById('expense-notes').value = existing.notes || '';
+      voidBtn.classList.remove('hidden');
+      voidBtn.textContent = existing.voidedAt ? 'Restore (Unvoid)' : 'Void';
+      voidBtn.onclick = async () => {
+        try {
+          if (existing.voidedAt) { await EP.unvoidExpense(id); showToast('Expense restored'); }
+          else {
+            const reason = prompt('Why is this expense being voided? (shown in the audit history)');
+            if (reason === null) return;
+            await EP.voidExpense(id, reason || null);
+            showToast('Expense voided');
+          }
+          closeModal('expense-modal');
+          await renderAnalytics();
+        } catch (err) { showToast(err.message, 'danger'); }
+      };
+    } else {
+      document.getElementById('expense-date').value = new Date().toISOString().slice(0, 10);
+      voidBtn.classList.add('hidden');
+    }
+    document.getElementById('expense-modal').classList.remove('hidden');
+  };
+
+  document.getElementById('expense-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('expense-id').value;
+    const payload = {
+      category: document.getElementById('expense-category').value,
+      vendor: document.getElementById('expense-vendor').value,
+      amount: parseFloat(document.getElementById('expense-amount').value),
+      incurredAt: document.getElementById('expense-date').value,
+      notes: document.getElementById('expense-notes').value,
+    };
+    try {
+      if (id) await EP.updateExpense(id, payload);
+      else await EP.addExpense(payload);
+      closeModal('expense-modal');
+      await renderAnalytics();
+      showToast(id ? 'Expense updated' : 'Expense recorded');
+    } catch (err) { showToast(err.message, 'danger'); }
+  });
+
+  window.exportPaymentsCsv = async () => {
+    const rows = (await EP.payments()).map((p) => ({
+      Student: p.studentName, Course: p.courseName || '', Amount: p.amount, Currency: p.currency, Method: p.method,
+      Date: new Date(p.paidAt).toISOString().slice(0, 10), Notes: p.notes || '', Voided: p.voidedAt ? 'Yes' : 'No',
+    }));
+    exportToCsv('europass-payments.csv', rows);
+  };
+  window.exportExpensesCsv = async () => {
+    const rows = (await EP.expenses()).map((x) => ({
+      Category: x.category, Vendor: x.vendor || '', Amount: x.amount, Currency: x.currency,
+      Date: new Date(x.incurredAt).toISOString().slice(0, 10), Notes: x.notes || '', Voided: x.voidedAt ? 'Yes' : 'No',
+    }));
+    exportToCsv('europass-expenses.csv', rows);
   };
 
   // ---- Homework & Grades (admin view-only — grading itself stays with the
@@ -471,38 +679,107 @@ document.addEventListener('DOMContentLoaded', async () => {
   // reasoning as the resources-cache fix from earlier in this project —
   // renderAll() calls renderAnalytics() immediately, and a `let` binding
   // isn't accessible until its own declaration line has actually executed.
-  let chartEnrollments = null, chartStatus = null, chartPrograms = null, chartRevenue = null;
+  let chartEnrollments = null, chartStatus = null, chartPrograms = null, chartRevenue = null, chartExpenses = null;
   let analyticsSelectedYear = new Date().getFullYear();
+
+  // ---- Ledger table filter state (Payments + Expenses, on Analytics) ----
+  let paymentsSearchTerm = '', paymentsShowVoided = false;
+  let expensesSearchTerm = '', expensesShowVoided = false;
+  document.getElementById('payments-search')?.addEventListener('input', (e) => { paymentsSearchTerm = e.target.value.trim().toLowerCase(); renderPaymentsLedger(); });
+  document.getElementById('payments-show-voided')?.addEventListener('change', (e) => { paymentsShowVoided = e.target.value === 'show'; renderPaymentsLedger(); });
+  document.getElementById('expenses-search')?.addEventListener('input', (e) => { expensesSearchTerm = e.target.value.trim().toLowerCase(); renderExpensesLedger(); });
+  document.getElementById('expenses-show-voided')?.addEventListener('change', (e) => { expensesShowVoided = e.target.value === 'show'; renderExpensesLedger(); });
+
+  async function renderPaymentsLedger() {
+    const el = document.getElementById('admin-payments-list');
+    if (!el) return;
+    let rows = await EP.payments();
+    if (!paymentsShowVoided) rows = rows.filter((p) => !p.voidedAt);
+    if (paymentsSearchTerm) rows = rows.filter((p) => p.studentName?.toLowerCase().includes(paymentsSearchTerm) || p.courseName?.toLowerCase().includes(paymentsSearchTerm));
+    el.innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
+      <th class="text-left px-5 py-3 text-white font-semibold">Student</th><th class="text-left px-5 py-3 text-white font-semibold">Course</th><th class="text-left px-5 py-3 text-white font-semibold">Amount</th><th class="text-left px-5 py-3 text-white font-semibold">Method</th><th class="text-left px-5 py-3 text-white font-semibold">Date</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      ${rows.map((p, i) => `<tr onclick="openPaymentModal({ id: '${p.id}' })" style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; cursor:pointer; opacity:${p.voidedAt ? '0.55' : '1'}">
+        <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(p.studentName)}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(p.courseName || '—')}</td>
+        <td class="px-5 py-3 font-semibold" style="color:var(--navy-700)">${p.amount.toLocaleString()} ${escapeHtml(p.currency)}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(p.method.replace('_', ' '))}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${new Date(p.paidAt).toLocaleDateString()}</td>
+        <td class="px-5 py-3 text-right">${p.voidedAt ? '<span class="badge badge-danger">Voided</span>' : ''}</td>
+      </tr>`).join('') || `<tr><td colspan="6" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No payments yet.</td></tr>`}
+    </tbody></table>`;
+  }
+
+  async function renderExpensesLedger() {
+    const el = document.getElementById('admin-expenses-list');
+    if (!el) return;
+    let rows = await EP.expenses();
+    if (!expensesShowVoided) rows = rows.filter((x) => !x.voidedAt);
+    if (expensesSearchTerm) rows = rows.filter((x) => x.category?.toLowerCase().includes(expensesSearchTerm) || x.vendor?.toLowerCase().includes(expensesSearchTerm));
+    el.innerHTML = `<table class="w-full text-sm"><thead><tr style="background:var(--navy-700)">
+      <th class="text-left px-5 py-3 text-white font-semibold">Category</th><th class="text-left px-5 py-3 text-white font-semibold">Vendor</th><th class="text-left px-5 py-3 text-white font-semibold">Amount</th><th class="text-left px-5 py-3 text-white font-semibold">Date</th><th class="px-5 py-3"></th></tr></thead><tbody>
+      ${rows.map((x, i) => `<tr onclick="openExpenseModal({ id: '${x.id}' })" style="background:${i % 2 === 0 ? 'var(--bg-subtle)' : '#fff'}; cursor:pointer; opacity:${x.voidedAt ? '0.55' : '1'}">
+        <td class="px-5 py-3 font-medium" style="color:var(--navy-700)">${escapeHtml(x.category)}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${escapeHtml(x.vendor || '—')}</td>
+        <td class="px-5 py-3 font-semibold" style="color:var(--danger-600)">${x.amount.toLocaleString()} ${escapeHtml(x.currency)}</td>
+        <td class="px-5 py-3" style="color:var(--text-secondary)">${new Date(x.incurredAt).toLocaleDateString()}</td>
+        <td class="px-5 py-3 text-right">${x.voidedAt ? '<span class="badge badge-danger">Voided</span>' : ''}</td>
+      </tr>`).join('') || `<tr><td colspan="5" class="px-5 py-8 text-center" style="color:var(--text-secondary)">No expenses yet.</td></tr>`}
+    </tbody></table>`;
+  }
 
   async function renderAnalytics() {
     if (!document.getElementById('analytics-chart-enrollments') || !window.Chart) return;
-    const [allEnr, courseList] = await Promise.all([EP.allEnrollments(), EP.courses()]);
+    const [allEnr, courseList, allPayments, allExpenses, balances, needsReview] = await Promise.all([
+      EP.allEnrollments(), EP.courses(), EP.payments(), EP.expenses(), EP.studentBalances(), EP.legacyPaymentFlagsNeedingReview(),
+    ]);
+    const livePayments = allPayments.filter((p) => !p.voidedAt);
+    const liveExpenses = allExpenses.filter((x) => !x.voidedAt);
 
     const active = allEnr.filter((e) => e.status === 'active' || e.status === 'completed');
     const now = new Date();
 
-    // Revenue is attributed to activatedAt (when an enrollment actually
-    // became a paying student), not requestedAt (when they first signed
-    // up) — those can be weeks apart, and revenue should reflect when the
-    // sale actually closed. Nothing here ever resets automatically; "This
-    // Month" and "This Year" are just filtered views over the same
-    // permanent enrollment records, recalculated fresh on every load.
-    const revenueTotal = active.reduce((sum, e) => sum + (Number(e.priceMad) || 0), 0);
-    const revenueThisYear = active.filter((e) => e.activatedAt && new Date(e.activatedAt).getFullYear() === now.getFullYear())
-      .reduce((sum, e) => sum + (Number(e.priceMad) || 0), 0);
-    const revenueThisMonth = active.filter((e) => e.activatedAt && new Date(e.activatedAt).getFullYear() === now.getFullYear() && new Date(e.activatedAt).getMonth() === now.getMonth())
-      .reduce((sum, e) => sum + (Number(e.priceMad) || 0), 0);
+    // Revenue is now real money received (the payments ledger), not just
+    // an enrollment's invoiced price regardless of whether it was ever
+    // actually paid, which used to inflate this number. Nothing here
+    // resets automatically; "This Month"/"This Year" are filtered views
+    // over the same permanent records, recalculated fresh on every load.
+    const sumSince = (rows, dateField, pred) => rows.filter((r) => r[dateField] && pred(new Date(r[dateField]))).reduce((sum, r) => sum + r.amount, 0);
+    const revenueTotal = livePayments.reduce((sum, p) => sum + p.amount, 0);
+    const revenueThisYear = sumSince(livePayments, 'paidAt', (d) => d.getFullYear() === now.getFullYear());
+    const revenueThisMonth = sumSince(livePayments, 'paidAt', (d) => d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth());
+    const expensesTotal = liveExpenses.reduce((sum, x) => sum + x.amount, 0);
+    const expensesThisMonth = sumSince(liveExpenses, 'incurredAt', (d) => d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth());
+    const receivableTotal = Object.values(balances).reduce((sum, b) => sum + Math.max(0, b.balance), 0);
 
     document.getElementById('analytics-revenue-month').textContent = revenueThisMonth.toLocaleString() + ' MAD';
     document.getElementById('analytics-revenue-year').textContent = revenueThisYear.toLocaleString() + ' MAD';
     document.getElementById('analytics-revenue-total').textContent = revenueTotal.toLocaleString() + ' MAD';
+    document.getElementById('analytics-expenses-month').textContent = expensesThisMonth.toLocaleString() + ' MAD';
+    document.getElementById('analytics-profit-month').textContent = (revenueThisMonth - expensesThisMonth).toLocaleString() + ' MAD';
+    document.getElementById('analytics-profit-total').textContent = (revenueTotal - expensesTotal).toLocaleString() + ' MAD';
+    document.getElementById('analytics-receivable').textContent = receivableTotal.toLocaleString() + ' MAD';
     document.getElementById('analytics-active-students').textContent = String(active.length);
     document.getElementById('analytics-conversion').textContent = allEnr.length ? Math.round((active.length / allEnr.length) * 100) + '%' : '\u2014';
 
-    // Year selector for the Revenue by Month chart — populated from the
-    // actual years that appear in your activated enrollments, so it never
-    // shows a year with nothing in it.
-    const yearsWithRevenue = [...new Set(active.filter((e) => e.activatedAt).map((e) => new Date(e.activatedAt).getFullYear()))].sort((a, b) => b - a);
+    // "Needs review" -- legacy marked-paid flags with no ledger payment.
+    const reviewPanel = document.getElementById('finance-review-panel');
+    if (needsReview.length) {
+      reviewPanel.classList.remove('hidden');
+      document.getElementById('finance-review-list').innerHTML = needsReview.map((r) => `
+        <div class="flex items-center justify-between gap-3 p-2 rounded-md" style="background:#fff">
+          <span class="text-sm" style="color:var(--navy-700)">${escapeHtml(r.name)} — marked paid ${EP.timeAgo(r.lastPaymentAt)}, no priced enrollment to infer an amount from</span>
+          <button onclick="openPaymentModal({ studentId: '${r.id}' })" class="btn btn-secondary btn-sm shrink-0">Add Payment</button>
+        </div>`).join('');
+    } else {
+      reviewPanel.classList.add('hidden');
+    }
+    renderPaymentsLedger();
+    renderExpensesLedger();
+
+    // Year selector for the Revenue by Month chart, populated from the
+    // actual years that appear in your payments, so it never shows a year
+    // with nothing in it.
+    const yearsWithRevenue = [...new Set(livePayments.map((p) => new Date(p.paidAt).getFullYear()))].sort((a, b) => b - a);
     if (!yearsWithRevenue.includes(now.getFullYear())) yearsWithRevenue.unshift(now.getFullYear());
     const yearSelect = document.getElementById('analytics-revenue-year-select');
     if (!yearSelect.dataset.populated) {
@@ -514,12 +791,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Revenue by month, for the selected year specifically
     const revenueByMonth = Array(12).fill(0);
-    active.forEach((e) => {
-      if (!e.activatedAt) return;
-      const d = new Date(e.activatedAt);
-      if (d.getFullYear() === analyticsSelectedYear) revenueByMonth[d.getMonth()] += Number(e.priceMad) || 0;
+    livePayments.forEach((p) => {
+      const d = new Date(p.paidAt);
+      if (d.getFullYear() === analyticsSelectedYear) revenueByMonth[d.getMonth()] += p.amount;
     });
     const monthNames = Array.from({ length: 12 }, (_, i) => new Date(2000, i, 1).toLocaleDateString(undefined, { month: 'short' }));
+
+    // Expenses by category, all time
+    const expenseByCategory = {};
+    liveExpenses.forEach((x) => { expenseByCategory[x.category] = (expenseByCategory[x.category] || 0) + x.amount; });
+    const expenseEntries = Object.entries(expenseByCategory).sort((a, b) => b[1] - a[1]);
 
     // Enrollments over time — group by month of request
     const byMonth = {};
@@ -551,6 +832,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       type: 'bar',
       data: { labels: monthNames, datasets: [{ label: 'Revenue (MAD)', data: revenueByMonth, backgroundColor: teal }] },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
+    });
+
+    if (chartExpenses) chartExpenses.destroy();
+    chartExpenses = new Chart(document.getElementById('analytics-chart-expenses'), {
+      type: 'doughnut',
+      data: { labels: expenseEntries.map((e) => e[0]), datasets: [{ data: expenseEntries.map((e) => e[1]), backgroundColor: [red, amber, teal, navy, grey, '#7C3AED', '#DB2777', '#059669'] }] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
     });
 
     if (chartEnrollments) chartEnrollments.destroy();
@@ -587,7 +875,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     lucide.createIcons();
   }
   await renderAll();
-  EP.onChange([EP.KEYS.posts, EP.KEYS.notifications, EP.KEYS.profiles, EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.enrollments, EP.KEYS.resources], renderAll);
+  EP.onChange([EP.KEYS.posts, EP.KEYS.notifications, EP.KEYS.profiles, EP.KEYS.homework, EP.KEYS.submissions, EP.KEYS.enrollments, EP.KEYS.resources, EP.KEYS.payments, EP.KEYS.expenses], renderAll);
 
   // ---- Fullscreen editor toggle ----
   window.toggleFullscreenEditor = () => {

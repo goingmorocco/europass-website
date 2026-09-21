@@ -208,25 +208,58 @@
 </div>
 
 <div data-tab-panel="analytics" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Analytics</h1>
-  <div class="grid sm:grid-cols-3 gap-4 mb-6">
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue — This Month</p>
-      <p id="analytics-revenue-month" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">Enrollments activated this month</p>
-    </div>
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue — This Year</p>
-      <p id="analytics-revenue-year" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">Enrollments activated this year</p>
-    </div>
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Revenue — All Time</p>
-      <p id="analytics-revenue-total" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">Never resets — running total</p>
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Analytics &amp; Finance</h1>
+    <div class="flex gap-2">
+      <button onclick="exportPaymentsCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export Payments</button>
+      <button onclick="exportExpensesCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export Expenses</button>
     </div>
   </div>
-  <div class="grid sm:grid-cols-2 gap-4 mb-6">
+
+  <div id="finance-review-panel" class="hidden card p-5 mb-6" style="background:var(--amber-100); border-color:var(--amber-600)">
+    <p class="font-semibold text-sm mb-1" style="color:var(--amber-600)"><i data-lucide="alert-triangle" class="w-4 h-4 inline align-text-bottom mr-1"></i> Needs review</p>
+    <p class="text-xs mb-3" style="color:var(--text-secondary)">These students were marked paid the old way, before amounts were tracked — add the real payment so they count correctly.</p>
+    <div id="finance-review-list" class="space-y-2"></div>
+  </div>
+
+  <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--text-secondary)">Revenue (money actually received)</p>
+  <div class="grid sm:grid-cols-3 gap-4 mb-4">
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">This Month</p>
+      <p id="analytics-revenue-month" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
+    </div>
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">This Year</p>
+      <p id="analytics-revenue-year" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
+    </div>
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">All Time</p>
+      <p id="analytics-revenue-total" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
+    </div>
+  </div>
+
+  <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--text-secondary)">Expenses &amp; Profit</p>
+  <div class="grid sm:grid-cols-3 gap-4 mb-4">
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Expenses This Month</p>
+      <p id="analytics-expenses-month" class="font-serif text-2xl font-bold mt-1" style="color:var(--danger-600)">—</p>
+    </div>
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Net Profit This Month</p>
+      <p id="analytics-profit-month" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
+    </div>
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Net Profit All Time</p>
+      <p id="analytics-profit-total" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
+    </div>
+  </div>
+
+  <div class="grid sm:grid-cols-3 gap-4 mb-6">
+    <div class="card p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Outstanding Balance</p>
+      <p id="analytics-receivable" class="font-serif text-2xl font-bold mt-1" style="color:var(--danger-600)">—</p>
+      <p class="text-xs mt-1" style="color:var(--text-disabled)">Owed across all students</p>
+    </div>
     <div class="card p-5">
       <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Active Students</p>
       <p id="analytics-active-students" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
@@ -238,13 +271,18 @@
       <p class="text-xs mt-1" style="color:var(--text-disabled)">Signups that became active</p>
     </div>
   </div>
-  <div class="grid lg:grid-cols-2 gap-6">
+
+  <div class="grid lg:grid-cols-2 gap-6 mb-6">
     <div class="card p-5">
       <div class="flex items-center justify-between mb-4">
         <p class="font-semibold" style="color:var(--navy-700)">Revenue by Month</p>
         <select id="analytics-revenue-year-select" class="px-2 py-1 rounded-md border text-xs" style="border-color:var(--border-default)"></select>
       </div>
       <canvas id="analytics-chart-revenue" height="220"></canvas>
+    </div>
+    <div class="card p-5">
+      <p class="font-semibold mb-4" style="color:var(--navy-700)">Expenses by Category</p>
+      <canvas id="analytics-chart-expenses" height="220"></canvas>
     </div>
     <div class="card p-5">
       <p class="font-semibold mb-4" style="color:var(--navy-700)">Enrollments Over Time</p>
@@ -259,6 +297,32 @@
       <canvas id="analytics-chart-programs" height="200"></canvas>
     </div>
   </div>
+
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-serif text-xl font-bold" style="color:var(--navy-700)">Payments Ledger</h2>
+    <button onclick="openPaymentModal({})" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Payment</button>
+  </div>
+  <div class="flex flex-wrap gap-2 mb-4">
+    <input id="payments-search" type="search" placeholder="Search by student or course..." class="px-3 py-2 rounded-md border text-sm flex-1 min-w-[200px]" style="border-color:var(--border-default)">
+    <select id="payments-show-voided" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="hide">Hide voided</option>
+      <option value="show">Show voided too</option>
+    </select>
+  </div>
+  <div id="admin-payments-list" class="card overflow-hidden mb-10"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-serif text-xl font-bold" style="color:var(--navy-700)">Expenses Ledger</h2>
+    <button onclick="openExpenseModal({})" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Expense</button>
+  </div>
+  <div class="flex flex-wrap gap-2 mb-4">
+    <input id="expenses-search" type="search" placeholder="Search by category or vendor..." class="px-3 py-2 rounded-md border text-sm flex-1 min-w-[200px]" style="border-color:var(--border-default)">
+    <select id="expenses-show-voided" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="hide">Hide voided</option>
+      <option value="show">Show voided too</option>
+    </select>
+  </div>
+  <div id="admin-expenses-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
 <div data-tab-panel="blog" class="hidden">
@@ -412,16 +476,38 @@
       <button onclick="openUserForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add User</button>
     </div>
   </div>
+  <div class="flex flex-wrap gap-2 mb-4">
+    <input id="users-search" type="search" placeholder="Search by name, email, phone..." class="px-3 py-2 rounded-md border text-sm flex-1 min-w-[200px]" style="border-color:var(--border-default)">
+    <select id="users-filter-role" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="">All Roles</option>
+      <option value="student">Students</option>
+      <option value="teacher">Teachers</option>
+    </select>
+    <select id="users-filter-course" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="">All Courses</option>
+    </select>
+    <select id="users-filter-status" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="">All Statuses</option>
+      <option value="active">Active</option>
+      <option value="blocked">Blocked</option>
+    </select>
+    <select id="users-filter-balance" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
+      <option value="">All Balances</option>
+      <option value="owing">Owes money</option>
+      <option value="settled">Paid up</option>
+    </select>
+  </div>
   <div id="admin-users-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
 
 <!-- User detail modal -->
-<div id="user-detail-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-md p-6">
-    <div class="flex items-center justify-between mb-4">
+<div id="user-detail-modal" class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
+    <div class="flex items-center justify-between mb-4 shrink-0">
       <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">User Details</p>
       <button onclick="closeModal('user-detail-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
+    <div class="overflow-y-auto min-h-0">
     <div id="user-detail-blocked-banner" class="hidden p-3 rounded-md text-sm mb-4" style="background:var(--danger-50); color:var(--danger-600)">
       <p class="font-semibold">Access is currently blocked</p>
       <p id="user-detail-blocked-reason" class="text-xs mt-1"></p>
@@ -439,12 +525,22 @@
       <div class="flex items-center gap-3"><i data-lucide="mail" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-email" dir="ltr" style="color:var(--text-primary)">—</span></div>
       <div class="flex items-center gap-3"><i data-lucide="phone" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-phone" dir="ltr" style="color:var(--text-primary)">—</span></div>
       <div class="flex items-center gap-3"><i data-lucide="calendar" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-joined" style="color:var(--text-primary)">—</span></div>
-      <div class="flex items-center gap-3"><i data-lucide="banknote" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-payment" style="color:var(--text-primary)">—</span></div>
     </div>
     <div class="grid grid-cols-2 gap-3 mt-6">
       <a id="user-detail-email-btn" href="#" class="btn btn-secondary btn-sm justify-center"><i data-lucide="mail" class="w-4 h-4 mr-1"></i> Email</a>
       <a id="user-detail-whatsapp-btn" href="#" target="_blank" rel="noopener" class="btn btn-secondary btn-sm justify-center"><i data-lucide="message-circle" class="w-4 h-4 mr-1"></i> WhatsApp</a>
     </div>
+
+    <div class="border-t mt-5 pt-5" style="border-color:var(--border-default)">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Balance</p>
+        <button onclick="openPaymentModal({ studentId: currentUserDetailId })" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Record Payment</button>
+      </div>
+      <div id="user-detail-balance" class="p-3 rounded-lg text-sm mb-3" style="background:var(--bg-subtle)">—</div>
+      <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--text-secondary)">Payment History</p>
+      <div id="user-detail-payments-list" class="space-y-2 max-h-56 overflow-y-auto"></div>
+    </div>
+
     <div class="border-t mt-5 pt-5" style="border-color:var(--border-default)">
       <p class="text-xs font-semibold uppercase tracking-wide mb-3" style="color:var(--text-secondary)">Admin Controls</p>
       <div class="flex items-center gap-2 mb-3">
@@ -456,9 +552,110 @@
         <button id="user-detail-role-save" class="btn btn-secondary btn-sm shrink-0">Change Role</button>
       </div>
       <div class="grid grid-cols-1 gap-2">
-        <button id="user-detail-mark-paid" class="btn btn-secondary btn-sm justify-center"><i data-lucide="check-circle" class="w-4 h-4 mr-1"></i> Mark Paid This Month</button>
         <button id="user-detail-block-btn" class="btn btn-sm justify-center" style="background:var(--danger-50); color:var(--danger-600)"><i data-lucide="lock" class="w-4 h-4 mr-1"></i> Block Access</button>
       </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- Record / edit payment modal — shared by the Users page and the
+     Finance hub's payments table -->
+<div id="payment-modal" class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
+    <div class="flex items-center justify-between mb-4 shrink-0">
+      <p id="payment-modal-title" class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Record Payment</p>
+      <button onclick="closeModal('payment-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="overflow-y-auto min-h-0">
+    <form id="payment-form" class="space-y-4">
+      <input type="hidden" id="payment-id">
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Student</label>
+        <select id="payment-student" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
+      </div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course (optional)</label>
+        <select id="payment-course" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+          <option value="">Not linked to a specific course</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Amount (MAD)</label>
+          <input id="payment-amount" required type="number" min="0.01" step="0.01" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Date</label>
+          <input id="payment-date" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        </div>
+      </div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Method</label>
+        <select id="payment-method" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+          <option value="cash">Cash</option>
+          <option value="bank_transfer">Bank Transfer</option>
+          <option value="card">Card</option>
+          <option value="check">Check</option>
+          <option value="online">Online</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Notes</label>
+        <textarea id="payment-notes" rows="2" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
+      </div>
+      <div id="payment-audit-note" class="hidden text-xs" style="color:var(--text-disabled)"></div>
+      <div class="flex gap-3">
+        <button type="button" id="payment-void-btn" class="btn btn-secondary btn-sm hidden" style="color:var(--danger-600); border-color:var(--danger-600)">Void</button>
+        <button type="submit" class="btn btn-primary flex-1">Save Payment</button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+
+<!-- Record / edit expense modal -->
+<div id="expense-modal" class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
+  <div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
+    <div class="flex items-center justify-between mb-4 shrink-0">
+      <p id="expense-modal-title" class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Record Expense</p>
+      <button onclick="closeModal('expense-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="overflow-y-auto min-h-0">
+    <form id="expense-form" class="space-y-4">
+      <input type="hidden" id="expense-id">
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label>
+        <input id="expense-category" required list="expense-category-suggestions" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        <datalist id="expense-category-suggestions">
+          <option value="Salaries"></option><option value="Rent"></option><option value="Utilities"></option><option value="Marketing"></option>
+          <option value="Supplies"></option><option value="Software &amp; Tools"></option><option value="Maintenance"></option><option value="Other"></option>
+        </datalist>
+      </div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Vendor (optional)</label>
+        <input id="expense-vendor" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Amount (MAD)</label>
+          <input id="expense-amount" required type="number" min="0.01" step="0.01" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Date</label>
+          <input id="expense-date" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
+        </div>
+      </div>
+      <div>
+        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Notes</label>
+        <textarea id="expense-notes" rows="2" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
+      </div>
+      <div class="flex gap-3">
+        <button type="button" id="expense-void-btn" class="btn btn-secondary btn-sm hidden" style="color:var(--danger-600); border-color:var(--danger-600)">Void</button>
+        <button type="submit" class="btn btn-primary flex-1">Save Expense</button>
+      </div>
+    </form>
     </div>
   </div>
 </div>

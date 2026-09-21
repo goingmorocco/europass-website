@@ -30,6 +30,7 @@ const EP = (() => {
     group_post_comments: 'group_post_comments', group_messages: 'group_messages', group_post_reports: 'group_post_reports',
     enrollments: 'enrollments', resources: 'resources', attendance: 'attendance', announcements: 'announcements',
     classroomResources: 'classroom_resources',
+    payments: 'payments', expenses: 'expenses',
   };
 
   function timeAgo(iso) {
@@ -286,10 +287,157 @@ const EP = (() => {
     const { error } = await client.from('profiles').update({ blocked_at: null, blocked_reason: null }).eq('id', id);
     if (error) throw error;
   }
+  // Legacy one-click flag — superseded by the payments ledger below (see
+  // Analytics/Users). Left in place only so old data stays readable; no
+  // screen calls this anymore.
   async function markPaid(id) {
     const client = await db();
     const { error } = await client.from('profiles').update({ last_payment_at: new Date().toISOString() }).eq('id', id);
     if (error) throw error;
+  }
+
+  // ---- Finance: payments & expenses ledger ----
+  // The one source of truth for revenue. Every payment is a real row (never
+  // just a flag), so installments, corrections and refunds all fit —
+  // corrections happen by editing a row's fields or voiding it (kept for
+  // the audit trail, not deleted). A DB trigger auto-records a payment the
+  // moment an enrollment is marked paid from the Enrollments tab, and every
+  // insert/update is automatically logged in finance_audit_log — see
+  // migrations/032_finance_system.sql.
+  function mapPayment(p) {
+    return {
+      id: p.id, studentId: p.student_id, studentName: p.student_name,
+      enrollmentId: p.enrollment_id, courseId: p.course_id, courseName: p.course_name,
+      amount: Number(p.amount), currency: p.currency, method: p.method,
+      paidAt: p.paid_at, notes: p.notes, voidedAt: p.voided_at, voidReason: p.void_reason,
+      createdBy: p.created_by, createdAt: p.created_at, updatedAt: p.updated_at,
+    };
+  }
+  async function payments() {
+    const client = await db();
+    const { data, error } = await client.from('payments').select('*').order('paid_at', { ascending: false });
+    if (error) throw error;
+    return data.map(mapPayment);
+  }
+  async function addPayment({ studentId, enrollmentId, courseId, amount, currency, method, paidAt, notes }) {
+    const client = await db();
+    const { data: { user } } = await client.auth.getUser();
+    const [student, courseList] = await Promise.all([userById(studentId), courseId ? courses() : Promise.resolve([])]);
+    const courseName = courseId ? (courseList.find(c => c.id === courseId)?.name || null) : null;
+    const { error } = await client.from('payments').insert({
+      student_id: studentId, student_name: student?.name || 'Unknown student',
+      enrollment_id: enrollmentId || null, course_id: courseId || null, course_name: courseName,
+      amount, currency: currency || 'MAD', method: method || 'cash',
+      paid_at: paidAt ? new Date(paidAt).toISOString() : new Date().toISOString(),
+      notes: notes || null, created_by: user?.id || null,
+    });
+    if (error) throw error;
+  }
+  async function updatePayment(id, { amount, method, paidAt, notes, currency }) {
+    const client = await db();
+    const update = {};
+    if (amount !== undefined) update.amount = amount;
+    if (method !== undefined) update.method = method;
+    if (paidAt !== undefined) update.paid_at = new Date(paidAt).toISOString();
+    if (notes !== undefined) update.notes = notes || null;
+    if (currency !== undefined) update.currency = currency;
+    const { error } = await client.from('payments').update(update).eq('id', id);
+    if (error) throw error;
+  }
+  async function voidPayment(id, reason) {
+    const client = await db();
+    const { error } = await client.from('payments').update({ voided_at: new Date().toISOString(), void_reason: reason || null }).eq('id', id);
+    if (error) throw error;
+  }
+  async function unvoidPayment(id) {
+    const client = await db();
+    const { error } = await client.from('payments').update({ voided_at: null, void_reason: null }).eq('id', id);
+    if (error) throw error;
+  }
+
+  function mapExpense(e) {
+    return {
+      id: e.id, category: e.category, vendor: e.vendor, amount: Number(e.amount), currency: e.currency,
+      incurredAt: e.incurred_at, notes: e.notes, voidedAt: e.voided_at, voidReason: e.void_reason,
+      createdBy: e.created_by, createdAt: e.created_at, updatedAt: e.updated_at,
+    };
+  }
+  async function expenses() {
+    const client = await db();
+    const { data, error } = await client.from('expenses').select('*').order('incurred_at', { ascending: false });
+    if (error) throw error;
+    return data.map(mapExpense);
+  }
+  async function addExpense({ category, vendor, amount, currency, incurredAt, notes }) {
+    const client = await db();
+    const { data: { user } } = await client.auth.getUser();
+    const { error } = await client.from('expenses').insert({
+      category, vendor: vendor || null, amount, currency: currency || 'MAD',
+      incurred_at: incurredAt ? new Date(incurredAt).toISOString() : new Date().toISOString(),
+      notes: notes || null, created_by: user?.id || null,
+    });
+    if (error) throw error;
+  }
+  async function updateExpense(id, { category, vendor, amount, currency, incurredAt, notes }) {
+    const client = await db();
+    const update = {};
+    if (category !== undefined) update.category = category;
+    if (vendor !== undefined) update.vendor = vendor || null;
+    if (amount !== undefined) update.amount = amount;
+    if (currency !== undefined) update.currency = currency;
+    if (incurredAt !== undefined) update.incurred_at = new Date(incurredAt).toISOString();
+    if (notes !== undefined) update.notes = notes || null;
+    const { error } = await client.from('expenses').update(update).eq('id', id);
+    if (error) throw error;
+  }
+  async function voidExpense(id, reason) {
+    const client = await db();
+    const { error } = await client.from('expenses').update({ voided_at: new Date().toISOString(), void_reason: reason || null }).eq('id', id);
+    if (error) throw error;
+  }
+  async function unvoidExpense(id) {
+    const client = await db();
+    const { error } = await client.from('expenses').update({ voided_at: null, void_reason: null }).eq('id', id);
+    if (error) throw error;
+  }
+
+  // Students with a legacy "marked paid" flag but zero ledger payments —
+  // the one gap the automatic migration couldn't safely invent a number
+  // for. Surfaced in Analytics so the admin can add the real amount.
+  async function legacyPaymentFlagsNeedingReview() {
+    const client = await db();
+    const { data, error } = await client.from('profiles').select('id, full_name, last_payment_at').not('last_payment_at', 'is', null);
+    if (error) throw error;
+    const paid = await payments();
+    const paidStudentIds = new Set(paid.map(p => p.studentId));
+    return data.filter(p => !paidStudentIds.has(p.id)).map(p => ({ id: p.id, name: p.full_name, lastPaymentAt: p.last_payment_at }));
+  }
+
+  // Per-student accounts receivable: what they've been invoiced (the price
+  // of their active/completed, non-waived enrollments) minus what they've
+  // actually paid (non-voided ledger payments). A real running balance,
+  // not a one-off flag — this is what the Users page balance column and
+  // the "Record Payment" flow are both built on.
+  async function studentBalances() {
+    const [allEnr, allPay] = await Promise.all([allEnrollments(), payments()]);
+    const invoicedByStudent = {};
+    allEnr.forEach((e) => {
+      if ((e.status === 'active' || e.status === 'completed') && e.paymentStatus !== 'waived' && e.priceMad) {
+        invoicedByStudent[e.studentId] = (invoicedByStudent[e.studentId] || 0) + Number(e.priceMad);
+      }
+    });
+    const paidByStudent = {};
+    allPay.forEach((p) => {
+      if (!p.voidedAt) paidByStudent[p.studentId] = (paidByStudent[p.studentId] || 0) + p.amount;
+    });
+    const studentIds = new Set([...Object.keys(invoicedByStudent), ...Object.keys(paidByStudent)]);
+    const result = {};
+    studentIds.forEach((id) => {
+      const invoiced = invoicedByStudent[id] || 0;
+      const paid = paidByStudent[id] || 0;
+      result[id] = { invoiced, paid, balance: invoiced - paid };
+    });
+    return result;
   }
 
   // ---- Blog posts ----
@@ -908,6 +1056,9 @@ const EP = (() => {
     homework, homeworkByCourse, addHomework, homeworkQuestions, questionsForTask, homeworkTasks, uploadHomeworkFile, submissions, submissionFor, submitHomework, saveDraft, gradeSubmission, requestRevision,
     notificationsFor, sendNotification, markRead,
     messagesFor, sendMessage, unreadMessages, markMessagesRead, onChange,
+    payments, addPayment, updatePayment, voidPayment, unvoidPayment,
+    expenses, addExpense, updateExpense, voidExpense, unvoidExpense,
+    legacyPaymentFlagsNeedingReview, studentBalances,
     myGroup, allGroups, groupPosts, createGroupPost, editGroupPost, deleteGroupPost, toggleLike, addComment, deleteComment,
     groupMessages, sendGroupMessage, reportPost, reportsForGroup, dismissReport,
     ensurePendingEnrollment, requestEnrollment, myEnrollments, cancelEnrollment, allEnrollments, activateEnrollment, rejectEnrollment, revertEnrollment,
