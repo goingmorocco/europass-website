@@ -1,15 +1,16 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Admin Dashboard | EuroPass Khemisset</title>
-<meta name="description" content="EuroPass academy manager dashboard.">
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
+<meta content="EuroPass academy manager dashboard." name="description"/>
+<link href="favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="assets/favicon/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="assets/favicon/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="assets/favicon/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<link href="site.webmanifest" rel="manifest"/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -26,11 +27,11 @@
   "telephone": "+212500000000"
 }
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&amp;family=Inter:wght@400;500;600;700;800;900&amp;family=Cairo:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
     tailwind.config = {
       theme: {
         extend: {
@@ -49,1011 +50,763 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="assets/css/style.css">
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-</head>
+<link href="assets/css/style.css" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* New Admin Analytics dashboard replacement */
+[data-tab-panel="analytics"] { width:100%; }
+[data-tab-panel="analytics"] > div { width:100%; }
+@media (max-width: 1023px){
+  [data-tab-panel="analytics"] iframe{height:calc(100vh - 6rem);min-height:700px;}
+}
+</style></head>
 <body>
-
-  <a href="#main" class="skip-link">Skip to main content</a>
-  <header id="site-header" class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b" style="border-color:var(--border-default)">
-    <div class="container-ep flex items-center justify-between navbar-inner">
-      <a href="index.html" class="font-serif font-bold text-xl tracking-tight" style="color:var(--navy-700)">
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b" id="site-header" style="border-color:var(--border-default)">
+<div class="container-ep flex items-center justify-between navbar-inner">
+<a class="font-serif font-bold text-xl tracking-tight" href="index.html" style="color:var(--navy-700)">
         EURO<span style="color:var(--red-600)">PASS</span>
-      </a>
-      <nav class="hidden lg:flex items-center gap-7" aria-label="Primary">
-        <a href="index.html" class="nav-link text-sm">Home</a>
-        
-      <div class="relative group hidden lg:block">
-        <button class="nav-link text-sm inline-flex items-center gap-1">
-          Programs <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
-        </button>
-        <div class="absolute left-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-30">
-          <div class="card p-2 w-64">
-            <a href="program-german.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="landmark" class="w-4 h-4" style="color:var(--navy-500)"></i> German</a>
-            <a href="program-french.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="croissant" class="w-4 h-4" style="color:var(--navy-500)"></i> French</a>
-            <a href="courses.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="briefcase" class="w-4 h-4" style="color:var(--navy-500)"></i> English</a>
-            <a href="program-nursing.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="heart-pulse" class="w-4 h-4" style="color:var(--navy-500)"></i> Nursing Program</a>
-            <a href="program-nursing-ausbildung.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" style="color:var(--navy-700)"><i data-lucide="plane" class="w-4 h-4" style="color:var(--navy-500)"></i> Ausbildung Training &amp; Placement</a>
-          </div>
-        </div>
-      </div>
-        <a href="test-level.html" class="nav-link text-sm">Level Test</a>
-        <a href="about.html" class="nav-link text-sm">About</a>
-        <a href="blog.html" class="nav-link text-sm">Blog</a>
-        <a href="contact.html" class="nav-link text-sm">Contact</a>
-      </nav>
-      <div class="hidden lg:flex items-center gap-3">
-        <div class="lang-switch">
-          <a href="#" class="is-active">EN</a>
-          <a href="ar/index.html" id="lang-switch-ar">AR</a>
-        </div>
-        <a href="login.html" class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium">
-          <i data-lucide="log-in" class="w-4 h-4" style="color:var(--navy-700)"></i> Portal Login
+</a>
+<nav aria-label="Primary" class="hidden lg:flex items-center gap-7">
+<a class="nav-link text-sm" href="index.html">Home</a>
+<div class="relative group hidden lg:block">
+<button class="nav-link text-sm inline-flex items-center gap-1">
+          Programs <i class="w-3.5 h-3.5" data-lucide="chevron-down"></i>
+</button>
+<div class="absolute left-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-30">
+<div class="card p-2 w-64">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" href="program-german.html" style="color:var(--navy-700)"><i class="w-4 h-4" data-lucide="landmark" style="color:var(--navy-500)"></i> German</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" href="program-french.html" style="color:var(--navy-700)"><i class="w-4 h-4" data-lucide="croissant" style="color:var(--navy-500)"></i> French</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" href="courses.html" style="color:var(--navy-700)"><i class="w-4 h-4" data-lucide="briefcase" style="color:var(--navy-500)"></i> English</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" href="program-nursing.html" style="color:var(--navy-700)"><i class="w-4 h-4" data-lucide="heart-pulse" style="color:var(--navy-500)"></i> Nursing Program</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-navy-50" href="program-nursing-ausbildung.html" style="color:var(--navy-700)"><i class="w-4 h-4" data-lucide="plane" style="color:var(--navy-500)"></i> Ausbildung Training &amp; Placement</a>
+</div>
+</div>
+</div>
+<a class="nav-link text-sm" href="test-level.html">Level Test</a>
+<a class="nav-link text-sm" href="about.html">About</a>
+<a class="nav-link text-sm" href="blog.html">Blog</a>
+<a class="nav-link text-sm" href="contact.html">Contact</a>
+</nav>
+<div class="hidden lg:flex items-center gap-3">
+<div class="lang-switch">
+<a class="is-active" href="#">EN</a>
+<a href="ar/index.html" id="lang-switch-ar">AR</a>
+</div>
+<a class="btn-ghost inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium" href="login.html">
+<i class="w-4 h-4" data-lucide="log-in" style="color:var(--navy-700)"></i> Portal Login
         </a>
-        <a href="signup.html" class="btn btn-primary btn-sm">Sign Up &amp; Start Learning</a>
-      </div>
-      <button id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" class="lg:hidden p-2 -mr-2" aria-label="Open menu">
-        <i data-lucide="menu" class="w-6 h-6" style="color:var(--navy-700)"></i>
-      </button>
-    </div>
-  </header>
-
-  <div id="nav-drawer" class="fixed inset-0 z-50 translate-x-full transition-transform duration-300 lg:hidden" aria-hidden="true">
-    <div class="absolute inset-0 bg-navy-900/40" onclick="document.getElementById('nav-close').click()"></div>
-    <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl overflow-y-auto">
-      <div class="flex items-center justify-between mb-6">
-        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span> <span class="text-xs font-sans font-normal" style="color:var(--text-secondary)">Admin</span></span>
-        <button id="nav-close" aria-label="Close menu" class="p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-      <button onclick="switchTab('admin-shell','overview'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
-      <button onclick="switchTab('admin-shell','analytics'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Analytics</button>
-      <button onclick="switchTab('admin-shell','enrollments'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-check" class="w-4 h-4"></i> Enrollments</button>
-      <button onclick="switchTab('admin-shell','blog'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="newspaper" class="w-4 h-4"></i> Blog</button>
-      <button onclick="switchTab('admin-shell','homework'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Homework &amp; Grades</button>
-      <button onclick="switchTab('admin-shell','resources'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="folder-open" class="w-4 h-4"></i> Resources</button>
-      <button onclick="switchTab('admin-shell','notifications'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="bell" class="w-4 h-4"></i> Notifications</button>
-      <button onclick="switchTab('admin-shell','users'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users" class="w-4 h-4"></i> Users</button>
-      <button onclick="switchTab('admin-shell','groups'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="users-round" class="w-4 h-4"></i> Groups</button>
-      <button onclick="switchTab('admin-shell','settings'); document.getElementById('nav-close').click()" class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" style="border-color:var(--border-default)"><i data-lucide="settings" class="w-4 h-4"></i> Settings</button>
-      <a href="index.html" class="flex items-center gap-3 py-3 mt-4 nav-link" style="color:var(--text-secondary)"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Website</a>
-    </div>
-  </div>
-
+<a class="btn btn-primary btn-sm" href="signup.html">Sign Up &amp; Start Learning</a>
+</div>
+<button aria-controls="nav-drawer" aria-expanded="false" aria-label="Open menu" class="lg:hidden p-2 -mr-2" id="nav-toggle">
+<i class="w-6 h-6" data-lucide="menu" style="color:var(--navy-700)"></i>
+</button>
+</div>
+</header>
+<div aria-hidden="true" class="fixed inset-0 z-50 translate-x-full transition-transform duration-300 lg:hidden" id="nav-drawer">
+<div class="absolute inset-0 bg-navy-900/40" onclick="document.getElementById('nav-close').click()"></div>
+<div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85%] bg-white p-6 flex flex-col gap-1 shadow-2xl overflow-y-auto">
+<div class="flex items-center justify-between mb-6">
+<span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span> <span class="text-xs font-sans font-normal" style="color:var(--text-secondary)">Admin</span></span>
+<button aria-label="Close menu" class="p-2" id="nav-close"><i class="w-5 h-5" data-lucide="x"></i></button>
+</div>
+<button class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" onclick="switchTab('admin-shell','overview'); document.getElementById('nav-close').click()" style="border-color:var(--border-default)"><i class="w-4 h-4" data-lucide="layout-dashboard"></i> Overview</button>
+<button class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" onclick="switchTab('admin-shell','analytics'); document.getElementById('nav-close').click()" style="border-color:var(--border-default)"><i class="w-4 h-4" data-lucide="bar-chart-3"></i> Analytics</button>
+<button class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" onclick="switchTab('admin-shell','enrollments'); document.getElementById('nav-close').click()" style="border-color:var(--border-default)"><i class="w-4 h-4" data-lucide="clipboard-check"></i> Enrollments</button>
+<button class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" onclick="switchTab('admin-shell','blog'); document.getElementById('nav-close').click()" style="border-color:var(--border-default)"><i class="w-4 h-4" data-lucide="newspaper"></i> Blog</button>
+<button class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" onclick="switchTab('admin-shell','homework'); document.getElementById('nav-close').click()" style="border-color:var(--border-default)"><i class="w-4 h-4" data-lucide="clipboard-list"></i> Homework &amp; Grades</button>
+<button class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" onclick="switchTab('admin-shell','resources'); document.getElementById('nav-close').click()" style="border-color:var(--border-default)"><i class="w-4 h-4" data-lucide="folder-open"></i> Resources</button>
+<button class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" onclick="switchTab('admin-shell','notifications'); document.getElementById('nav-close').click()" style="border-color:var(--border-default)"><i class="w-4 h-4" data-lucide="bell"></i> Notifications</button>
+<button class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" onclick="switchTab('admin-shell','users'); document.getElementById('nav-close').click()" style="border-color:var(--border-default)"><i class="w-4 h-4" data-lucide="users"></i> Users</button>
+<button class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" onclick="switchTab('admin-shell','groups'); document.getElementById('nav-close').click()" style="border-color:var(--border-default)"><i class="w-4 h-4" data-lucide="users-round"></i> Groups</button>
+<button class="flex items-center gap-3 py-3 border-b nav-link w-full text-left" onclick="switchTab('admin-shell','settings'); document.getElementById('nav-close').click()" style="border-color:var(--border-default)"><i class="w-4 h-4" data-lucide="settings"></i> Settings</button>
+<a class="flex items-center gap-3 py-3 mt-4 nav-link" href="index.html" style="color:var(--text-secondary)"><i class="w-4 h-4" data-lucide="arrow-left"></i> Back to Website</a>
+</div>
+</div>
 <main id="main">
-
-<div id="admin-shell" class="flex min-h-[calc(100vh-4rem)]">
-  <aside class="hidden lg:flex flex-col w-64 border-r shrink-0 p-4 gap-1" style="border-color:var(--border-default)">
-    
-    <button data-tab-trigger="overview" onclick="switchTab('admin-shell','overview')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>Overview
+<div class="flex min-h-[calc(100vh-4rem)]" id="admin-shell">
+<aside class="hidden lg:flex flex-col w-64 border-r shrink-0 p-4 gap-1" style="border-color:var(--border-default)">
+<button class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" data-tab-trigger="overview" onclick="switchTab('admin-shell','overview')" style="color:var(--text-secondary)">
+<i class="w-4 h-4" data-lucide="layout-dashboard"></i>Overview
     </button>
-    <button data-tab-trigger="analytics" onclick="switchTab('admin-shell','analytics')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="bar-chart-3" class="w-4 h-4"></i>Analytics
+<button class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" data-tab-trigger="analytics" onclick="switchTab('admin-shell','analytics')" style="color:var(--text-secondary)">
+<i class="w-4 h-4" data-lucide="bar-chart-3"></i>Analytics
     </button>
-    <button data-tab-trigger="enrollments" onclick="switchTab('admin-shell','enrollments')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="clipboard-check" class="w-4 h-4"></i>Enrollments
+<button class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" data-tab-trigger="enrollments" onclick="switchTab('admin-shell','enrollments')" style="color:var(--text-secondary)">
+<i class="w-4 h-4" data-lucide="clipboard-check"></i>Enrollments
     </button>
-    <button data-tab-trigger="blog" onclick="switchTab('admin-shell','blog')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="newspaper" class="w-4 h-4"></i>Blog
+<button class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" data-tab-trigger="blog" onclick="switchTab('admin-shell','blog')" style="color:var(--text-secondary)">
+<i class="w-4 h-4" data-lucide="newspaper"></i>Blog
     </button>
-    <button data-tab-trigger="homework" onclick="switchTab('admin-shell','homework')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="clipboard-list" class="w-4 h-4"></i>Homework &amp; Grades
+<button class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" data-tab-trigger="homework" onclick="switchTab('admin-shell','homework')" style="color:var(--text-secondary)">
+<i class="w-4 h-4" data-lucide="clipboard-list"></i>Homework &amp; Grades
     </button>
-    <button data-tab-trigger="resources" onclick="switchTab('admin-shell','resources')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="folder-open" class="w-4 h-4"></i>Resources
+<button class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" data-tab-trigger="resources" onclick="switchTab('admin-shell','resources')" style="color:var(--text-secondary)">
+<i class="w-4 h-4" data-lucide="folder-open"></i>Resources
     </button>
-    <button data-tab-trigger="notifications" onclick="switchTab('admin-shell','notifications')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="bell" class="w-4 h-4"></i>Notifications
+<button class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" data-tab-trigger="notifications" onclick="switchTab('admin-shell','notifications')" style="color:var(--text-secondary)">
+<i class="w-4 h-4" data-lucide="bell"></i>Notifications
     </button>
-    <button data-tab-trigger="users" onclick="switchTab('admin-shell','users')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="users" class="w-4 h-4"></i>Users
+<button class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" data-tab-trigger="users" onclick="switchTab('admin-shell','users')" style="color:var(--text-secondary)">
+<i class="w-4 h-4" data-lucide="users"></i>Users
     </button>
-    <button data-tab-trigger="groups" onclick="switchTab('admin-shell','groups')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="users-round" class="w-4 h-4"></i>Groups
+<button class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" data-tab-trigger="groups" onclick="switchTab('admin-shell','groups')" style="color:var(--text-secondary)">
+<i class="w-4 h-4" data-lucide="users-round"></i>Groups
     </button>
-    <button data-tab-trigger="settings" onclick="switchTab('admin-shell','settings')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" style="color:var(--text-secondary)">
-      <i data-lucide="settings" class="w-4 h-4"></i>Settings
+<button class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm w-full text-left" data-tab-trigger="settings" onclick="switchTab('admin-shell','settings')" style="color:var(--text-secondary)">
+<i class="w-4 h-4" data-lucide="settings"></i>Settings
     </button>
-  </aside>
-  <div class="flex-1 min-w-0">
-    <div class="border-b" style="border-color:var(--border-default)">
-      <div class="container-ep py-4 flex items-center justify-between">
-        <div>
-          <p class="text-xs" style="color:var(--text-secondary)">Welcome back,</p>
-          <p id="portal-user-name" class="font-serif text-lg font-bold" style="color:var(--navy-700)">…</p>
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="relative">
-            <button class="relative p-2 rounded-full" style="background:var(--bg-subtle)" aria-label="Notifications" onclick="document.getElementById('bell-popover').classList.toggle('hidden'); event.stopPropagation();">
-              <i data-lucide="bell" class="w-5 h-5" style="color:var(--navy-700)"></i>
-              <span id="portal-bell-dot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style="background:var(--red-600); display:none"></span>
-            </button>
-            <div id="bell-popover" class="hidden absolute right-0 mt-2 w-80 card z-30 max-h-96 overflow-y-auto">
-              <div id="portal-bell-list"></div>
-            </div>
-          </div>
-          <div class="relative">
-            <button class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:var(--navy-700)" aria-label="Account menu" onclick="document.getElementById('avatar-popover').classList.toggle('hidden'); event.stopPropagation();">
-              <span id="portal-user-initials"></span>
-            </button>
-            <div id="avatar-popover" class="hidden absolute right-0 mt-2 w-44 card z-30 p-1.5">
-              <button id="avatar-settings-btn" class="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--navy-700)"><i data-lucide="settings" class="w-4 h-4"></i> Settings</button>
-              <button id="portal-logout" class="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2" style="color:var(--danger-600)"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="container-ep py-8">
-      
+</aside>
+<div class="flex-1 min-w-0">
+<div class="border-b" style="border-color:var(--border-default)">
+<div class="container-ep py-4 flex items-center justify-between">
+<div>
+<p class="text-xs" style="color:var(--text-secondary)">Welcome back,</p>
+<p class="font-serif text-lg font-bold" id="portal-user-name" style="color:var(--navy-700)">…</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative">
+<button aria-label="Notifications" class="relative p-2 rounded-full" onclick="document.getElementById('bell-popover').classList.toggle('hidden'); event.stopPropagation();" style="background:var(--bg-subtle)">
+<i class="w-5 h-5" data-lucide="bell" style="color:var(--navy-700)"></i>
+<span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" id="portal-bell-dot" style="background:var(--red-600); display:none"></span>
+</button>
+<div class="hidden absolute right-0 mt-2 w-80 card z-30 max-h-96 overflow-y-auto" id="bell-popover">
+<div id="portal-bell-list"></div>
+</div>
+</div>
+<div class="relative">
+<button aria-label="Account menu" class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" onclick="document.getElementById('avatar-popover').classList.toggle('hidden'); event.stopPropagation();" style="background:var(--navy-700)">
+<span id="portal-user-initials"></span>
+</button>
+<div class="hidden absolute right-0 mt-2 w-44 card z-30 p-1.5" id="avatar-popover">
+<button class="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2" id="avatar-settings-btn" style="color:var(--navy-700)"><i class="w-4 h-4" data-lucide="settings"></i> Settings</button>
+<button class="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2" id="portal-logout" style="color:var(--danger-600)"><i class="w-4 h-4" data-lucide="log-out"></i> Log Out</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="container-ep py-8">
 <div data-tab-panel="overview">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Overview</h1>
-  <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8" id="admin-kpis"></div>
-  <div class="grid lg:grid-cols-2 gap-6">
-    <div class="card p-6">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">Recent Activity</p>
-      <div id="admin-activity" class="space-y-3 text-sm"></div>
-    </div>
-    <div class="card p-6">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">Quick Actions</p>
-      <div class="grid grid-cols-2 gap-3">
-        <button onclick="switchTab('admin-shell','blog'); openPostForm();" class="btn btn-secondary btn-sm">New Blog Post</button>
-        <button onclick="switchTab('admin-shell','notifications')" class="btn btn-secondary btn-sm">Send Notification</button>
-        <button onclick="switchTab('admin-shell','users')" class="btn btn-secondary btn-sm">Add User</button>
-        <a href="index.html" class="btn btn-secondary btn-sm text-center">View Site</a>
-      </div>
-    </div>
-  </div>
+<h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Overview</h1>
+<div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8" id="admin-kpis"></div>
+<div class="grid lg:grid-cols-2 gap-6">
+<div class="card p-6">
+<p class="font-semibold mb-4" style="color:var(--navy-700)">Recent Activity</p>
+<div class="space-y-3 text-sm" id="admin-activity"></div>
 </div>
-
-<div data-tab-panel="analytics" class="hidden">
-  <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Analytics &amp; Finance</h1>
-    <div class="flex flex-wrap items-center gap-2">
-      <select id="finance-export-period" class="px-2 py-1.5 rounded-md border text-xs" style="border-color:var(--border-default)">
-        <option value="month">This Month</option>
-        <option value="year">This Year (so far)</option>
-        <option value="all" selected>All Time</option>
-        <option value="custom">Custom Range</option>
-      </select>
-      <input type="date" id="finance-export-from" class="hidden px-2 py-1.5 rounded-md border text-xs" style="border-color:var(--border-default)">
-      <input type="date" id="finance-export-to" class="hidden px-2 py-1.5 rounded-md border text-xs" style="border-color:var(--border-default)">
-      <button onclick="exportPaymentsCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export Payments</button>
-      <button onclick="exportExpensesCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export Expenses</button>
-      <button onclick="exportFullReportPdf()" class="btn btn-primary btn-sm"><i data-lucide="file-text" class="w-4 h-4 mr-1"></i> Export Report PDF</button>
-    </div>
-  </div>
-
-  <div class="flex flex-wrap gap-2 mb-6" id="finance-tab-tabs">
-    <button data-finance-tab="overview" class="persona-tab" aria-selected="true">Overview</button>
-    <button data-finance-tab="coa" class="persona-tab" aria-selected="false">Chart of Accounts</button>
-    <button data-finance-tab="ledger" class="persona-tab" aria-selected="false">General Ledger</button>
-    <button data-finance-tab="trial-balance" class="persona-tab" aria-selected="false">Trial Balance</button>
-    <button data-finance-tab="balance-sheet" class="persona-tab" aria-selected="false">Balance Sheet</button>
-    <button data-finance-tab="pnl" class="persona-tab" aria-selected="false">P&amp;L</button>
-    <button data-finance-tab="journal-entry" class="persona-tab" aria-selected="false">Journal Entry</button>
-    <button data-finance-tab="payroll" class="persona-tab" aria-selected="false">Payroll</button>
-  </div>
-
-  <div data-finance-panel="overview">
-  <div id="payment-due-panel" class="hidden card p-5 mb-6" style="background:var(--danger-50); border-color:var(--danger-600)">
-    <p class="font-semibold text-sm mb-1" style="color:var(--danger-600)"><i data-lucide="bell-ring" class="w-4 h-4 inline align-text-bottom mr-1"></i> Payment Due Soon</p>
-    <p class="text-xs mb-3" style="color:var(--text-secondary)">Due within a week (or already overdue) with a balance still owed — reach out before it's late.</p>
-    <div id="payment-due-list" class="space-y-2"></div>
-  </div>
-
-  <div id="finance-review-panel" class="hidden card p-5 mb-6" style="background:var(--amber-100); border-color:var(--amber-600)">
-    <p class="font-semibold text-sm mb-1" style="color:var(--amber-600)"><i data-lucide="alert-triangle" class="w-4 h-4 inline align-text-bottom mr-1"></i> Needs review</p>
-    <p class="text-xs mb-3" style="color:var(--text-secondary)">These students were marked paid the old way, before amounts were tracked — add the real payment so they count correctly.</p>
-    <div id="finance-review-list" class="space-y-2"></div>
-  </div>
-
-  <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--text-secondary)">Revenue (money actually received)</p>
-  <div class="grid sm:grid-cols-3 gap-4 mb-4">
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">This Month</p>
-      <p id="analytics-revenue-month" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-    </div>
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">This Year</p>
-      <p id="analytics-revenue-year" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-    </div>
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">All Time</p>
-      <p id="analytics-revenue-total" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-    </div>
-  </div>
-
-  <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--text-secondary)">Expenses &amp; Profit</p>
-  <div class="grid sm:grid-cols-3 gap-4 mb-4">
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Expenses This Month</p>
-      <p id="analytics-expenses-month" class="font-serif text-2xl font-bold mt-1" style="color:var(--danger-600)">—</p>
-    </div>
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Net Profit This Month</p>
-      <p id="analytics-profit-month" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-    </div>
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Net Profit All Time</p>
-      <p id="analytics-profit-total" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-    </div>
-  </div>
-
-  <div class="grid sm:grid-cols-3 gap-4 mb-6">
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Outstanding Balance</p>
-      <p id="analytics-receivable" class="font-serif text-2xl font-bold mt-1" style="color:var(--danger-600)">—</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">Owed across all students</p>
-    </div>
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Active Students</p>
-      <p id="analytics-active-students" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">With a course assigned</p>
-    </div>
-    <div class="card p-5">
-      <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Conversion Rate</p>
-      <p id="analytics-conversion" class="font-serif text-2xl font-bold mt-1" style="color:var(--navy-700)">—</p>
-      <p class="text-xs mt-1" style="color:var(--text-disabled)">Signups that became active</p>
-    </div>
-  </div>
-
-  <div class="grid lg:grid-cols-2 gap-6 mb-6">
-    <div class="card p-5">
-      <div class="flex items-center justify-between mb-4">
-        <p class="font-semibold" style="color:var(--navy-700)">Revenue by Month</p>
-        <select id="analytics-revenue-year-select" class="px-2 py-1 rounded-md border text-xs" style="border-color:var(--border-default)"></select>
-      </div>
-      <canvas id="analytics-chart-revenue" height="220"></canvas>
-    </div>
-    <div class="card p-5">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">Expenses by Category</p>
-      <canvas id="analytics-chart-expenses" height="220"></canvas>
-    </div>
-  </div>
-
-  <div class="flex items-center justify-between mb-4">
-    <h2 class="font-serif text-xl font-bold" style="color:var(--navy-700)">Payments Ledger</h2>
-    <button onclick="openPaymentModal({})" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Payment</button>
-  </div>
-  <div class="flex flex-wrap gap-2 mb-4">
-    <input id="payments-search" type="search" placeholder="Search by student or course..." class="px-3 py-2 rounded-md border text-sm flex-1 min-w-[200px]" style="border-color:var(--border-default)">
-    <select id="payments-show-voided" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="hide">Hide voided</option>
-      <option value="show">Show voided too</option>
-    </select>
-  </div>
-  <div id="admin-payments-list" class="card overflow-hidden mb-10"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
-
-  <div class="flex items-center justify-between mb-4">
-    <h2 class="font-serif text-xl font-bold" style="color:var(--navy-700)">Expenses Ledger</h2>
-    <button onclick="openExpenseModal({})" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Expense</button>
-  </div>
-  <div class="flex flex-wrap gap-2 mb-4">
-    <input id="expenses-search" type="search" placeholder="Search by category or vendor..." class="px-3 py-2 rounded-md border text-sm flex-1 min-w-[200px]" style="border-color:var(--border-default)">
-    <select id="expenses-show-voided" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="hide">Hide voided</option>
-      <option value="show">Show voided too</option>
-    </select>
-  </div>
-  <div id="admin-expenses-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
-  </div>
-  <!-- /overview -->
-
-  <!-- Chart of Accounts -->
-  <div data-finance-panel="coa" class="hidden">
-    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h2 class="font-serif text-xl font-bold" style="color:var(--navy-700)">Chart of Accounts</h2>
-      <button onclick="openAccountModal()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Account</button>
-    </div>
-    <div id="admin-accounts-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
-  </div>
-
-  <!-- General Ledger -->
-  <div data-finance-panel="ledger" class="hidden">
-    <h2 class="font-serif text-xl font-bold mb-4" style="color:var(--navy-700)">General Ledger</h2>
-    <div class="flex flex-wrap gap-2 mb-4 items-end">
-      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">From</label><input id="ledger-from" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">To</label><input id="ledger-to" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">Account</label>
-        <select id="ledger-account" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"><option value="">All Accounts</option></select>
-      </div>
-      <button onclick="renderGeneralLedger()" class="btn btn-secondary btn-sm">Apply Filters</button>
-    </div>
-    <div id="admin-ledger-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
-  </div>
-
-  <!-- Trial Balance -->
-  <div data-finance-panel="trial-balance" class="hidden">
-    <h2 class="font-serif text-xl font-bold mb-4" style="color:var(--navy-700)">Trial Balance</h2>
-    <div class="flex flex-wrap gap-2 mb-4 items-end">
-      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">From</label><input id="tb-from" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">To</label><input id="tb-to" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <button onclick="renderTrialBalance()" class="btn btn-secondary btn-sm">Apply Filters</button>
-    </div>
-    <div id="admin-trial-balance-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
-  </div>
-
-  <!-- Balance Sheet -->
-  <div data-finance-panel="balance-sheet" class="hidden">
-    <h2 class="font-serif text-xl font-bold mb-4" style="color:var(--navy-700)">Balance Sheet</h2>
-    <div class="flex flex-wrap gap-2 mb-4 items-end">
-      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">As Of (end date)</label><input id="bs-to" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">From (optional)</label><input id="bs-from" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <button onclick="renderBalanceSheet()" class="btn btn-secondary btn-sm">Apply Filters</button>
-    </div>
-    <div id="admin-balance-sheet" class="space-y-6"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
-  </div>
-
-  <!-- P&L -->
-  <div data-finance-panel="pnl" class="hidden">
-    <h2 class="font-serif text-xl font-bold mb-4" style="color:var(--navy-700)">Profit &amp; Loss</h2>
-    <div class="flex flex-wrap gap-2 mb-4 items-end">
-      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">From</label><input id="pnl-from" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <div><label class="text-xs font-medium block mb-1" style="color:var(--text-secondary)">To</label><input id="pnl-to" type="date" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <button onclick="renderPnl()" class="btn btn-secondary btn-sm">Apply Filters</button>
-    </div>
-    <div id="admin-pnl" class="space-y-6"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
-  </div>
-
-  <!-- Journal Entry (manual) -->
-  <div data-finance-panel="journal-entry" class="hidden">
-    <h2 class="font-serif text-xl font-bold mb-4" style="color:var(--navy-700)">Manual Journal Entry</h2>
-    <div class="card p-5 mb-6">
-      <form id="journal-entry-form" class="space-y-4">
-        <div class="grid sm:grid-cols-2 gap-4">
-          <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Date</label><input id="je-date" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-          <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Memo</label><input id="je-memo" placeholder="What is this entry for?" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-        </div>
-        <div>
-          <label class="text-sm font-medium block mb-2" style="color:var(--navy-700)">Lines</label>
-          <div id="je-lines" class="space-y-2"></div>
-          <button type="button" onclick="addJournalEntryLineRow()" class="btn btn-secondary btn-sm mt-2"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Line</button>
-        </div>
-        <div id="je-balance-indicator" class="p-3 rounded-md text-sm font-semibold" style="background:var(--bg-subtle)">Debits: 0.00 · Credits: 0.00</div>
-        <button type="submit" class="btn btn-primary w-full">Post Journal Entry</button>
-      </form>
-    </div>
-    <h3 class="font-serif text-lg font-bold mb-3" style="color:var(--navy-700)">Manual Entries</h3>
-    <div id="admin-manual-entries-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
-  </div>
-
-  <!-- Payroll -->
-  <div data-finance-panel="payroll" class="hidden">
-    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h2 class="font-serif text-xl font-bold" style="color:var(--navy-700)">Payroll</h2>
-      <button onclick="openPayrollModal({})" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Payroll Entry</button>
-    </div>
-    <div id="admin-payroll-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
-  </div>
+<div class="card p-6">
+<p class="font-semibold mb-4" style="color:var(--navy-700)">Quick Actions</p>
+<div class="grid grid-cols-2 gap-3">
+<button class="btn btn-secondary btn-sm" onclick="switchTab('admin-shell','blog'); openPostForm();">New Blog Post</button>
+<button class="btn btn-secondary btn-sm" onclick="switchTab('admin-shell','notifications')">Send Notification</button>
+<button class="btn btn-secondary btn-sm" onclick="switchTab('admin-shell','users')">Add User</button>
+<a class="btn btn-secondary btn-sm text-center" href="index.html">View Site</a>
 </div>
-
-<div data-tab-panel="blog" class="hidden">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Blog &amp; Content</h1>
-    <div class="flex gap-2">
-      <button onclick="document.getElementById('category-modal').classList.remove('hidden'); loadCategoryManager();" class="btn btn-secondary btn-sm"><i data-lucide="tag" class="w-4 h-4 mr-1"></i> Manage Categories</button>
-      <button onclick="openPostForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> New Post</button>
-    </div>
-  </div>
-  <div id="admin-posts-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
-
+</div>
+</div>
+<div class="hidden" data-tab-panel="analytics"><div class="w-full" style="margin:-2rem 0 0 0;"><iframe loading="eager" src="europass-student-tracker.html" style="width:100%;height:calc(100vh - 8rem);min-height:760px;border:0;background:#eef2f1;display:block;" title="EuroPass Student Tracker Analytics Dashboard"></iframe></div></div>
+<div class="hidden" data-tab-panel="blog">
+<div class="flex items-center justify-between mb-6">
+<h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Blog &amp; Content</h1>
+<div class="flex gap-2">
+<button class="btn btn-secondary btn-sm" onclick="document.getElementById('category-modal').classList.remove('hidden'); loadCategoryManager();"><i class="w-4 h-4 mr-1" data-lucide="tag"></i> Manage Categories</button>
+<button class="btn btn-primary btn-sm" onclick="openPostForm()"><i class="w-4 h-4 mr-1" data-lucide="plus"></i> New Post</button>
+</div>
+</div>
+<div class="space-y-3" id="admin-posts-list"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+</div>
 <!-- Manage categories modal -->
-<div id="category-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-sm p-6">
-    <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Manage Categories</p>
-      <button onclick="closeModal('category-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div id="category-lang-toggle" class="flex gap-2 mb-4">
-      <button type="button" data-lang="en" onclick="loadCategoryManager('en')" class="btn btn-primary btn-sm flex-1">English</button>
-      <button type="button" data-lang="fr" onclick="loadCategoryManager('fr')" class="btn btn-secondary btn-sm flex-1">Fran\u00e7ais</button>
-      <button type="button" data-lang="ar" onclick="loadCategoryManager('ar')" class="btn btn-secondary btn-sm flex-1">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;</button>
-    </div>
-    <div id="category-list" class="space-y-2 mb-4"></div>
-    <form id="category-form" class="flex gap-2">
-      <input id="category-name-input" required placeholder="New category name" class="flex-1 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <button type="submit" class="btn btn-primary btn-sm">Add</button>
-    </form>
-  </div>
+<div class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" id="category-modal" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-sm p-6">
+<div class="flex items-center justify-between mb-4">
+<p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Manage Categories</p>
+<button aria-label="Close" onclick="closeModal('category-modal')"><i class="w-5 h-5" data-lucide="x"></i></button>
 </div>
-
-<div data-tab-panel="homework" class="hidden">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Homework &amp; Grades</h1>
-  </div>
-  <div class="flex flex-wrap gap-2 mb-6">
-    <select id="hw-course-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="">All Courses</option>
-    </select>
-    <select id="hw-teacher-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="">All Teachers</option>
-    </select>
-  </div>
-  <div id="admin-homework-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+<div class="flex gap-2 mb-4" id="category-lang-toggle">
+<button class="btn btn-primary btn-sm flex-1" data-lang="en" onclick="loadCategoryManager('en')" type="button">English</button>
+<button class="btn btn-secondary btn-sm flex-1" data-lang="fr" onclick="loadCategoryManager('fr')" type="button">Fran\u00e7ais</button>
+<button class="btn btn-secondary btn-sm flex-1" data-lang="ar" onclick="loadCategoryManager('ar')" type="button">العربية</button>
 </div>
-
-<div data-tab-panel="resources" class="hidden">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Resources</h1>
-    <button onclick="openResourceForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Resource</button>
-  </div>
-  <div class="flex flex-wrap gap-2 mb-6">
-    <select id="res-category-filter" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="">All Categories</option>
-    </select>
-  </div>
-  <div id="admin-resources-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+<div class="space-y-2 mb-4" id="category-list"></div>
+<form class="flex gap-2" id="category-form">
+<input class="flex-1 px-3 py-2 rounded-md border text-sm" id="category-name-input" placeholder="New category name" required="" style="border-color:var(--border-default)"/>
+<button class="btn btn-primary btn-sm" type="submit">Add</button>
+</form>
 </div>
-
+</div>
+<div class="hidden" data-tab-panel="homework">
+<div class="flex items-center justify-between mb-6">
+<h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Homework &amp; Grades</h1>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<select class="px-3 py-2 rounded-md border text-sm" id="hw-course-filter" style="border-color:var(--border-default)">
+<option value="">All Courses</option>
+</select>
+<select class="px-3 py-2 rounded-md border text-sm" id="hw-teacher-filter" style="border-color:var(--border-default)">
+<option value="">All Teachers</option>
+</select>
+</div>
+<div class="space-y-3" id="admin-homework-list"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+</div>
+<div class="hidden" data-tab-panel="resources">
+<div class="flex items-center justify-between mb-6">
+<h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Resources</h1>
+<button class="btn btn-primary btn-sm" onclick="openResourceForm()"><i class="w-4 h-4 mr-1" data-lucide="plus"></i> Add Resource</button>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<select class="px-3 py-2 rounded-md border text-sm" id="res-category-filter" style="border-color:var(--border-default)">
+<option value="">All Categories</option>
+</select>
+</div>
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="admin-resources-list"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+</div>
 <!-- Add resource modal -->
-<div id="resource-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add Resource</p>
-      <button onclick="closeModal('resource-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <form id="resource-form" class="space-y-4">
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="res-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Description (optional)</label><textarea id="res-description" rows="2" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea></div>
-      <div class="grid sm:grid-cols-2 gap-4">
-        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Type</label>
-          <select id="res-type" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-            <option value="pdf">PDF Document</option>
-            <option value="video">Video Link</option>
-            <option value="link">Other Link</option>
-          </select>
-        </div>
-        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label><input id="res-category" list="res-category-suggestions" placeholder="e.g. German, General Teaching" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"><datalist id="res-category-suggestions"></datalist></div>
-      </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Send To</label>
-        <select id="res-target-teacher" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="">All Teachers</option>
-        </select>
-      </div>
-      <div id="res-pdf-field">
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">PDF File</label>
-        <input id="res-file" type="file" accept="application/pdf" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        <p class="text-xs mt-1" style="color:var(--text-secondary)">Up to 10MB.</p>
-      </div>
-      <div id="res-url-field" class="hidden">
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Link</label>
-        <input id="res-url" type="url" placeholder="https://..." class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        <p id="res-url-hint" class="text-xs mt-1" style="color:var(--text-secondary)">Paste a YouTube (or other video) URL.</p>
-      </div>
-      <button type="submit" id="res-submit-btn" class="btn btn-primary w-full">Send to All Teachers</button>
-    </form>
-  </div>
+<div class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" id="resource-modal" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+<div class="flex items-center justify-between mb-4">
+<p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add Resource</p>
+<button aria-label="Close" onclick="closeModal('resource-modal')"><i class="w-5 h-5" data-lucide="x"></i></button>
 </div>
-
+<form class="space-y-4" id="resource-form">
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input class="w-full px-4 py-3 rounded-md border text-sm" id="res-title" required="" style="border-color:var(--border-default)"/></div>
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Description (optional)</label><textarea class="w-full px-4 py-3 rounded-md border text-sm" id="res-description" rows="2" style="border-color:var(--border-default)"></textarea></div>
+<div class="grid sm:grid-cols-2 gap-4">
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Type</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="res-type" style="border-color:var(--border-default)">
+<option value="pdf">PDF Document</option>
+<option value="video">Video Link</option>
+<option value="link">Other Link</option>
+</select>
+</div>
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label><input class="w-full px-4 py-3 rounded-md border text-sm" id="res-category" list="res-category-suggestions" placeholder="e.g. German, General Teaching" style="border-color:var(--border-default)"/><datalist id="res-category-suggestions"></datalist></div>
+</div>
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Send To</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="res-target-teacher" style="border-color:var(--border-default)">
+<option value="">All Teachers</option>
+</select>
+</div>
+<div id="res-pdf-field">
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">PDF File</label>
+<input accept="application/pdf" class="w-full px-4 py-3 rounded-md border text-sm" id="res-file" style="border-color:var(--border-default)" type="file"/>
+<p class="text-xs mt-1" style="color:var(--text-secondary)">Up to 10MB.</p>
+</div>
+<div class="hidden" id="res-url-field">
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Link</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="res-url" placeholder="https://..." style="border-color:var(--border-default)" type="url"/>
+<p class="text-xs mt-1" id="res-url-hint" style="color:var(--text-secondary)">Paste a YouTube (or other video) URL.</p>
+</div>
+<button class="btn btn-primary w-full" id="res-submit-btn" type="submit">Send to All Teachers</button>
+</form>
+</div>
+</div>
 <!-- Homework detail / submissions & grades modal -->
-<div id="homework-detail-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between mb-1">
-      <p id="hw-detail-title" class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Homework</p>
-      <button onclick="closeModal('homework-detail-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <p id="hw-detail-meta" class="text-xs mb-5" style="color:var(--text-secondary)"></p>
-    <div id="hw-detail-submissions" class="space-y-3"></div>
-  </div>
+<div class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" id="homework-detail-modal" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
+<div class="flex items-center justify-between mb-1">
+<p class="font-serif font-semibold text-lg" id="hw-detail-title" style="color:var(--navy-700)">Homework</p>
+<button aria-label="Close" onclick="closeModal('homework-detail-modal')"><i class="w-5 h-5" data-lucide="x"></i></button>
 </div>
-
-<div data-tab-panel="notifications" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Notifications</h1>
-  <div class="grid lg:grid-cols-2 gap-6">
-    <div class="card p-6">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">Compose &amp; Send</p>
-      <form id="notif-form" class="space-y-4">
-        <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Audience</label>
-          <select id="notif-audience" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-            <option value="all">Everyone</option>
-            <option value="teachers">All Teachers</option>
-            <option value="students">All Students</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label>
-          <input id="notif-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        </div>
-        <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Message</label>
-          <textarea id="notif-body" required rows="3" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary w-full">Send Notification</button>
-      </form>
-    </div>
-    <div class="card p-6">
-      <p class="font-semibold mb-4" style="color:var(--navy-700)">Sent History</p>
-      <div id="admin-notif-list" class="space-y-3 max-h-96 overflow-y-auto"></div>
-    </div>
-  </div>
+<p class="text-xs mb-5" id="hw-detail-meta" style="color:var(--text-secondary)"></p>
+<div class="space-y-3" id="hw-detail-submissions"></div>
 </div>
-
-<div data-tab-panel="users" class="hidden">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Teachers &amp; Students</h1>
-    <div class="flex gap-2">
-      <button onclick="exportUsersCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export CSV</button>
-      <button onclick="openUserForm()" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add User</button>
-    </div>
-  </div>
-  <div class="flex flex-wrap gap-2 mb-4">
-    <input id="users-search" type="search" placeholder="Search by name, email, phone..." class="px-3 py-2 rounded-md border text-sm flex-1 min-w-[200px]" style="border-color:var(--border-default)">
-    <select id="users-filter-role" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="">All Roles</option>
-      <option value="student">Students</option>
-      <option value="teacher">Teachers</option>
-    </select>
-    <select id="users-filter-course" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="">All Courses</option>
-    </select>
-    <select id="users-filter-status" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="">All Statuses</option>
-      <option value="active">Active</option>
-      <option value="blocked">Blocked</option>
-    </select>
-    <select id="users-filter-balance" class="px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-      <option value="">All Balances</option>
-      <option value="owing">Owes money</option>
-      <option value="settled">Paid up</option>
-      <option value="unenrolled">Not enrolled</option>
-    </select>
-  </div>
-  <div id="users-bulk-bar" class="hidden card p-3 mb-4 flex flex-wrap items-center gap-3" style="background:var(--navy-50)">
-    <p id="users-bulk-count" class="text-sm font-semibold shrink-0" style="color:var(--navy-700)">0 selected</p>
-    <select id="users-bulk-course" class="px-3 py-2 rounded-md border text-sm flex-1 min-w-[220px]" style="border-color:var(--border-default)"></select>
-    <button id="users-bulk-apply" class="btn btn-primary btn-sm shrink-0">Assign Course &amp; Teacher</button>
-    <button id="users-bulk-clear" class="text-xs font-semibold shrink-0" style="color:var(--text-secondary)">Clear selection</button>
-  </div>
-  <div id="admin-users-list" class="card overflow-hidden"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
 </div>
-
+<div class="hidden" data-tab-panel="notifications">
+<h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Notifications</h1>
+<div class="grid lg:grid-cols-2 gap-6">
+<div class="card p-6">
+<p class="font-semibold mb-4" style="color:var(--navy-700)">Compose &amp; Send</p>
+<form class="space-y-4" id="notif-form">
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Audience</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="notif-audience" style="border-color:var(--border-default)">
+<option value="all">Everyone</option>
+<option value="teachers">All Teachers</option>
+<option value="students">All Students</option>
+</select>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="notif-title" required="" style="border-color:var(--border-default)"/>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Message</label>
+<textarea class="w-full px-4 py-3 rounded-md border text-sm" id="notif-body" required="" rows="3" style="border-color:var(--border-default)"></textarea>
+</div>
+<button class="btn btn-primary w-full" type="submit">Send Notification</button>
+</form>
+</div>
+<div class="card p-6">
+<p class="font-semibold mb-4" style="color:var(--navy-700)">Sent History</p>
+<div class="space-y-3 max-h-96 overflow-y-auto" id="admin-notif-list"></div>
+</div>
+</div>
+</div>
+<div class="hidden" data-tab-panel="users">
+<div class="flex items-center justify-between mb-6">
+<h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Teachers &amp; Students</h1>
+<div class="flex gap-2">
+<button class="btn btn-secondary btn-sm" onclick="exportUsersCsv()"><i class="w-4 h-4 mr-1" data-lucide="download"></i> Export CSV</button>
+<button class="btn btn-primary btn-sm" onclick="openUserForm()"><i class="w-4 h-4 mr-1" data-lucide="plus"></i> Add User</button>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-4">
+<input class="px-3 py-2 rounded-md border text-sm flex-1 min-w-[200px]" id="users-search" placeholder="Search by name, email, phone..." style="border-color:var(--border-default)" type="search"/>
+<select class="px-3 py-2 rounded-md border text-sm" id="users-filter-role" style="border-color:var(--border-default)">
+<option value="">All Roles</option>
+<option value="student">Students</option>
+<option value="teacher">Teachers</option>
+</select>
+<select class="px-3 py-2 rounded-md border text-sm" id="users-filter-course" style="border-color:var(--border-default)">
+<option value="">All Courses</option>
+</select>
+<select class="px-3 py-2 rounded-md border text-sm" id="users-filter-status" style="border-color:var(--border-default)">
+<option value="">All Statuses</option>
+<option value="active">Active</option>
+<option value="blocked">Blocked</option>
+</select>
+<select class="px-3 py-2 rounded-md border text-sm" id="users-filter-balance" style="border-color:var(--border-default)">
+<option value="">All Balances</option>
+<option value="owing">Owes money</option>
+<option value="settled">Paid up</option>
+<option value="unenrolled">Not enrolled</option>
+</select>
+</div>
+<div class="hidden card p-3 mb-4 flex flex-wrap items-center gap-3" id="users-bulk-bar" style="background:var(--navy-50)">
+<p class="text-sm font-semibold shrink-0" id="users-bulk-count" style="color:var(--navy-700)">0 selected</p>
+<select class="px-3 py-2 rounded-md border text-sm flex-1 min-w-[220px]" id="users-bulk-course" style="border-color:var(--border-default)"></select>
+<button class="btn btn-primary btn-sm shrink-0" id="users-bulk-apply">Assign Course &amp; Teacher</button>
+<button class="text-xs font-semibold shrink-0" id="users-bulk-clear" style="color:var(--text-secondary)">Clear selection</button>
+</div>
+<div class="card overflow-hidden" id="admin-users-list"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+</div>
 <!-- User detail modal -->
-<div id="user-detail-modal" class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
-    <div class="flex items-center justify-between mb-4 shrink-0">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">User Details</p>
-      <button onclick="closeModal('user-detail-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div class="overflow-y-auto min-h-0">
-    <div id="user-detail-blocked-banner" class="hidden p-3 rounded-md text-sm mb-4" style="background:var(--danger-50); color:var(--danger-600)">
-      <p class="font-semibold">Access is currently blocked</p>
-      <p id="user-detail-blocked-reason" class="text-xs mt-1"></p>
-    </div>
-    <div class="flex items-center gap-3 mb-5">
-      <div class="w-14 h-14 rounded-full flex items-center justify-center shrink-0" style="background:var(--navy-50)"><i data-lucide="user" class="w-6 h-6" style="color:var(--navy-700)"></i></div>
-      <div class="min-w-0">
-        <p id="user-detail-name" class="font-serif font-semibold text-lg truncate" style="color:var(--navy-700)"></p>
-        <span id="user-detail-role" class="badge badge-info"></span>
-      </div>
-    </div>
-    <div class="space-y-3 text-sm">
-      <div class="flex items-center gap-3"><i data-lucide="book-open" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-course" style="color:var(--text-primary)">—</span></div>
-      <div class="flex items-center gap-3"><i data-lucide="map-pin" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-city" style="color:var(--text-primary)">—</span></div>
-      <div class="flex items-center gap-3"><i data-lucide="mail" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-email" dir="ltr" style="color:var(--text-primary)">—</span></div>
-      <div class="flex items-center gap-3"><i data-lucide="phone" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-phone" dir="ltr" style="color:var(--text-primary)">—</span></div>
-      <div class="flex items-center gap-3"><i data-lucide="calendar" class="w-4 h-4 shrink-0" style="color:var(--text-secondary)"></i><span id="user-detail-joined" style="color:var(--text-primary)">—</span></div>
-    </div>
-    <div class="grid grid-cols-2 gap-3 mt-6">
-      <a id="user-detail-email-btn" href="#" class="btn btn-secondary btn-sm justify-center"><i data-lucide="mail" class="w-4 h-4 mr-1"></i> Email</a>
-      <a id="user-detail-whatsapp-btn" href="#" target="_blank" rel="noopener" class="btn btn-secondary btn-sm justify-center"><i data-lucide="message-circle" class="w-4 h-4 mr-1"></i> WhatsApp</a>
-    </div>
-
-    <div class="border-t mt-5 pt-5" style="border-color:var(--border-default)">
-      <div class="flex items-center justify-between mb-3">
-        <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Balance</p>
-        <div class="flex gap-2">
-          <button id="user-detail-enroll-btn" class="btn btn-secondary btn-sm hidden"><i data-lucide="graduation-cap" class="w-4 h-4 mr-1"></i> Enroll Student</button>
-          <button id="user-detail-record-payment-btn" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Record Payment</button>
-        </div>
-      </div>
-      <div id="user-detail-balance" class="p-3 rounded-lg text-sm mb-3" style="background:var(--bg-subtle)">—</div>
-      <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--text-secondary)">Payment History</p>
-      <div id="user-detail-payments-list" class="space-y-2 max-h-56 overflow-y-auto"></div>
-    </div>
-
-    <div class="border-t mt-5 pt-5" style="border-color:var(--border-default)">
-      <p class="text-xs font-semibold uppercase tracking-wide mb-3" style="color:var(--text-secondary)">Admin Controls</p>
-      <div class="flex items-center gap-2 mb-3">
-        <select id="user-detail-role-select" class="flex-1 px-3 py-2 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="student">Student</option>
-          <option value="teacher">Teacher</option>
-          <option value="admin">Admin</option>
-        </select>
-        <button id="user-detail-role-save" class="btn btn-secondary btn-sm shrink-0">Change Role</button>
-      </div>
-      <div class="grid grid-cols-1 gap-2">
-        <button id="user-detail-block-btn" class="btn btn-sm justify-center" style="background:var(--danger-50); color:var(--danger-600)"><i data-lucide="lock" class="w-4 h-4 mr-1"></i> Block Access</button>
-      </div>
-    </div>
-    </div>
-  </div>
+<div class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" id="user-detail-modal" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
+<div class="flex items-center justify-between mb-4 shrink-0">
+<p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">User Details</p>
+<button aria-label="Close" onclick="closeModal('user-detail-modal')"><i class="w-5 h-5" data-lucide="x"></i></button>
 </div>
-
+<div class="overflow-y-auto min-h-0">
+<div class="hidden p-3 rounded-md text-sm mb-4" id="user-detail-blocked-banner" style="background:var(--danger-50); color:var(--danger-600)">
+<p class="font-semibold">Access is currently blocked</p>
+<p class="text-xs mt-1" id="user-detail-blocked-reason"></p>
+</div>
+<div class="flex items-center gap-3 mb-5">
+<div class="w-14 h-14 rounded-full flex items-center justify-center shrink-0" style="background:var(--navy-50)"><i class="w-6 h-6" data-lucide="user" style="color:var(--navy-700)"></i></div>
+<div class="min-w-0">
+<p class="font-serif font-semibold text-lg truncate" id="user-detail-name" style="color:var(--navy-700)"></p>
+<span class="badge badge-info" id="user-detail-role"></span>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="flex items-center gap-3"><i class="w-4 h-4 shrink-0" data-lucide="book-open" style="color:var(--text-secondary)"></i><span id="user-detail-course" style="color:var(--text-primary)">—</span></div>
+<div class="flex items-center gap-3"><i class="w-4 h-4 shrink-0" data-lucide="map-pin" style="color:var(--text-secondary)"></i><span id="user-detail-city" style="color:var(--text-primary)">—</span></div>
+<div class="flex items-center gap-3"><i class="w-4 h-4 shrink-0" data-lucide="mail" style="color:var(--text-secondary)"></i><span dir="ltr" id="user-detail-email" style="color:var(--text-primary)">—</span></div>
+<div class="flex items-center gap-3"><i class="w-4 h-4 shrink-0" data-lucide="phone" style="color:var(--text-secondary)"></i><span dir="ltr" id="user-detail-phone" style="color:var(--text-primary)">—</span></div>
+<div class="flex items-center gap-3"><i class="w-4 h-4 shrink-0" data-lucide="calendar" style="color:var(--text-secondary)"></i><span id="user-detail-joined" style="color:var(--text-primary)">—</span></div>
+</div>
+<div class="grid grid-cols-2 gap-3 mt-6">
+<a class="btn btn-secondary btn-sm justify-center" href="#" id="user-detail-email-btn"><i class="w-4 h-4 mr-1" data-lucide="mail"></i> Email</a>
+<a class="btn btn-secondary btn-sm justify-center" href="#" id="user-detail-whatsapp-btn" rel="noopener" target="_blank"><i class="w-4 h-4 mr-1" data-lucide="message-circle"></i> WhatsApp</a>
+</div>
+<div class="border-t mt-5 pt-5" style="border-color:var(--border-default)">
+<div class="flex items-center justify-between mb-3">
+<p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--text-secondary)">Balance</p>
+<div class="flex gap-2">
+<button class="btn btn-secondary btn-sm hidden" id="user-detail-enroll-btn"><i class="w-4 h-4 mr-1" data-lucide="graduation-cap"></i> Enroll Student</button>
+<button class="btn btn-primary btn-sm" id="user-detail-record-payment-btn"><i class="w-4 h-4 mr-1" data-lucide="plus"></i> Record Payment</button>
+</div>
+</div>
+<div class="p-3 rounded-lg text-sm mb-3" id="user-detail-balance" style="background:var(--bg-subtle)">—</div>
+<p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:var(--text-secondary)">Payment History</p>
+<div class="space-y-2 max-h-56 overflow-y-auto" id="user-detail-payments-list"></div>
+</div>
+<div class="border-t mt-5 pt-5" style="border-color:var(--border-default)">
+<p class="text-xs font-semibold uppercase tracking-wide mb-3" style="color:var(--text-secondary)">Admin Controls</p>
+<div class="flex items-center gap-2 mb-3">
+<select class="flex-1 px-3 py-2 rounded-md border text-sm" id="user-detail-role-select" style="border-color:var(--border-default)">
+<option value="student">Student</option>
+<option value="teacher">Teacher</option>
+<option value="admin">Admin</option>
+</select>
+<button class="btn btn-secondary btn-sm shrink-0" id="user-detail-role-save">Change Role</button>
+</div>
+<div class="grid grid-cols-1 gap-2">
+<button class="btn btn-sm justify-center" id="user-detail-block-btn" style="background:var(--danger-50); color:var(--danger-600)"><i class="w-4 h-4 mr-1" data-lucide="lock"></i> Block Access</button>
+</div>
+</div>
+</div>
+</div>
+</div>
 <!-- Record / edit payment modal — shared by the Users page and the
      Finance hub's payments table -->
-<div id="payment-modal" class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
-    <div class="flex items-center justify-between mb-4 shrink-0">
-      <p id="payment-modal-title" class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Record Payment</p>
-      <button onclick="closeModal('payment-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div class="overflow-y-auto min-h-0">
-    <form id="payment-form" class="space-y-4">
-      <input type="hidden" id="payment-id">
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Student</label>
-        <select id="payment-student" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course (optional)</label>
-        <select id="payment-course" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="">Not linked to a specific course</option>
-        </select>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Amount (MAD)</label>
-          <input id="payment-amount" required type="number" min="0.01" step="0.01" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        </div>
-        <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Date</label>
-          <input id="payment-date" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        </div>
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Method</label>
-        <select id="payment-method" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="cash">Cash</option>
-          <option value="bank_transfer">Bank Transfer</option>
-          <option value="card">Card</option>
-          <option value="check">Check</option>
-          <option value="online">Online</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Notes</label>
-        <textarea id="payment-notes" rows="2" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
-      </div>
-      <div id="payment-audit-note" class="hidden text-xs" style="color:var(--text-disabled)"></div>
-      <div class="flex gap-3">
-        <button type="button" id="payment-void-btn" class="btn btn-secondary btn-sm hidden" style="color:var(--danger-600); border-color:var(--danger-600)">Void</button>
-        <button type="submit" class="btn btn-primary flex-1">Save Payment</button>
-      </div>
-    </form>
-    </div>
-  </div>
+<div class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" id="payment-modal" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
+<div class="flex items-center justify-between mb-4 shrink-0">
+<p class="font-serif font-semibold text-lg" id="payment-modal-title" style="color:var(--navy-700)">Record Payment</p>
+<button aria-label="Close" onclick="closeModal('payment-modal')"><i class="w-5 h-5" data-lucide="x"></i></button>
 </div>
-
+<div class="overflow-y-auto min-h-0">
+<form class="space-y-4" id="payment-form">
+<input id="payment-id" type="hidden"/>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Student</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="payment-student" required="" style="border-color:var(--border-default)"></select>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course (optional)</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="payment-course" style="border-color:var(--border-default)">
+<option value="">Not linked to a specific course</option>
+</select>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Amount (MAD)</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="payment-amount" min="0.01" required="" step="0.01" style="border-color:var(--border-default)" type="number"/>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Date</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="payment-date" required="" style="border-color:var(--border-default)" type="date"/>
+</div>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Method</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="payment-method" style="border-color:var(--border-default)">
+<option value="cash">Cash</option>
+<option value="bank_transfer">Bank Transfer</option>
+<option value="card">Card</option>
+<option value="check">Check</option>
+<option value="online">Online</option>
+<option value="other">Other</option>
+</select>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Notes</label>
+<textarea class="w-full px-4 py-3 rounded-md border text-sm" id="payment-notes" rows="2" style="border-color:var(--border-default)"></textarea>
+</div>
+<div class="hidden text-xs" id="payment-audit-note" style="color:var(--text-disabled)"></div>
+<div class="flex gap-3">
+<button class="btn btn-secondary btn-sm hidden" id="payment-void-btn" style="color:var(--danger-600); border-color:var(--danger-600)" type="button">Void</button>
+<button class="btn btn-primary flex-1" type="submit">Save Payment</button>
+</div>
+</form>
+</div>
+</div>
+</div>
 <!-- Record / edit expense modal -->
-<div id="expense-modal" class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
-    <div class="flex items-center justify-between mb-4 shrink-0">
-      <p id="expense-modal-title" class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Record Expense</p>
-      <button onclick="closeModal('expense-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div class="overflow-y-auto min-h-0">
-    <form id="expense-form" class="space-y-4">
-      <input type="hidden" id="expense-id">
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label>
-        <input id="expense-category" required list="expense-category-suggestions" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        <datalist id="expense-category-suggestions">
-          <option value="Salaries"></option><option value="Rent"></option><option value="Utilities"></option><option value="Marketing"></option>
-          <option value="Supplies"></option><option value="Software &amp; Tools"></option><option value="Maintenance"></option><option value="Other"></option>
-        </datalist>
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Vendor (optional)</label>
-        <input id="expense-vendor" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Amount (MAD)</label>
-          <input id="expense-amount" required type="number" min="0.01" step="0.01" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        </div>
-        <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Date</label>
-          <input id="expense-date" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        </div>
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Notes</label>
-        <textarea id="expense-notes" rows="2" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
-      </div>
-      <div class="flex gap-3">
-        <button type="button" id="expense-void-btn" class="btn btn-secondary btn-sm hidden" style="color:var(--danger-600); border-color:var(--danger-600)">Void</button>
-        <button type="submit" class="btn btn-primary flex-1">Save Expense</button>
-      </div>
-    </form>
-    </div>
-  </div>
+<div class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" id="expense-modal" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
+<div class="flex items-center justify-between mb-4 shrink-0">
+<p class="font-serif font-semibold text-lg" id="expense-modal-title" style="color:var(--navy-700)">Record Expense</p>
+<button aria-label="Close" onclick="closeModal('expense-modal')"><i class="w-5 h-5" data-lucide="x"></i></button>
 </div>
-
+<div class="overflow-y-auto min-h-0">
+<form class="space-y-4" id="expense-form">
+<input id="expense-id" type="hidden"/>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="expense-category" list="expense-category-suggestions" required="" style="border-color:var(--border-default)"/>
+<datalist id="expense-category-suggestions">
+<option value="Salaries"></option><option value="Rent"></option><option value="Utilities"></option><option value="Marketing"></option>
+<option value="Supplies"></option><option value="Software &amp; Tools"></option><option value="Maintenance"></option><option value="Other"></option>
+</datalist>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Vendor (optional)</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="expense-vendor" style="border-color:var(--border-default)"/>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Amount (MAD)</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="expense-amount" min="0.01" required="" step="0.01" style="border-color:var(--border-default)" type="number"/>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Date</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="expense-date" required="" style="border-color:var(--border-default)" type="date"/>
+</div>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Notes</label>
+<textarea class="w-full px-4 py-3 rounded-md border text-sm" id="expense-notes" rows="2" style="border-color:var(--border-default)"></textarea>
+</div>
+<div class="flex gap-3">
+<button class="btn btn-secondary btn-sm hidden" id="expense-void-btn" style="color:var(--danger-600); border-color:var(--danger-600)" type="button">Void</button>
+<button class="btn btn-primary flex-1" type="submit">Save Expense</button>
+</div>
+</form>
+</div>
+</div>
+</div>
 <!-- Add account modal -->
-<div id="account-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-sm p-6">
-    <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add Account</p>
-      <button onclick="closeModal('account-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <form id="account-form" class="space-y-4">
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Code</label>
-        <input id="account-code" required placeholder="e.g. 5600" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Name</label>
-        <input id="account-name" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Type</label>
-        <select id="account-type" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="asset">Asset</option>
-          <option value="liability">Liability</option>
-          <option value="equity">Equity</option>
-          <option value="revenue">Revenue</option>
-          <option value="expense" selected>Expense</option>
-        </select>
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Normal Balance</label>
-        <select id="account-normal-balance" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="debit" selected>Debit</option>
-          <option value="credit">Credit</option>
-        </select>
-      </div>
-      <button type="submit" class="btn btn-primary w-full">Add Account</button>
-    </form>
-  </div>
+<div class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" id="account-modal" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-sm p-6">
+<div class="flex items-center justify-between mb-4">
+<p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add Account</p>
+<button aria-label="Close" onclick="closeModal('account-modal')"><i class="w-5 h-5" data-lucide="x"></i></button>
 </div>
-
+<form class="space-y-4" id="account-form">
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Code</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="account-code" placeholder="e.g. 5600" required="" style="border-color:var(--border-default)"/>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Name</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="account-name" required="" style="border-color:var(--border-default)"/>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Type</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="account-type" style="border-color:var(--border-default)">
+<option value="asset">Asset</option>
+<option value="liability">Liability</option>
+<option value="equity">Equity</option>
+<option value="revenue">Revenue</option>
+<option selected="" value="expense">Expense</option>
+</select>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Normal Balance</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="account-normal-balance" style="border-color:var(--border-default)">
+<option selected="" value="debit">Debit</option>
+<option value="credit">Credit</option>
+</select>
+</div>
+<button class="btn btn-primary w-full" type="submit">Add Account</button>
+</form>
+</div>
+</div>
 <!-- Payroll modal -->
-<div id="payroll-modal" class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
-    <div class="flex items-center justify-between mb-4 shrink-0">
-      <p id="payroll-modal-title" class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add Payroll Entry</p>
-      <button onclick="closeModal('payroll-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div class="overflow-y-auto min-h-0">
-    <form id="payroll-form" class="space-y-4">
-      <input type="hidden" id="payroll-id">
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Teacher</label>
-        <select id="payroll-teacher" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Period Start</label>
-          <input id="payroll-period-start" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        </div>
-        <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Period End</label>
-          <input id="payroll-period-end" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        </div>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Gross Amount</label>
-          <input id="payroll-amount" required type="number" min="0.01" step="0.01" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        </div>
-        <div>
-          <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Currency</label>
-          <input id="payroll-currency" value="MAD" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        </div>
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Paid Date</label>
-        <input id="payroll-paid-at" required type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Notes</label>
-        <textarea id="payroll-notes" rows="2" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></textarea>
-      </div>
-      <div class="flex gap-3">
-        <button type="button" id="payroll-void-btn" class="btn btn-secondary btn-sm hidden" style="color:var(--danger-600); border-color:var(--danger-600)">Void</button>
-        <button type="submit" class="btn btn-primary flex-1">Save Payroll Entry</button>
-      </div>
-    </form>
-    </div>
-  </div>
+<div class="hidden fixed inset-0 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto" id="payroll-modal" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-md p-6 my-8 flex flex-col" style="max-height:calc(100vh - 4rem)">
+<div class="flex items-center justify-between mb-4 shrink-0">
+<p class="font-serif font-semibold text-lg" id="payroll-modal-title" style="color:var(--navy-700)">Add Payroll Entry</p>
+<button aria-label="Close" onclick="closeModal('payroll-modal')"><i class="w-5 h-5" data-lucide="x"></i></button>
 </div>
-
+<div class="overflow-y-auto min-h-0">
+<form class="space-y-4" id="payroll-form">
+<input id="payroll-id" type="hidden"/>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Teacher</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="payroll-teacher" required="" style="border-color:var(--border-default)"></select>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Period Start</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="payroll-period-start" required="" style="border-color:var(--border-default)" type="date"/>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Period End</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="payroll-period-end" required="" style="border-color:var(--border-default)" type="date"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Gross Amount</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="payroll-amount" min="0.01" required="" step="0.01" style="border-color:var(--border-default)" type="number"/>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Currency</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="payroll-currency" style="border-color:var(--border-default)" value="MAD"/>
+</div>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Paid Date</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="payroll-paid-at" required="" style="border-color:var(--border-default)" type="date"/>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Notes</label>
+<textarea class="w-full px-4 py-3 rounded-md border text-sm" id="payroll-notes" rows="2" style="border-color:var(--border-default)"></textarea>
+</div>
+<div class="flex gap-3">
+<button class="btn btn-secondary btn-sm hidden" id="payroll-void-btn" style="color:var(--danger-600); border-color:var(--danger-600)" type="button">Void</button>
+<button class="btn btn-primary flex-1" type="submit">Save Payroll Entry</button>
+</div>
+</form>
+</div>
+</div>
+</div>
 <!-- Blog post modal -->
-<div id="post-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div id="post-modal-card" class="card w-full max-w-3xl p-6 max-h-[92vh] overflow-y-auto transition-all">
-    <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">New Blog Post</p>
-      <div class="flex items-center gap-3">
-        <button type="button" onclick="toggleFullscreenEditor()" class="text-xs font-semibold flex items-center gap-1" style="color:var(--text-secondary)"><i data-lucide="maximize-2" class="w-4 h-4"></i> <span id="fullscreen-label">Expand</span></button>
-        <button onclick="closeModal('post-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-    </div>
-    <form id="post-form" class="space-y-4">
-      <input type="hidden" id="post-id">
-      <div class="grid sm:grid-cols-2 gap-4">
-        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input id="post-title" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-        <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Language</label>
-          <select id="post-language" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-            <option value="en">English</option>
-            <option value="fr">Fran\u00e7ais (French)</option>
-            <option value="ar">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577; (Arabic)</option>
-          </select>
-        </div>
-      </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label>
-        <select id="post-category" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
-      </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Excerpt</label><input id="post-excerpt" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Cover Photo</label>
-        <p class="text-xs mb-2" style="color:var(--text-secondary)">Shown as the thumbnail in the blog posts grid. Upload an image, or paste a URL instead — optional.</p>
-        <input id="post-cover-file" type="file" accept="image/*" class="w-full px-4 py-3 rounded-md border text-sm mb-2" style="border-color:var(--border-default)">
-        <input id="post-cover-url" type="url" placeholder="...or paste an image URL" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        <p id="post-cover-status" class="text-xs mt-1 hidden"></p>
-        <img id="post-cover-preview" class="hidden mt-2 rounded-md" style="max-height:120px; object-fit:cover">
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Body</label>
-        <p class="text-xs mb-2" style="color:var(--text-secondary)">Use the video button for YouTube (paste the video URL) and the image button for any image URL. The "Tx" button clears formatting from selected text — select some text first, then click it.</p>
-        <div id="post-body-editor" style="background:#fff"></div>
-        <textarea id="post-body" required rows="8" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)" placeholder="Write your post..."></textarea>
-      </div>
-      <div class="flex gap-3">
-        <button type="submit" data-status="draft" class="btn btn-secondary flex-1">Save Draft</button>
-        <button type="submit" data-status="published" class="btn btn-primary flex-1">Publish</button>
-      </div>
-    </form>
-  </div>
+<div class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" id="post-modal" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-3xl p-6 max-h-[92vh] overflow-y-auto transition-all" id="post-modal-card">
+<div class="flex items-center justify-between mb-4">
+<p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">New Blog Post</p>
+<div class="flex items-center gap-3">
+<button class="text-xs font-semibold flex items-center gap-1" onclick="toggleFullscreenEditor()" style="color:var(--text-secondary)" type="button"><i class="w-4 h-4" data-lucide="maximize-2"></i> <span id="fullscreen-label">Expand</span></button>
+<button aria-label="Close" onclick="closeModal('post-modal')"><i class="w-5 h-5" data-lucide="x"></i></button>
 </div>
-
+</div>
+<form class="space-y-4" id="post-form">
+<input id="post-id" type="hidden"/>
+<div class="grid sm:grid-cols-2 gap-4">
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Title</label><input class="w-full px-4 py-3 rounded-md border text-sm" id="post-title" required="" style="border-color:var(--border-default)"/></div>
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Language</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="post-language" style="border-color:var(--border-default)">
+<option value="en">English</option>
+<option value="fr">Fran\u00e7ais (French)</option>
+<option value="ar">العربية (Arabic)</option>
+</select>
+</div>
+</div>
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Category</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="post-category" style="border-color:var(--border-default)"></select>
+</div>
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Excerpt</label><input class="w-full px-4 py-3 rounded-md border text-sm" id="post-excerpt" required="" style="border-color:var(--border-default)"/></div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Cover Photo</label>
+<p class="text-xs mb-2" style="color:var(--text-secondary)">Shown as the thumbnail in the blog posts grid. Upload an image, or paste a URL instead — optional.</p>
+<input accept="image/*" class="w-full px-4 py-3 rounded-md border text-sm mb-2" id="post-cover-file" style="border-color:var(--border-default)" type="file"/>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="post-cover-url" placeholder="...or paste an image URL" style="border-color:var(--border-default)" type="url"/>
+<p class="text-xs mt-1 hidden" id="post-cover-status"></p>
+<img class="hidden mt-2 rounded-md" id="post-cover-preview" style="max-height:120px; object-fit:cover"/>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Body</label>
+<p class="text-xs mb-2" style="color:var(--text-secondary)">Use the video button for YouTube (paste the video URL) and the image button for any image URL. The "Tx" button clears formatting from selected text — select some text first, then click it.</p>
+<div id="post-body-editor" style="background:#fff"></div>
+<textarea class="w-full px-4 py-3 rounded-md border text-sm" id="post-body" placeholder="Write your post..." required="" rows="8" style="border-color:var(--border-default)"></textarea>
+</div>
+<div class="flex gap-3">
+<button class="btn btn-secondary flex-1" data-status="draft" type="submit">Save Draft</button>
+<button class="btn btn-primary flex-1" data-status="published" type="submit">Publish</button>
+</div>
+</form>
+</div>
+</div>
 <!-- Add user modal -->
-<div id="user-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-md p-6">
-    <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add User</p>
-      <button onclick="closeModal('user-modal')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <form id="user-form" class="space-y-4">
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Full Name</label><input id="user-name" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Login Email</label>
-        <input id="user-email" required type="email" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        <p class="text-xs mt-1" style="color:var(--text-secondary)">Suggested from the name — change it if this email is already taken by a removed user.</p>
-      </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Initial Password</label>
-        <div class="flex gap-2">
-          <input id="user-password" required minlength="6" type="text" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <button type="button" onclick="generateUserPassword()" class="btn btn-secondary btn-sm shrink-0">Generate</button>
-        </div>
-        <p class="text-xs mt-1" style="color:var(--text-secondary)">At least 6 characters. Share this with them directly — they can change it after logging in.</p>
-      </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Role</label>
-        <select id="user-role" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="teacher">Teacher</option><option value="student">Student</option>
-        </select>
-      </div>
-      <div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course</label>
-        <select id="user-course" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
-      </div>
-      <button type="submit" class="btn btn-primary w-full">Add User</button>
-    </form>
-  </div>
+<div class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" id="user-modal" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-md p-6">
+<div class="flex items-center justify-between mb-4">
+<p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Add User</p>
+<button aria-label="Close" onclick="closeModal('user-modal')"><i class="w-5 h-5" data-lucide="x"></i></button>
 </div>
-
-<div data-tab-panel="enrollments" class="hidden">
-  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-    <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Enrollments</h1>
-    <button onclick="exportEnrollmentsCsv()" class="btn btn-secondary btn-sm"><i data-lucide="download" class="w-4 h-4 mr-1"></i> Export CSV</button>
-  </div>
-  <div class="flex flex-wrap gap-2 mb-6" id="enrollment-filter-tabs">
-    <button data-enrollment-filter="pending" class="persona-tab" aria-selected="true">Pending</button>
-    <button data-enrollment-filter="active" class="persona-tab" aria-selected="false">Active</button>
-    <button data-enrollment-filter="cancelled" class="persona-tab" aria-selected="false">Cancelled</button>
-    <button data-enrollment-filter="all" class="persona-tab" aria-selected="false">All</button>
-    <button data-enrollment-filter="unenrolled" class="persona-tab" aria-selected="false">No Enrollment</button>
-  </div>
-  <div id="admin-enrollments-list" class="space-y-3"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+<form class="space-y-4" id="user-form">
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Full Name</label><input class="w-full px-4 py-3 rounded-md border text-sm" id="user-name" required="" style="border-color:var(--border-default)"/></div>
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Login Email</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="user-email" required="" style="border-color:var(--border-default)" type="email"/>
+<p class="text-xs mt-1" style="color:var(--text-secondary)">Suggested from the name — change it if this email is already taken by a removed user.</p>
 </div>
-
-<div id="activate-enrollment-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-sm p-6">
-    <div class="flex items-center justify-between mb-4">
-      <p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Activate Enrollment</p>
-      <button onclick="document.getElementById('activate-enrollment-modal').classList.add('hidden')" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div id="activate-modal-summary" class="text-sm mb-4 p-3 rounded-lg" style="background:var(--bg-subtle); color:var(--text-secondary)"></div>
-    <form id="activate-enrollment-form" class="space-y-4">
-      <input type="hidden" id="activate-enrollment-id">
-      <input type="hidden" id="activate-student-id">
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course</label>
-        <select id="activate-course" required class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)"></select>
-        <p id="activate-course-hint" class="text-xs mt-1 hidden" style="color:var(--amber-600)">This student hadn't chosen a course at signup — pick one to activate their enrollment.</p>
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Agreed price (MAD)</label>
-        <input id="activate-price" type="number" min="0" step="1" placeholder="e.g. 890" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Payment status</label>
-        <select id="activate-payment-status" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-          <option value="paid">Paid (cash / bank transfer confirmed)</option>
-          <option value="unpaid">Unpaid — activate anyway</option>
-          <option value="waived">Waived (scholarship / free)</option>
-        </select>
-      </div>
-      <div>
-        <label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Payment due date <span class="font-normal" style="color:var(--text-disabled)">(optional)</span></label>
-        <input id="activate-payment-due" type="date" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-        <p class="text-xs mt-1" style="color:var(--text-disabled)">When set, this student shows up under "Payment Due Soon" a week ahead of this date, until they're fully paid.</p>
-      </div>
-      <button type="submit" class="btn btn-primary w-full">Activate Enrollment</button>
-      <button type="button" id="activate-cancel-link" class="hidden text-xs font-semibold w-full text-center" style="color:var(--danger-600)">Cancel This Enrollment</button>
-    </form>
-  </div>
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Initial Password</label>
+<div class="flex gap-2">
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="user-password" minlength="6" required="" style="border-color:var(--border-default)" type="text"/>
+<button class="btn btn-secondary btn-sm shrink-0" onclick="generateUserPassword()" type="button">Generate</button>
 </div>
-
-<div data-tab-panel="groups" class="hidden">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Community Groups</h1>
-  <div class="flex flex-wrap gap-2 mb-6" id="admin-group-tabs"></div>
-  <div id="admin-group-posts" class="space-y-4"></div>
+<p class="text-xs mt-1" style="color:var(--text-secondary)">At least 6 characters. Share this with them directly — they can change it after logging in.</p>
 </div>
-
-<div data-tab-panel="settings" class="hidden max-w-lg">
-  <h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Account Settings</h1>
-
-  <div class="card p-6 mb-6">
-    <p class="font-semibold mb-1" style="color:var(--navy-700)">Profile</p>
-    <p class="text-xs mb-4" style="color:var(--text-secondary)">Signed in as <span id="settings-email" class="font-medium"></span></p>
-    <form id="settings-profile-form" class="space-y-4">
-      <div>
-        <label for="settings-name" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Full Name</label>
-        <input id="settings-name" required type="text" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-      </div>
-      <button type="submit" class="btn btn-primary">Save Profile</button>
-    </form>
-  </div>
-
-  <div class="card p-6 mb-6">
-    <p class="font-semibold mb-4" style="color:var(--navy-700)">Change Password</p>
-    <form id="settings-password-form" class="space-y-4">
-      <div>
-        <label for="settings-new-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">New Password</label>
-        <input id="settings-new-password" required type="password" minlength="8" autocomplete="new-password" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-      </div>
-      <div>
-        <label for="settings-confirm-password" class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Confirm New Password</label>
-        <input id="settings-confirm-password" required type="password" autocomplete="new-password" class="w-full px-4 py-3 rounded-md border text-sm" style="border-color:var(--border-default)">
-      </div>
-      <button type="submit" class="btn btn-secondary">Update Password</button>
-    </form>
-  </div>
-
-  <div class="card p-6">
-    <p class="font-semibold mb-1" style="color:var(--navy-700)">Log Out</p>
-    <p class="text-xs mb-4" style="color:var(--text-secondary)">End your session on this device.</p>
-    <button id="settings-logout" class="btn btn-secondary" style="color:var(--danger-600); border-color:var(--danger-600)">Log Out</button>
-  </div>
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Role</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="user-role" style="border-color:var(--border-default)">
+<option value="teacher">Teacher</option><option value="student">Student</option>
+</select>
 </div>
-
-    </div>
-  </div>
+<div><label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="user-course" style="border-color:var(--border-default)"></select>
 </div>
-
-<div id="notif-lightbox" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" style="background:rgba(11,29,58,.5)">
-  <div class="card w-full max-w-md p-6">
-    <div class="flex items-center justify-between mb-4">
-      <p class="eyebrow" style="color:var(--teal-600)">Notification</p>
-      <button id="notif-lightbox-close" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <h2 id="notif-lightbox-title" class="font-serif text-xl font-bold mb-2" style="color:var(--navy-700)"></h2>
-    <p id="notif-lightbox-body" class="text-sm mb-3" style="color:var(--text-secondary)"></p>
-    <p id="notif-lightbox-time" class="text-xs" style="color:var(--text-disabled)"></p>
-  </div>
+<button class="btn btn-primary w-full" type="submit">Add User</button>
+</form>
+</div>
+</div>
+<div class="hidden" data-tab-panel="enrollments">
+<div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+<h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Enrollments</h1>
+<button class="btn btn-secondary btn-sm" onclick="exportEnrollmentsCsv()"><i class="w-4 h-4 mr-1" data-lucide="download"></i> Export CSV</button>
+</div>
+<div class="flex flex-wrap gap-2 mb-6" id="enrollment-filter-tabs">
+<button aria-selected="true" class="persona-tab" data-enrollment-filter="pending">Pending</button>
+<button aria-selected="false" class="persona-tab" data-enrollment-filter="active">Active</button>
+<button aria-selected="false" class="persona-tab" data-enrollment-filter="cancelled">Cancelled</button>
+<button aria-selected="false" class="persona-tab" data-enrollment-filter="all">All</button>
+<button aria-selected="false" class="persona-tab" data-enrollment-filter="unenrolled">No Enrollment</button>
+</div>
+<div class="space-y-3" id="admin-enrollments-list"><div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div></div>
+</div>
+<div class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" id="activate-enrollment-modal" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-sm p-6">
+<div class="flex items-center justify-between mb-4">
+<p class="font-serif font-semibold text-lg" style="color:var(--navy-700)">Activate Enrollment</p>
+<button aria-label="Close" onclick="document.getElementById('activate-enrollment-modal').classList.add('hidden')"><i class="w-5 h-5" data-lucide="x"></i></button>
+</div>
+<div class="text-sm mb-4 p-3 rounded-lg" id="activate-modal-summary" style="background:var(--bg-subtle); color:var(--text-secondary)"></div>
+<form class="space-y-4" id="activate-enrollment-form">
+<input id="activate-enrollment-id" type="hidden"/>
+<input id="activate-student-id" type="hidden"/>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Course</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="activate-course" required="" style="border-color:var(--border-default)"></select>
+<p class="text-xs mt-1 hidden" id="activate-course-hint" style="color:var(--amber-600)">This student hadn't chosen a course at signup — pick one to activate their enrollment.</p>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Agreed price (MAD)</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="activate-price" min="0" placeholder="e.g. 890" step="1" style="border-color:var(--border-default)" type="number"/>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Payment status</label>
+<select class="w-full px-4 py-3 rounded-md border text-sm" id="activate-payment-status" style="border-color:var(--border-default)">
+<option value="paid">Paid (cash / bank transfer confirmed)</option>
+<option value="unpaid">Unpaid — activate anyway</option>
+<option value="waived">Waived (scholarship / free)</option>
+</select>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" style="color:var(--navy-700)">Payment due date <span class="font-normal" style="color:var(--text-disabled)">(optional)</span></label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="activate-payment-due" style="border-color:var(--border-default)" type="date"/>
+<p class="text-xs mt-1" style="color:var(--text-disabled)">When set, this student shows up under "Payment Due Soon" a week ahead of this date, until they're fully paid.</p>
+</div>
+<button class="btn btn-primary w-full" type="submit">Activate Enrollment</button>
+<button class="hidden text-xs font-semibold w-full text-center" id="activate-cancel-link" style="color:var(--danger-600)" type="button">Cancel This Enrollment</button>
+</form>
+</div>
+</div>
+<div class="hidden" data-tab-panel="groups">
+<h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Community Groups</h1>
+<div class="flex flex-wrap gap-2 mb-6" id="admin-group-tabs"></div>
+<div class="space-y-4" id="admin-group-posts"></div>
+</div>
+<div class="hidden max-w-lg" data-tab-panel="settings">
+<h1 class="font-serif text-2xl font-bold mb-6" style="color:var(--navy-700)">Account Settings</h1>
+<div class="card p-6 mb-6">
+<p class="font-semibold mb-1" style="color:var(--navy-700)">Profile</p>
+<p class="text-xs mb-4" style="color:var(--text-secondary)">Signed in as <span class="font-medium" id="settings-email"></span></p>
+<form class="space-y-4" id="settings-profile-form">
+<div>
+<label class="text-sm font-medium block mb-1" for="settings-name" style="color:var(--navy-700)">Full Name</label>
+<input class="w-full px-4 py-3 rounded-md border text-sm" id="settings-name" required="" style="border-color:var(--border-default)" type="text"/>
+</div>
+<button class="btn btn-primary" type="submit">Save Profile</button>
+</form>
+</div>
+<div class="card p-6 mb-6">
+<p class="font-semibold mb-4" style="color:var(--navy-700)">Change Password</p>
+<form class="space-y-4" id="settings-password-form">
+<div>
+<label class="text-sm font-medium block mb-1" for="settings-new-password" style="color:var(--navy-700)">New Password</label>
+<input autocomplete="new-password" class="w-full px-4 py-3 rounded-md border text-sm" id="settings-new-password" minlength="8" required="" style="border-color:var(--border-default)" type="password"/>
+</div>
+<div>
+<label class="text-sm font-medium block mb-1" for="settings-confirm-password" style="color:var(--navy-700)">Confirm New Password</label>
+<input autocomplete="new-password" class="w-full px-4 py-3 rounded-md border text-sm" id="settings-confirm-password" required="" style="border-color:var(--border-default)" type="password"/>
+</div>
+<button class="btn btn-secondary" type="submit">Update Password</button>
+</form>
+</div>
+<div class="card p-6">
+<p class="font-semibold mb-1" style="color:var(--navy-700)">Log Out</p>
+<p class="text-xs mb-4" style="color:var(--text-secondary)">End your session on this device.</p>
+<button class="btn btn-secondary" id="settings-logout" style="color:var(--danger-600); border-color:var(--danger-600)">Log Out</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="hidden fixed inset-0 z-40 flex items-center justify-center p-4" id="notif-lightbox" style="background:rgba(11,29,58,.5)">
+<div class="card w-full max-w-md p-6">
+<div class="flex items-center justify-between mb-4">
+<p class="eyebrow" style="color:var(--teal-600)">Notification</p>
+<button aria-label="Close" id="notif-lightbox-close"><i class="w-5 h-5" data-lucide="x"></i></button>
+</div>
+<h2 class="font-serif text-xl font-bold mb-2" id="notif-lightbox-title" style="color:var(--navy-700)"></h2>
+<p class="text-sm mb-3" id="notif-lightbox-body" style="color:var(--text-secondary)"></p>
+<p class="text-xs" id="notif-lightbox-time" style="color:var(--text-disabled)"></p>
+</div>
 </div>
 <script>
 document.addEventListener('click', (e) => {
@@ -1068,59 +821,56 @@ document.getElementById('avatar-settings-btn').addEventListener('click', () => {
   if (settingsTrigger) settingsTrigger.click();
 });
 </script>
-
 </main>
-
-  <footer class="border-t mt-20" style="border-color:var(--border-default); background:var(--bg-subtle)">
-    <div class="container-ep py-14 grid grid-cols-2 md:grid-cols-5 gap-8">
-      <div class="col-span-2">
-        <span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
-        <p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">Language and nursing training center based in Khemisset, Morocco — German, French, English, Nursing, and Ausbildung placement.</p>
-        <div class="flex gap-3 mt-4">
-          <a href="#" aria-label="Facebook" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="facebook" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
-          <a href="#" aria-label="Instagram" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="instagram" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
-          <a href="#" aria-label="YouTube" class="p-2 rounded-full" style="background:var(--navy-50)"><i data-lucide="youtube" class="w-4 h-4" style="color:var(--navy-700)"></i></a>
-        </div>
-      </div>
-      <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Programs</p>
-        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
-          <li><a href="program-german.html" class="hover:underline">German</a></li>
-          <li><a href="program-french.html" class="hover:underline">French</a></li>
-          <li><a href="courses.html" class="hover:underline">English</a></li>
-          <li><a href="program-nursing.html" class="hover:underline">Nursing Program</a></li>
-          <li><a href="program-nursing-ausbildung.html" class="hover:underline">Ausbildung Training &amp; Placement</a></li>
-        </ul>
-      </div>
-      <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Learn</p>
-        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
-          <li><a href="test-level.html" class="hover:underline">Test Your Level</a></li>
-          <li><a href="blog.html" class="hover:underline">Blog</a></li>
-          <li><a href="about.html" class="hover:underline">About</a></li>
-          <li><a href="contact.html" class="hover:underline">FAQ</a></li>
-        </ul>
-      </div>
-      <div>
-        <p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Account</p>
-        <ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
-          <li><a href="login.html" class="hover:underline">Portal Login</a></li>
-          <li><a href="signup.html" class="hover:underline">Create Account</a></li>
-                  </ul>
-      </div>
-    </div>
-    <div class="container-ep py-6 border-t flex flex-col md:flex-row justify-between gap-3 text-xs" style="border-color:var(--border-default); color:var(--text-secondary)">
-      <p>© 2026 EuroPass Language &amp; Nursing School, Khemisset. All rights reserved.</p>
-      <div class="flex gap-4">
-        <a href="privacy.html" class="hover:underline">Privacy Policy</a>
-        <a href="terms.html" class="hover:underline">Terms</a>
-      </div>
-    </div>
-  </footer>
-  <div id="toast-container" class="fixed bottom-4 right-4 z-50 w-72"></div>
-
+<footer class="border-t mt-20" style="border-color:var(--border-default); background:var(--bg-subtle)">
+<div class="container-ep py-14 grid grid-cols-2 md:grid-cols-5 gap-8">
+<div class="col-span-2">
+<span class="font-serif font-bold text-lg" style="color:var(--navy-700)">EURO<span style="color:var(--red-600)">PASS</span></span>
+<p class="text-sm mt-3 max-w-xs" style="color:var(--text-secondary)">Language and nursing training center based in Khemisset, Morocco — German, French, English, Nursing, and Ausbildung placement.</p>
+<div class="flex gap-3 mt-4">
+<a aria-label="Facebook" class="p-2 rounded-full" href="#" style="background:var(--navy-50)"><i class="w-4 h-4" data-lucide="facebook" style="color:var(--navy-700)"></i></a>
+<a aria-label="Instagram" class="p-2 rounded-full" href="#" style="background:var(--navy-50)"><i class="w-4 h-4" data-lucide="instagram" style="color:var(--navy-700)"></i></a>
+<a aria-label="YouTube" class="p-2 rounded-full" href="#" style="background:var(--navy-50)"><i class="w-4 h-4" data-lucide="youtube" style="color:var(--navy-700)"></i></a>
+</div>
+</div>
+<div>
+<p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Programs</p>
+<ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+<li><a class="hover:underline" href="program-german.html">German</a></li>
+<li><a class="hover:underline" href="program-french.html">French</a></li>
+<li><a class="hover:underline" href="courses.html">English</a></li>
+<li><a class="hover:underline" href="program-nursing.html">Nursing Program</a></li>
+<li><a class="hover:underline" href="program-nursing-ausbildung.html">Ausbildung Training &amp; Placement</a></li>
+</ul>
+</div>
+<div>
+<p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Learn</p>
+<ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+<li><a class="hover:underline" href="test-level.html">Test Your Level</a></li>
+<li><a class="hover:underline" href="blog.html">Blog</a></li>
+<li><a class="hover:underline" href="about.html">About</a></li>
+<li><a class="hover:underline" href="contact.html">FAQ</a></li>
+</ul>
+</div>
+<div>
+<p class="text-sm font-semibold mb-3" style="color:var(--navy-700)">Account</p>
+<ul class="space-y-2 text-sm" style="color:var(--text-secondary)">
+<li><a class="hover:underline" href="login.html">Portal Login</a></li>
+<li><a class="hover:underline" href="signup.html">Create Account</a></li>
+</ul>
+</div>
+</div>
+<div class="container-ep py-6 border-t flex flex-col md:flex-row justify-between gap-3 text-xs" style="border-color:var(--border-default); color:var(--text-secondary)">
+<p>© 2026 EuroPass Language &amp; Nursing School, Khemisset. All rights reserved.</p>
+<div class="flex gap-4">
+<a class="hover:underline" href="privacy.html">Privacy Policy</a>
+<a class="hover:underline" href="terms.html">Terms</a>
+</div>
+</div>
+</footer>
+<div class="fixed bottom-4 right-4 z-50 w-72" id="toast-container"></div>
 <script src="assets/js/main.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script><script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/admin.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"/><script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script><script src="assets/js/data.js"></script><script src="assets/js/portal.js"></script><script src="assets/js/admin.js"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>

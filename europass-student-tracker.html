@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EuroPass Academy – Student Tracker</title>
+<style>
+:root{--bg:#eef2f1;--pn:#fff;--tx:#10231f;--mu:#5d716c;--bd:#d5dfdc;--ac:#0f5c63;--ac2:#e6f1f0;--ok:#1f7a45;--warn:#b86e00;--bad:#b3261e}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1716;--pn:#14221f;--tx:#e6f0ee;--mu:#8fa6a1;--bd:#25393560;--ac:#4fc3c9;--ac2:#18302e;--ok:#4cc982;--warn:#f0a63c;--bad:#ff8a80}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 "Segoe UI",system-ui,Roboto,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:2px solid var(--ac);background:var(--pn)}
+h1{margin:0;font:700 20px Georgia,serif;letter-spacing:.2px}h1 small{display:block;font:400 12px "Segoe UI",sans-serif;color:var(--mu)}
+nav button,.btn{font:inherit;border:1px solid var(--bd);background:var(--pn);color:var(--tx);padding:7px 14px;border-radius:6px;cursor:pointer}
+nav button.on,.btn.pri{background:var(--ac);color:#fff;border-color:var(--ac)}.btn:hover,nav button:hover{border-color:var(--ac)}
+main{padding:20px 22px;max-width:1280px;margin:auto}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;border:1px solid var(--bd);background:var(--pn);border-radius:8px;overflow:hidden;margin-bottom:22px}
+.kpi{padding:14px 18px;border-right:1px solid var(--bd)}.kpi:last-child{border:0}.kpi span{color:var(--mu);font-size:13px}
+.kpi b{display:block;font:700 26px Georgia,serif;margin-top:2px}.ok{color:var(--ok)}.warn{color:var(--warn)}
+h2{font:700 16px Georgia,serif;margin:22px 0 8px}
+.pn{background:var(--pn);border:1px solid var(--bd);border-radius:8px;overflow:auto}
+table{border-collapse:collapse;width:100%}th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{font-size:12.5px;color:var(--mu);font-weight:600;background:var(--ac2)}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}tr:last-child td{border:0}
+.bar{height:8px;background:var(--ac2);border-radius:4px;min-width:110px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ok)}
+.mo{display:flex;align-items:flex-end;gap:10px;padding:14px 16px;height:170px}.mo div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:12px;color:var(--mu)}
+.mo i{width:100%;max-width:46px;background:var(--ac);border-radius:3px 3px 0 0;display:block}.mo b{color:var(--tx);font-size:13px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}input,select,textarea{font:inherit;padding:7px 10px;border:1px solid var(--bd);border-radius:6px;background:var(--pn);color:var(--tx)}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--ok)}.tag{font-size:12px;padding:2px 8px;border-radius:10px;background:var(--ac2)}.un{color:var(--warn);font-weight:600}
+dialog{border:1px solid var(--bd);border-radius:10px;background:var(--pn);color:var(--tx);width:min(480px,94vw);padding:20px}dialog::backdrop{background:#0008}
+dialog label{display:block;font-size:13px;color:var(--mu);margin:10px 0 3px}dialog input,dialog select,dialog textarea{width:100%}.row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.empty{padding:28px;text-align:center;color:var(--mu)}:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+</style></head><body>
+<header><h1>EuroPass Academy<small>Student and payment tracker · live data</small></h1>
+<nav><button id="t-dash" class="on">Dashboard</button> <button id="t-stu">Students</button></nav>
+<div><button class="btn" id="bAdd">Add student</button> <button class="btn" id="bImp">Import list</button> <button class="btn" id="bCsv">Export CSV</button> <button class="btn" id="bBak">Backup</button> <button class="btn" id="bRes">Restore</button> <button class="btn" id="bOut">Sign out</button><input type="file" id="fRes" accept=".json" hidden></div></header>
+<main id="app"></main>
+<dialog id="dL"><h2 style="margin-top:0">Sign in</h2><p style="color:var(--mu);margin:0">Use your EuroPass admin account.</p>
+<label>Email</label><input id="lE" type="email" autocomplete="username"><label>Password</label><input id="lP" type="password" autocomplete="current-password">
+<p id="lM" style="color:var(--bad);min-height:1.2em;margin:8px 0 0"></p><div class="row"><button class="btn pri" id="lOk">Sign in</button></div></dialog>
+<dialog id="dS"><h2 id="dSt" style="margin-top:0">Student</h2>
+<label>Full name</label><input id="sN"><label>Phone</label><input id="sP"><label>Group</label><select id="sG"></select>
+<label>Start date (dd/mm/yyyy)</label><input id="sD"><label>Price (MAD)</label><input id="sPr" type="number" min="0">
+<label>Notes</label><input id="sNo"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sPa"> Paid</label>
+<div class="row"><button class="btn" id="sX">Cancel</button><button class="btn pri" id="sOk">Save student</button></div></dialog>
+<dialog id="dI"><h2 style="margin-top:0">Import a list</h2><p style="color:var(--mu);margin:0 0 6px">One student per line: <b>name | phone | date | price | paid | note</b> (use 1 or OUI when paid). To import several groups at once, start each with a line like <b># Group name</b>. Pasting rows copied from Excel also works.</p>
+<label>Excel or CSV file (.xlsx, .csv, .txt)</label><input type="file" id="iF" accept=".xlsx,.xlsm,.csv,.tsv,.txt">
+<label>Existing group</label><select id="iG"></select><label>…or new group name</label><input id="iN" placeholder="e.g. A1 – Kenza G2"><label>Rows (a chosen file is converted here so you can review and fix it first)</label><textarea id="iT" rows="8"></textarea>
+<div class="row"><button class="btn" id="iX">Cancel</button><button class="btn pri" id="iOk">Import students</button></div></dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const $=s=>document.querySelector(s),uid=()=>crypto.randomUUID(),
+M=n=>Math.round(n).toLocaleString("en")+" MAD",esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function imp(d,gname,text){let g=d.groups.find(x=>x.name===gname);if(!g){g={id:uid(),name:gname};d.groups.push(g)}
+ let n=0;text.split(/\n/).forEach(l=>{if(!l.trim())return;const[a,p,dt,pr,pd,nt]=l.split(/\t|\||;/).map(x=>(x||"").trim());if(!a)return;
+ d.students.push({id:uid(),g:g.id,name:a,phone:(p||"").replace(/\s/g,""),date:dt||"",price:parseFloat(pr)||0,paid:/^(1|oui|yes|x|true)$/i.test(pd||""),note:nt||""});n++});return n}
+let S={groups:[],students:[]},tab="dash",F={g:"",st:"",q:""},edit=null;
+const gn=id=>(S.groups.find(g=>g.id===id)||{}).name||"—",
+mk=d=>{const m=/(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(d||"");return m?m[3]+"-"+m[2].padStart(2,"0"):"No date"};
+const SB_URL="https://pqwjtgqkkpcgadlqroid.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxd2p0Z3Fra3BjZ2FkbHFyb2lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNzQ5MDcsImV4cCI6MjEwMDg1MDkwN30.Xkqu820L1mlDY8tJsFBP-8OhyVMFiNPPoDmYrUCHh00";
+const sb=supabase.createClient(SB_URL,SB_KEY),ck=r=>{if(r.error)throw r.error;return r},
+iso=d=>{const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((d||"").trim());return m?m[3]+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0"):null},
+dmy=d=>d?d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4):"";
+let DB={g:{},s:{}},q=Promise.resolve();
+const snap=()=>{DB={g:Object.fromEntries(S.groups.map(g=>[g.id,JSON.stringify(g)])),s:Object.fromEntries(S.students.map(s=>[s.id,JSON.stringify(s)]))}};
+async function loadAll(){const[g,s,f]=(await Promise.all([sb.from("tracker_groups").select("id,name").order("name"),sb.from("tracker_students").select("*").order("created_at").range(0,9999),sb.from("tracker_fees").select("*").range(0,9999)])).map(ck);
+ const fee=Object.fromEntries(f.data.map(x=>[x.student_id,+x.price]));
+ S={groups:g.data,students:s.data.map(r=>({id:r.id,g:r.group_id,name:r.name,phone:r.phone||"",date:dmy(r.start_date),price:fee[r.id]||0,paid:r.paid,note:r.note||""}))};snap()}
+async function sync(){try{const gU=S.groups.filter(g=>DB.g[g.id]!==JSON.stringify(g)).map(g=>({id:g.id,name:g.name})),sU=S.students.filter(s=>DB.s[s.id]!==JSON.stringify(s)),
+ sD=Object.keys(DB.s).filter(id=>!S.students.some(s=>s.id===id)),gD=Object.keys(DB.g).filter(id=>!S.groups.some(g=>g.id===id));
+ if(gU.length)ck(await sb.from("tracker_groups").upsert(gU));
+ if(sU.length){ck(await sb.from("tracker_students").upsert(sU.map(s=>({id:s.id,group_id:s.g,name:s.name,phone:s.phone||null,start_date:iso(s.date),paid:s.paid,note:s.note||null,updated_at:new Date().toISOString()}))));
+  ck(await sb.from("tracker_fees").upsert(sU.map(s=>({student_id:s.id,price:s.price||0}))))}
+ if(sD.length)ck(await sb.from("tracker_students").delete().in("id",sD));
+ if(gD.length)ck(await sb.from("tracker_groups").delete().in("id",gD));
+ snap()}catch(e){alert("Could not save to the database: "+(e.message||e)+"\nReload the page to see what is actually saved.")}}
+const save=()=>{q=q.then(sync)};
+async function boot(){$("#app").innerHTML='<p class="empty">Loading…</p>';const{data:{session}}=await sb.auth.getSession();
+ if(!session){$("#app").innerHTML='<p class="empty">Please sign in.</p>';$("#dL").showModal();return}
+ const{data:p}=await sb.from("profiles").select("role").eq("id",session.user.id).maybeSingle();
+ if(!p||p.role!=="admin"){$("#app").innerHTML='<p class="empty">This dashboard is for admin accounts only.</p>';return}
+ try{await loadAll();draw()}catch(e){$("#app").innerHTML='<p class="empty">Could not load data: '+esc(e.message||e)+'</p>'}}
+$("#lOk").onclick=async()=>{const{error}=await sb.auth.signInWithPassword({email:$("#lE").value.trim(),password:$("#lP").value});if(error){$("#lM").textContent=error.message;return}$("#dL").close();boot()};
+$("#bOut").onclick=async()=>{await sb.auth.signOut();boot()};if(window.self!==window.top)$("#bOut").hidden=true;
+function dash(){const st=S.students,exp=st.reduce((a,s)=>a+s.price,0),col=st.filter(s=>s.paid).reduce((a,s)=>a+s.price,0),unp=st.filter(s=>!s.paid).length;
+ const rows=S.groups.map(g=>{const x=st.filter(s=>s.g===g.id),e=x.reduce((a,s)=>a+s.price,0),c=x.filter(s=>s.paid).reduce((a,s)=>a+s.price,0);
+  return`<tr><td>${esc(g.name)}</td><td class=n>${x.length}</td><td class=n>${M(e)}</td><td class=n>${M(c)}</td><td class="n un">${M(e-c)}</td><td><div class=bar><i style="width:${e?c/e*100:0}%"></i></div></td><td><button class=btn data-gr="${g.id}">Rename</button> <button class=btn data-gm="${g.id}">Merge into…</button></td></tr>`}).join("");
+ const mo={};st.forEach(s=>{const k=mk(s.date);mo[k]=(mo[k]||0)+1});const ks=Object.keys(mo).sort(),mx=Math.max(1,...Object.values(mo));
+ return`<div class=kpis><div class=kpi><span>Students</span><b>${st.length}</b></div><div class=kpi><span>Expected fees</span><b>${M(exp)}</b></div>
+ <div class=kpi><span>Collected</span><b class=ok>${M(col)}</b></div><div class=kpi><span>Outstanding</span><b class=warn>${M(exp-col)}</b></div>
+ <div class=kpi><span>Collection rate</span><b>${exp?Math.round(col/exp*100):0}%</b></div><div class=kpi><span>Unpaid students</span><b>${unp}</b></div></div>
+ <h2>Payments by group</h2><div class=pn><table><tr><th>Group<th class=n>Students<th class=n>Expected<th class=n>Collected<th class=n>Outstanding<th>Progress<th></tr>${rows||'<tr><td colspan=7 class=empty>No groups yet. Use “Import list”.'}</table></div>
+ <h2>New enrolments by start month</h2><div class="pn mo">${ks.map(k=>`<div><b>${mo[k]}</b><i style="height:${mo[k]/mx*100}px"></i>${k}</div>`).join("")||'<span class=empty>No data</span>'}</div>`}
+function stu(){const q=F.q.toLowerCase(),l=S.students.filter(s=>(!F.g||s.g===F.g)&&(!F.st||(F.st==="p")===s.paid)&&(!q||(s.name+s.phone).toLowerCase().includes(q)));
+ return`<div class=tools><input id=fq placeholder="Search name or phone" value="${esc(F.q)}"><select id=fg><option value="">All groups${S.groups.map(g=>`<option value="${g.id}"${F.g===g.id?" selected":""}>${esc(g.name)}`).join("")}</select>
+ <select id=fs><option value="">Paid and unpaid<option value=p${F.st==="p"?" selected":""}>Paid<option value=u${F.st==="u"?" selected":""}>Unpaid</select><span class=tag style="align-self:center">${l.length} shown · ${M(l.reduce((a,s)=>a+s.price,0))}</span></div>
+ <div class=pn><table><tr><th>Name<th>Group<th>Phone<th>Start<th class=n>Price<th>Paid<th></tr>${l.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(gn(s.g))}</td><td>${esc(s.phone)}</td><td>${esc(s.date)}</td><td class=n>${s.price}</td>
+ <td><input type=checkbox data-p="${s.id}"${s.paid?" checked":""} aria-label="Paid"></td><td><button class=btn data-e="${s.id}">Edit</button> <button class=btn data-d="${s.id}">Delete</button></td></tr>`).join("")||'<tr><td colspan=7 class=empty>No students match.'}</table></div>`}
+function draw(){$("#app").innerHTML=tab==="dash"?dash():stu();$("#t-dash").className=tab==="dash"?"on":"";$("#t-stu").className=tab==="stu"?"on":"";
+ const f=$("#fq");if(f){f.oninput=e=>{F.q=e.target.value;const p=e.target.selectionStart;draw();const n=$("#fq");n.focus();n.setSelectionRange(p,p)};$("#fg").onchange=e=>{F.g=e.target.value;draw()};$("#fs").onchange=e=>{F.st=e.target.value;draw()}}}
+const opts=()=>S.groups.map(g=>`<option value="${g.id}">${esc(g.name)}`).join("");
+function openS(id){edit=id;const s=S.students.find(x=>x.id===id)||{name:"",phone:"",date:"",price:500,paid:false,note:"",g:F.g||(S.groups[0]||{}).id};
+ if(!S.groups.length){alert("Create a group first with “Import list”.");return}
+ $("#dSt").textContent=id?"Edit student":"Add student";$("#sG").innerHTML=opts();$("#sN").value=s.name;$("#sP").value=s.phone;$("#sG").value=s.g;$("#sD").value=s.date;$("#sPr").value=s.price;$("#sNo").value=s.note||"";$("#sPa").checked=s.paid;$("#dS").showModal()}
+$("#sOk").onclick=()=>{const v={name:$("#sN").value.trim(),phone:$("#sP").value.trim(),g:$("#sG").value,date:$("#sD").value.trim(),price:parseFloat($("#sPr").value)||0,note:$("#sNo").value.trim(),paid:$("#sPa").checked};
+ if(!v.name){$("#sN").focus();return}if(edit)Object.assign(S.students.find(x=>x.id===edit),v);else S.students.push({id:uid(),...v});save();$("#dS").close();draw()};
+$("#sX").onclick=()=>$("#dS").close();$("#bAdd").onclick=()=>openS(null);
+$("#bImp").onclick=()=>{$("#iG").innerHTML='<option value="">—</option>'+opts();$("#iN").value="";$("#iT").value="";$("#dI").showModal()};$("#iX").onclick=()=>$("#dI").close();
+$("#iOk").onclick=()=>{let cur=$("#iN").value.trim()||(S.groups.find(g=>g.id===$("#iG").value)||{}).name,buf=[],n=0,gs=new Set,bad=false;
+ const fl=()=>{if(!buf.join("").trim()){buf=[];return}if(!cur){bad=true;buf=[];return}n+=imp(S,cur,buf.join("\n"));gs.add(cur);buf=[]};
+ $("#iT").value.split("\n").forEach(l=>{if(l.trim().startsWith("#")){fl();cur=l.trim().slice(1).trim()}else buf.push(l)});fl();
+ if(bad){alert("Choose a group, type a new group name, or start the list with a # Group name line.");return}
+ save();$("#dI").close();alert(n+" students imported into "+gs.size+" group(s)");draw()};
+async function unzip(buf){const u=new Uint8Array(buf),dv=new DataView(buf),td=new TextDecoder();let e=u.length-22;while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;
+ const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const out={};
+ for(let i=0;i<n;i++){const m=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true),name=td.decode(u.subarray(p+46,p+46+nl));p+=46+nl+xl+cl;
+  if(!/^xl\/(sharedStrings|workbook|worksheets\/[^\/]+)\.xml$|^xl\/_rels\/workbook\.xml\.rels$/.test(name))continue;
+  const st=lo+30+dv.getUint16(lo+26,true)+dv.getUint16(lo+28,true),d=u.subarray(st,st+cs);
+  out[name]=m===0?td.decode(d):await new Response(new Blob([d]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text()}
+ return out}
+const X=s=>new DOMParser().parseFromString(s,"text/xml"),colN=r=>{let n=0;for(const c of r.replace(/\d/g,""))n=n*26+c.charCodeAt(0)-64;return n-1};
+async function readXlsx(buf){const z=await unzip(buf),ss=[],rel={},res=[];
+ if(z["xl/sharedStrings.xml"])X(z["xl/sharedStrings.xml"]).querySelectorAll("si").forEach(si=>ss.push([...si.querySelectorAll("t")].map(t=>t.textContent).join("")));
+ X(z["xl/_rels/workbook.xml.rels"]).querySelectorAll("Relationship").forEach(r=>rel[r.getAttribute("Id")]=r.getAttribute("Target"));
+ for(const sh of X(z["xl/workbook.xml"]).querySelectorAll("sheet")){const t=(rel[sh.getAttribute("r:id")]||"").replace(/^\/?(xl\/)?/,"xl/"),xml=z[t];if(!xml)continue;const rows=[];
+  X(xml).querySelectorAll("row").forEach(r=>{const a=[];r.querySelectorAll("c").forEach(c=>{const v=c.querySelector("v"),ty=c.getAttribute("t");let val="";
+   if(ty==="s"&&v)val=ss[+v.textContent]||"";else if(ty==="inlineStr")val=[...c.querySelectorAll("t")].map(x=>x.textContent).join("");else if(v)val=v.textContent;a[colN(c.getAttribute("r"))]=val});rows.push(a)});
+  res.push([sh.getAttribute("name"),rows])}
+ return res}
+function readCsv(t){const d=[",",";","\t"].map(c=>[c,t.split("\n")[0].split(c).length]).sort((a,b)=>b[1]-a[1])[0][0],rows=[];let r=[],f="",q=false;
+ for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}else if(c==='"')q=true;else if(c===d){r.push(f);f=""}
+  else if(c==="\n"||c==="\r"){if(c==="\r"&&t[i+1]==="\n")i++;r.push(f);rows.push(r);r=[];f=""}else f+=c}
+ if(f||r.length){r.push(f);rows.push(r)}return rows}
+const H={name:/^(nom|name|student|[ée]l[èe]ve|[ée]tudiant|full)/i,phone:/tel|phone|gsm|mobile/i,date:/date|start|d[ée]but/i,price:/prix|price|fee|montant|amount/i,paid:/pay[ée]|paid/i,note:/note|remark|comment|obs/i};
+function toLines(rows){let hi=-1,m={};
+ for(let i=0;i<Math.min(rows.length,10)&&hi<0;i++){const mm={};(rows[i]||[]).forEach((c,j)=>{for(const k of Object.keys(H))if(!(k in mm)&&H[k].test(String(c||"").trim())){mm[k]=j;break}});if("name" in mm&&Object.keys(mm).length>=2){hi=i;m=mm}}
+ if(hi<0)m={name:0,phone:1,date:2,price:3,paid:4,note:5};
+ return rows.slice(hi+1).map(r=>{if(!r)return"";const g=k=>k in m?String(r[m[k]]??"").trim():"",nm=g("name");if(!nm||/^total/i.test(nm)||/^\d+$/.test(nm))return"";
+  let ph=g("phone").replace(/\s|\.0$/g,"");if(/^[67]\d{8}$/.test(ph))ph="0"+ph;
+  let dt=g("date");if(/^\d{5}(\.\d+)?$/.test(dt)){const x=new Date(Date.UTC(1899,11,30)+Math.floor(+dt)*864e5);dt=String(x.getUTCDate()).padStart(2,"0")+"/"+String(x.getUTCMonth()+1).padStart(2,"0")+"/"+x.getUTCFullYear()}
+  return[nm,ph,dt,g("price").replace(/[^\d.]/g,""),g("paid"),g("note")].join("|")}).filter(Boolean).join("\n")}
+$("#iF").onchange=async e=>{const f=e.target.files[0];if(!f)return;const ext=f.name.split(".").pop().toLowerCase();
+ try{if(ext==="txt"){$("#iT").value=await f.text();return}
+  if(ext==="xls"){alert("Old .xls files can't be read. In Excel use File > Save As > Excel Workbook (.xlsx) or CSV, then choose that file.");return}
+  const sheets=ext==="xlsx"||ext==="xlsm"?await readXlsx(await f.arrayBuffer()):[[f.name.replace(/\.[^.]+$/,""),readCsv((await f.text()).replace(/^\ufeff/,""))]];
+  const parts=sheets.map(([n,r])=>[n,toLines(r)]).filter(p=>p[1]);
+  if(!parts.length){alert("No student rows found. Check that the sheet has a header row such as NOM, TELE, DATE, PRIX, PAYE.");return}
+  const chosen=$("#iN").value.trim()||$("#iG").value;
+  $("#iT").value=parts.length===1&&chosen?parts[0][1]:parts.map(([n,l])=>"# "+n+"\n"+l).join("\n\n")}
+ catch(x){alert("Could not read this file. Try saving it as CSV and choosing that instead.")}finally{e.target.value=""}};
+$("#t-dash").onclick=()=>{tab="dash";draw()};$("#t-stu").onclick=()=>{tab="stu";draw()};
+$("#app").onclick=e=>{const t=e.target,p=t.dataset.p,ed=t.dataset.e,d=t.dataset.d,gr=t.dataset.gr,gm=t.dataset.gm;
+ if(gr){const g=S.groups.find(x=>x.id===gr),v=prompt("New group name",g.name);if(v&&v.trim()){g.name=v.trim();save();draw()}return}
+ if(gm){const o=S.groups.filter(x=>x.id!==gm),v=prompt("Merge into which group? Type its number:\n"+o.map((x,i)=>(i+1)+". "+x.name).join("\n")),to=o[parseInt(v)-1];
+  if(to&&confirm("Move all students of this group into “"+to.name+"” and remove the empty group?")){S.students.forEach(s=>{if(s.g===gm)s.g=to.id});S.groups=S.groups.filter(x=>x.id!==gm);if(F.g===gm)F.g="";save();draw()}return}
+ if(p){S.students.find(s=>s.id===p).paid=t.checked;save()}if(ed)openS(ed);if(d&&confirm("Delete this student?")){S.students=S.students.filter(s=>s.id!==d);save();draw()}};
+function dl(name,txt,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click()}
+$("#bCsv").onclick=()=>dl("students.csv","\ufeffGroup,Name,Phone,Start,Price,Paid\n"+S.students.map(s=>[gn(s.g),s.name,s.phone,s.date,s.price,s.paid?"OUI":""].map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(",")).join("\n"),"text/csv");
+$("#bBak").onclick=()=>dl("europass-backup-"+new Date().toISOString().slice(0,10)+".json",JSON.stringify(S),"application/json");
+$("#bRes").onclick=()=>$("#fRes").click();$("#fRes").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);if(!d.groups||!d.students)throw 0;
+ if(!confirm("Add "+d.students.length+" students from this backup to the database? Existing data is kept."))return;const mp={};
+ d.groups.forEach(g=>{let x=S.groups.find(y=>y.name===g.name);if(!x){x={id:uid(),name:g.name};S.groups.push(x)}mp[g.id]=x.id});
+ d.students.forEach(s=>{if(mp[s.g])S.students.push({id:uid(),g:mp[s.g],name:s.name,phone:s.phone||"",date:s.date||"",price:+s.price||0,paid:!!s.paid,note:s.note||""})});save();draw()}catch(x){alert("This file is not a valid backup.")}})};
+boot();
+
+</script></body></html>
