@@ -25,19 +25,25 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--ok)}.tag{font-siz
 dialog{border:1px solid var(--bd);border-radius:10px;background:var(--pn);color:var(--tx);width:min(480px,94vw);padding:20px}dialog::backdrop{background:#0008}
 dialog label{display:block;font-size:13px;color:var(--mu);margin:10px 0 3px}dialog input,dialog select,dialog textarea{width:100%}.row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 .empty{padding:28px;text-align:center;color:var(--mu)}:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.cd{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.cd.over,.cd.today{background:var(--bad);color:#fff}.cd.soon{color:var(--bad);border:1px solid var(--bad)}.cd.ok{color:var(--mu);background:var(--ac2)}.cd.nodate{color:var(--mu)}
+.wa{display:inline-flex;vertical-align:middle;margin-left:6px;padding:4px;border-radius:6px}.wa:hover{background:var(--ac2)}.wa svg{width:20px;height:20px;fill:#25D366}
+.bad{color:var(--bad)}.go{cursor:pointer}.go:hover{background:var(--ac2)}.mnav{display:flex;gap:8px;align-items:center;margin-bottom:14px}.mnav b{font:700 18px Georgia,serif;min-width:160px;text-align:center}
 </style></head><body>
 <header><h1>EuroPass Academy<small>Student and payment tracker · live data</small></h1>
-<nav><button id="t-dash" class="on">Dashboard</button> <button id="t-stu">Students</button></nav>
+<nav><button id="t-dash" class="on">Dashboard</button> <button id="t-stu">Students</button> <button id="t-mon">Monthly</button></nav>
 <div><button class="btn" id="bAdd">Add student</button> <button class="btn" id="bImp">Import list</button> <button class="btn" id="bCsv">Export CSV</button> <button class="btn" id="bBak">Backup</button> <button class="btn" id="bRes">Restore</button> <button class="btn" id="bOut">Sign out</button><input type="file" id="fRes" accept=".json" hidden></div></header>
 <main id="app"></main>
+<dialog id="dP"><h2 id="pT" style="margin-top:0">Record payment</h2><label>Payment date</label><input id="pD" type="date"><label>Amount (MAD)</label><input id="pA" type="number" min="0"><label>Note (optional)</label><input id="pN">
+<p id="pH" style="color:var(--mu);margin:10px 0 0"></p><div class="row"><button class="btn" id="pX">Cancel</button><button class="btn pri" id="pOk">Save payment</button></div></dialog>
 <dialog id="dL"><h2 style="margin-top:0">Sign in</h2><p style="color:var(--mu);margin:0">Use your EuroPass admin account.</p>
 <label>Email</label><input id="lE" type="email" autocomplete="username"><label>Password</label><input id="lP" type="password" autocomplete="current-password">
 <p id="lM" style="color:var(--bad);min-height:1.2em;margin:8px 0 0"></p><div class="row"><button class="btn pri" id="lOk">Sign in</button></div></dialog>
 <dialog id="dS"><h2 id="dSt" style="margin-top:0">Student</h2>
 <label>Full name</label><input id="sN"><label>Phone</label><input id="sP"><label>Group</label><select id="sG"></select>
 <label>Start date (dd/mm/yyyy)</label><input id="sD"><label>Price (MAD)</label><input id="sPr" type="number" min="0">
-<label>Notes</label><input id="sNo"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sPa"> Paid</label>
-<div class="row"><button class="btn" id="sX">Cancel</button><button class="btn pri" id="sOk">Save student</button></div></dialog>
+<label>Notes</label><input id="sNo"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sPa"> First payment received</label>
+<div class="row"><button class="btn" id="sUndo" style="margin-right:auto" hidden>Undo last payment</button><button class="btn" id="sX">Cancel</button><button class="btn pri" id="sOk">Save student</button></div></dialog>
 <dialog id="dI"><h2 style="margin-top:0">Import a list</h2><p style="color:var(--mu);margin:0 0 6px">One student per line: <b>name | phone | date | price | paid | note</b> (use 1 or OUI when paid). To import several groups at once, start each with a line like <b># Group name</b>. Pasting rows copied from Excel also works.</p>
 <label>Excel or CSV file (.xlsx, .csv, .txt)</label><input type="file" id="iF" accept=".xlsx,.xlsm,.csv,.tsv,.txt">
 <label>Existing group</label><select id="iG"></select><label>…or new group name</label><input id="iN" placeholder="e.g. A1 – Kenza G2"><label>Rows (a chosen file is converted here so you can review and fix it first)</label><textarea id="iT" rows="8"></textarea>
@@ -48,24 +54,29 @@ const $=s=>document.querySelector(s),uid=()=>crypto.randomUUID(),
 M=n=>Math.round(n).toLocaleString("en")+" MAD",esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function imp(d,gname,text){let g=d.groups.find(x=>x.name===gname);if(!g){g={id:uid(),name:gname};d.groups.push(g)}
  let n=0;text.split(/\n/).forEach(l=>{if(!l.trim())return;const[a,p,dt,pr,pd,nt]=l.split(/\t|\||;/).map(x=>(x||"").trim());if(!a)return;
- d.students.push({id:uid(),g:g.id,name:a,phone:(p||"").replace(/\s/g,""),date:dt||"",price:parseFloat(pr)||0,paid:/^(1|oui|yes|x|true)$/i.test(pd||""),note:nt||""});n++});return n}
-let S={groups:[],students:[]},tab="dash",F={g:"",st:"",q:""},edit=null;
+ {const st={id:uid(),g:g.id,name:a,phone:(p||"").replace(/\s/g,""),date:dt||"",price:parseFloat(pr)||0,paid:/^(1|oui|yes|x|true)$/i.test(pd||""),note:nt||""};d.students.push(st);if(st.paid)d.pay.push({id:uid(),s:st.id,date:iso(st.date)||tIso(),amount:st.price,note:""});n++}});return n}
+let S={groups:[],students:[],pay:[]},tab="dash",F={g:"",st:"",q:""},edit=null;
 const gn=id=>(S.groups.find(g=>g.id===id)||{}).name||"—",
 mk=d=>{const m=/(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(d||"");return m?m[3]+"-"+m[2].padStart(2,"0"):"No date"};
 const SB_URL="https://pqwjtgqkkpcgadlqroid.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxd2p0Z3Fra3BjZ2FkbHFyb2lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNzQ5MDcsImV4cCI6MjEwMDg1MDkwN30.Xkqu820L1mlDY8tJsFBP-8OhyVMFiNPPoDmYrUCHh00";
 const sb=supabase.createClient(SB_URL,SB_KEY),ck=r=>{if(r.error)throw r.error;return r},
 iso=d=>{const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((d||"").trim());return m?m[3]+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0"):null},
 dmy=d=>d?d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4):"";
-let DB={g:{},s:{}},q=Promise.resolve();
-const snap=()=>{DB={g:Object.fromEntries(S.groups.map(g=>[g.id,JSON.stringify(g)])),s:Object.fromEntries(S.students.map(s=>[s.id,JSON.stringify(s)]))}};
-async function loadAll(){const[g,s,f]=(await Promise.all([sb.from("tracker_groups").select("id,name").order("name"),sb.from("tracker_students").select("*").order("created_at").range(0,9999),sb.from("tracker_fees").select("*").range(0,9999)])).map(ck);
+let DB={g:{},s:{},p:{}},q=Promise.resolve();
+const snap=()=>{DB={g:Object.fromEntries(S.groups.map(g=>[g.id,JSON.stringify(g)])),s:Object.fromEntries(S.students.map(s=>[s.id,JSON.stringify(s)])),p:Object.fromEntries(S.pay.map(x=>[x.id,JSON.stringify(x)]))}};
+async function loadAll(){const[g,s,f,pp]=(await Promise.all([sb.from("tracker_groups").select("id,name").order("name"),sb.from("tracker_students").select("*").order("created_at").range(0,9999),sb.from("tracker_fees").select("*").range(0,9999),sb.from("tracker_payments").select("*").range(0,49999)])).map(ck);
  const fee=Object.fromEntries(f.data.map(x=>[x.student_id,+x.price]));
- S={groups:g.data,students:s.data.map(r=>({id:r.id,g:r.group_id,name:r.name,phone:r.phone||"",date:dmy(r.start_date),price:fee[r.id]||0,paid:r.paid,note:r.note||""}))};snap()}
-async function sync(){try{const gU=S.groups.filter(g=>DB.g[g.id]!==JSON.stringify(g)).map(g=>({id:g.id,name:g.name})),sU=S.students.filter(s=>DB.s[s.id]!==JSON.stringify(s)),
- sD=Object.keys(DB.s).filter(id=>!S.students.some(s=>s.id===id)),gD=Object.keys(DB.g).filter(id=>!S.groups.some(g=>g.id===id));
+ S={groups:g.data,students:s.data.map(r=>({id:r.id,g:r.group_id,name:r.name,phone:r.phone||"",date:dmy(r.start_date),price:fee[r.id]||0,paid:r.paid,note:r.note||""})),
+  pay:pp.data.map(r=>({id:r.id,s:r.student_id,date:r.paid_on,amount:+r.amount,note:r.note||""}))};snap();
+ let add=0;S.students.forEach(s=>{if(s.paid&&iso(s.date)&&!S.pay.some(x=>x.s===s.id)){S.pay.push({id:uid(),s:s.id,date:iso(s.date),amount:s.price,note:"From sheet"});add++}});if(add)save()}
+async function sync(){try{S.students.forEach(s=>{s.paid=S.pay.some(x=>x.s===s.id)});
+ const gU=S.groups.filter(g=>DB.g[g.id]!==JSON.stringify(g)).map(g=>({id:g.id,name:g.name})),sU=S.students.filter(s=>DB.s[s.id]!==JSON.stringify(s)),pU=S.pay.filter(x=>DB.p[x.id]!==JSON.stringify(x)),
+ pD=Object.keys(DB.p).filter(id=>!S.pay.some(x=>x.id===id)),sD=Object.keys(DB.s).filter(id=>!S.students.some(s=>s.id===id)),gD=Object.keys(DB.g).filter(id=>!S.groups.some(g=>g.id===id));
  if(gU.length)ck(await sb.from("tracker_groups").upsert(gU));
  if(sU.length){ck(await sb.from("tracker_students").upsert(sU.map(s=>({id:s.id,group_id:s.g,name:s.name,phone:s.phone||null,start_date:iso(s.date),paid:s.paid,note:s.note||null,updated_at:new Date().toISOString()}))));
   ck(await sb.from("tracker_fees").upsert(sU.map(s=>({student_id:s.id,price:s.price||0}))))}
+ if(pU.length)ck(await sb.from("tracker_payments").upsert(pU.map(x=>({id:x.id,student_id:x.s,paid_on:x.date,amount:x.amount||0,note:x.note||null}))));
+ if(pD.length)ck(await sb.from("tracker_payments").delete().in("id",pD));
  if(sD.length)ck(await sb.from("tracker_students").delete().in("id",sD));
  if(gD.length)ck(await sb.from("tracker_groups").delete().in("id",gD));
  snap()}catch(e){alert("Could not save to the database: "+(e.message||e)+"\nReload the page to see what is actually saved.")}}
@@ -77,28 +88,62 @@ async function boot(){$("#app").innerHTML='<p class="empty">Loading…</p>';cons
  try{await loadAll();draw()}catch(e){$("#app").innerHTML='<p class="empty">Could not load data: '+esc(e.message||e)+'</p>'}}
 $("#lOk").onclick=async()=>{const{error}=await sb.auth.signInWithPassword({email:$("#lE").value.trim(),password:$("#lP").value});if(error){$("#lM").textContent=error.message;return}$("#dL").close();boot()};
 $("#bOut").onclick=async()=>{await sb.auth.signOut();boot()};if(window.self!==window.top)$("#bOut").hidden=true;
-function dash(){const st=S.students,exp=st.reduce((a,s)=>a+s.price,0),col=st.filter(s=>s.paid).reduce((a,s)=>a+s.price,0),unp=st.filter(s=>!s.paid).length;
- const rows=S.groups.map(g=>{const x=st.filter(s=>s.g===g.id),e=x.reduce((a,s)=>a+s.price,0),c=x.filter(s=>s.paid).reduce((a,s)=>a+s.price,0);
-  return`<tr><td>${esc(g.name)}</td><td class=n>${x.length}</td><td class=n>${M(e)}</td><td class=n>${M(c)}</td><td class="n un">${M(e-c)}</td><td><div class=bar><i style="width:${e?c/e*100:0}%"></i></div></td><td><button class=btn data-gr="${g.id}">Rename</button> <button class=btn data-gm="${g.id}">Merge into…</button></td></tr>`}).join("");
- const mo={};st.forEach(s=>{const k=mk(s.date);mo[k]=(mo[k]||0)+1});const ks=Object.keys(mo).sort(),mx=Math.max(1,...Object.values(mo));
- return`<div class=kpis><div class=kpi><span>Students</span><b>${st.length}</b></div><div class=kpi><span>Expected fees</span><b>${M(exp)}</b></div>
- <div class=kpi><span>Collected</span><b class=ok>${M(col)}</b></div><div class=kpi><span>Outstanding</span><b class=warn>${M(exp-col)}</b></div>
- <div class=kpi><span>Collection rate</span><b>${exp?Math.round(col/exp*100):0}%</b></div><div class=kpi><span>Unpaid students</span><b>${unp}</b></div></div>
- <h2>Payments by group</h2><div class=pn><table><tr><th>Group<th class=n>Students<th class=n>Expected<th class=n>Collected<th class=n>Outstanding<th>Progress<th></tr>${rows||'<tr><td colspan=7 class=empty>No groups yet. Use “Import list”.'}</table></div>
- <h2>New enrolments by start month</h2><div class="pn mo">${ks.map(k=>`<div><b>${mo[k]}</b><i style="height:${mo[k]/mx*100}px"></i>${k}</div>`).join("")||'<span class=empty>No data</span>'}</div>`}
-function stu(){const q=F.q.toLowerCase(),l=S.students.filter(s=>(!F.g||s.g===F.g)&&(!F.st||(F.st==="p")===s.paid)&&(!q||(s.name+s.phone).toLowerCase().includes(q)));
+/*HELPERS*/
+const DAY=864e5,today=()=>{const n=new Date();return Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())},tIso=()=>new Date(today()).toISOString().slice(0,10),
+tms=d=>{const m=/^(\d{4})-(\d\d)-(\d\d)/.exec(d||"");return m?Date.UTC(+m[1],m[2]-1,+m[3]):null},sms=d=>{const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((d||"").trim());return m?Date.UTC(+m[3],m[2]-1,+m[1]):null},
+fmt=ms=>{const d=new Date(ms);return String(d.getUTCDate()).padStart(2,"0")+"/"+String(d.getUTCMonth()+1).padStart(2,"0")+"/"+d.getUTCFullYear()},
+mkey=ms=>{const d=new Date(ms);return d.getUTCFullYear()*12+d.getUTCMonth()},mname=k=>new Date(Date.UTC(Math.floor(k/12),k%12,1)).toLocaleString("en",{month:"long",year:"numeric",timeZone:"UTC"});
+function info(s){const ps=S.pay.filter(x=>x.s===s.id).map(x=>tms(x.date)).filter(x=>x!=null).sort((a,b)=>b-a),last=ps.length?ps[0]:null,due=last!=null?last+31*DAY:sms(s.date);
+ if(due==null)return{last,due:null,days:null,state:"nodate"};const days=Math.round((due-today())/DAY);return{last,due,days,state:days<0?"over":days===0?"today":days<=7?"soon":"ok"}}
+const lab=i=>({over:"Overdue "+(-i.days)+(i.days===-1?" day":" days"),today:"Due today",soon:"In "+i.days+(i.days===1?" day":" days"),ok:"In "+i.days+" days",nodate:"No date"})[i.state],cd=i=>`<span class="cd ${i.state}">${lab(i)}</span>`,
+wn=p=>{let d=(p||"").replace(/\D/g,"");if(!d)return"";if(d.startsWith("00"))d=d.slice(2);else if(d.startsWith("0"))d="212"+d.slice(1);else if(d.length===9)d="212"+d;return d},
+WA=p=>wn(p)?`<a class="wa" href="https://wa.me/${wn(p)}" target="_blank" rel="noopener" title="WhatsApp ${esc(p)}" aria-label="WhatsApp ${esc(p)}"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>`:"";
+/*END HELPERS*/
+let MO=mkey(today());
+const bars=(o,f)=>{const ks=Object.keys(o).sort(),mx=Math.max(1,...Object.values(o));return ks.map(k=>`<div><b>${f(o[k])}</b><i style="height:${o[k]/mx*100}px"></i>${k}</div>`).join("")||'<span class="empty">No data</span>'};
+function dash(){const st=S.students,inf=Object.fromEntries(st.map(s=>[s.id,info(s)])),cm=mkey(today()),pm=x=>{const t=tms(x.date);return t==null?-1:mkey(t)},
+ sid=g=>new Set(st.filter(s=>s.g===g).map(s=>s.id)),c=(l,k)=>l.filter(s=>inf[s.id].state===k).length,
+ col=l=>S.pay.filter(x=>pm(x)===cm&&l.has(x.s)).reduce((a,x)=>a+x.amount,0),
+ fees=st.reduce((a,s)=>a+s.price,0),thisM=S.pay.filter(x=>pm(x)===cm).reduce((a,x)=>a+x.amount,0),over=c(st,"over"),soon=c(st,"soon")+c(st,"today"),ok=c(st,"ok");
+ const rows=S.groups.map(g=>{const x=st.filter(s=>s.g===g.id),ids=sid(g.id),o=c(x,"over"),w=c(x,"soon")+c(x,"today"),u=c(x,"ok");
+  return`<tr><td>${esc(g.name)}</td><td class=n>${x.length}</td><td class=n>${M(x.reduce((a,s)=>a+s.price,0))}</td><td class=n>${M(col(ids))}</td><td class="n bad">${o}</td><td class="n warn">${w}</td><td><div class=bar><i style="width:${x.length?u/x.length*100:0}%"></i></div></td></tr>`}).join("");
+ const en={},cl={};st.forEach(s=>{const k=mk(s.date);en[k]=(en[k]||0)+1});S.pay.forEach(x=>{const k=(x.date||"").slice(0,7)||"No date";cl[k]=(cl[k]||0)+x.amount});
+ return`<div class=kpis><div class=kpi><span>Students</span><b>${st.length}</b></div><div class=kpi><span>Monthly fees</span><b>${M(fees)}</b></div>
+ <div class=kpi><span>Collected this month</span><b class=ok>${M(thisM)}</b></div><div class="kpi go" data-fs="over"><span>Overdue</span><b class=bad>${over}</b></div>
+ <div class="kpi go" data-fs="soon"><span>Due in 7 days</span><b class=warn>${soon}</b></div><div class=kpi><span>Up to date</span><b>${st.length?Math.round(ok/st.length*100):0}%</b></div></div>
+ <h2>Payments by group</h2><div class=pn><table><tr><th>Group<th class=n>Students<th class=n>Monthly fees<th class=n>Collected this month<th class=n>Overdue<th class=n>Due in 7 days<th>Up to date</tr>${rows||'<tr><td colspan=7 class=empty>No groups yet. Use “Import list”.'}</table></div>
+ <h2>Collected by month</h2><div class="pn mo">${bars(cl,v=>Math.round(v))}</div><h2>New enrolments by start month</h2><div class="pn mo">${bars(en,v=>v)}</div>`}
+function stu(){const q=F.q.toLowerCase(),rk=s=>{const i=info(s);return i.due==null?9e15:i.due},
+ l=S.students.filter(s=>{const i=info(s);return(!F.g||s.g===F.g)&&(!F.st||(F.st==="attn"?["over","today","soon"].includes(i.state):i.state===F.st))&&(!q||(s.name+s.phone).toLowerCase().includes(q))}).sort((a,b)=>rk(a)-rk(b)),
+ o=[["","All payment statuses"],["attn","Needs reminder (overdue + due in 7 days)"],["over","Overdue"],["today","Due today"],["soon","Due in 1–7 days"],["ok","Up to date"],["nodate","No date"]];
  return`<div class=tools><input id=fq placeholder="Search name or phone" value="${esc(F.q)}"><select id=fg><option value="">All groups${S.groups.map(g=>`<option value="${g.id}"${F.g===g.id?" selected":""}>${esc(g.name)}`).join("")}</select>
- <select id=fs><option value="">Paid and unpaid<option value=p${F.st==="p"?" selected":""}>Paid<option value=u${F.st==="u"?" selected":""}>Unpaid</select><span class=tag style="align-self:center">${l.length} shown · ${M(l.reduce((a,s)=>a+s.price,0))}</span></div>
- <div class=pn><table><tr><th>Name<th>Group<th>Phone<th>Start<th class=n>Price<th>Paid<th></tr>${l.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(gn(s.g))}</td><td>${esc(s.phone)}</td><td>${esc(s.date)}</td><td class=n>${s.price}</td>
- <td><input type=checkbox data-p="${s.id}"${s.paid?" checked":""} aria-label="Paid"></td><td><button class=btn data-e="${s.id}">Edit</button> <button class=btn data-d="${s.id}">Delete</button></td></tr>`).join("")||'<tr><td colspan=7 class=empty>No students match.'}</table></div>`}
-function draw(){$("#app").innerHTML=tab==="dash"?dash():stu();$("#t-dash").className=tab==="dash"?"on":"";$("#t-stu").className=tab==="stu"?"on":"";
+ <select id=fs>${o.map(([v,t])=>`<option value="${v}"${F.st===v?" selected":""}>${t}`).join("")}</select><span class=tag style="align-self:center">${l.length} shown</span></div>
+ <div class=pn><table><tr><th>Name<th>Group<th>Phone<th>Start<th class=n>Price<th>Last paid<th>Next due<th>Countdown<th></tr>${l.map(s=>{const i=info(s);return`<tr><td>${esc(s.name)}</td><td>${esc(gn(s.g))}</td><td>${esc(s.phone)}${WA(s.phone)}</td><td>${esc(s.date)}</td><td class=n>${s.price}</td>
+ <td>${i.last!=null?fmt(i.last):"—"}</td><td>${i.due!=null?fmt(i.due):"—"}</td><td>${cd(i)}</td><td><button class="btn pri" data-pay="${s.id}">Record payment</button> <button class=btn data-e="${s.id}">Edit</button> <button class=btn data-d="${s.id}">Delete</button></td></tr>`}).join("")||'<tr><td colspan=9 class=empty>No students match.'}</table></div>`}
+function mon(){const inM=ms=>ms!=null&&mkey(ms)===MO,pays=S.pay.filter(x=>inM(tms(x.date))).sort((a,b)=>a.date<b.date?1:-1),news=S.students.filter(s=>inM(sms(s.date))),
+ dues=S.students.map(s=>[s,info(s)]).filter(([s,i])=>inM(i.due)).sort((a,b)=>a[1].due-b[1].due),sOf=id=>S.students.find(s=>s.id===id)||{name:"—",g:null,phone:""},tot=pays.reduce((a,x)=>a+x.amount,0);
+ const T=(h,r,e)=>`<div class=pn><table><tr>${h}</tr>${r||`<tr><td colspan=9 class=empty>${e}`}</table></div>`;
+ return`<div class=mnav><button class=btn data-mn="-1" aria-label="Previous month">‹</button><b>${mname(MO)}</b><button class=btn data-mn="1" aria-label="Next month">›</button><button class=btn data-mn="0">This month</button></div>
+ <div class=kpis><div class=kpi><span>New students</span><b>${news.length}</b></div><div class=kpi><span>Payments received</span><b class=ok>${pays.length}</b></div><div class=kpi><span>Collected</span><b class=ok>${M(tot)}</b></div>
+ <div class=kpi><span>Next due dates in month</span><b>${dues.length}</b></div><div class=kpi><span>Amount due</span><b class=warn>${M(dues.reduce((a,[s])=>a+s.price,0))}</b></div></div>
+ <h2>Payments received</h2>${T("<th>Date<th>Student<th>Group<th class=n>Amount<th>Note",pays.map(x=>{const s=sOf(x.s);return`<tr><td>${fmt(tms(x.date))}</td><td>${esc(s.name)}${WA(s.phone)}</td><td>${esc(gn(s.g))}</td><td class=n>${M(x.amount)}</td><td>${esc(x.note)}</td></tr>`}).join(""),"No payments recorded this month.")}
+ <h2>Next payment due this month</h2>${T("<th>Due date<th>Student<th>Group<th class=n>Price<th>Countdown<th>",dues.map(([s,i])=>`<tr><td>${fmt(i.due)}</td><td>${esc(s.name)}${WA(s.phone)}</td><td>${esc(gn(s.g))}</td><td class=n>${s.price}</td><td>${cd(i)}</td><td><button class="btn pri" data-pay="${s.id}">Record payment</button></td></tr>`).join(""),"No payments fall due this month.")}
+ <h2>New students</h2>${T("<th>Start date<th>Student<th>Group<th class=n>Price",news.map(s=>`<tr><td>${esc(s.date)}</td><td>${esc(s.name)}${WA(s.phone)}</td><td>${esc(gn(s.g))}</td><td class=n>${s.price}</td></tr>`).join(""),"No students started this month.")}`}
+function draw(){$("#app").innerHTML=tab==="dash"?dash():tab==="stu"?stu():mon();["dash","stu","mon"].forEach(k=>$("#t-"+k).className=tab===k?"on":"");
  const f=$("#fq");if(f){f.oninput=e=>{F.q=e.target.value;const p=e.target.selectionStart;draw();const n=$("#fq");n.focus();n.setSelectionRange(p,p)};$("#fg").onchange=e=>{F.g=e.target.value;draw()};$("#fs").onchange=e=>{F.st=e.target.value;draw()}}}
 const opts=()=>S.groups.map(g=>`<option value="${g.id}">${esc(g.name)}`).join("");
 function openS(id){edit=id;const s=S.students.find(x=>x.id===id)||{name:"",phone:"",date:"",price:500,paid:false,note:"",g:F.g||(S.groups[0]||{}).id};
  if(!S.groups.length){alert("Create a group first with “Import list”.");return}
- $("#dSt").textContent=id?"Edit student":"Add student";$("#sG").innerHTML=opts();$("#sN").value=s.name;$("#sP").value=s.phone;$("#sG").value=s.g;$("#sD").value=s.date;$("#sPr").value=s.price;$("#sNo").value=s.note||"";$("#sPa").checked=s.paid;$("#dS").showModal()}
-$("#sOk").onclick=()=>{const v={name:$("#sN").value.trim(),phone:$("#sP").value.trim(),g:$("#sG").value,date:$("#sD").value.trim(),price:parseFloat($("#sPr").value)||0,note:$("#sNo").value.trim(),paid:$("#sPa").checked};
- if(!v.name){$("#sN").focus();return}if(edit)Object.assign(S.students.find(x=>x.id===edit),v);else S.students.push({id:uid(),...v});save();$("#dS").close();draw()};
+ $("#dSt").textContent=id?"Edit student":"Add student";$("#sG").innerHTML=opts();$("#sN").value=s.name;$("#sP").value=s.phone;$("#sG").value=s.g;$("#sD").value=s.date;$("#sPr").value=s.price;$("#sNo").value=s.note||"";$("#sPa").checked=s.paid;$("#sUndo").hidden=!(id&&S.pay.some(x=>x.s===id));$("#dS").showModal()}
+$("#sOk").onclick=()=>{const v={name:$("#sN").value.trim(),phone:$("#sP").value.trim(),g:$("#sG").value,date:$("#sD").value.trim(),price:parseFloat($("#sPr").value)||0,note:$("#sNo").value.trim()},first=$("#sPa").checked;
+ if(!v.name){$("#sN").focus();return}const id=edit||uid();if(edit)Object.assign(S.students.find(x=>x.id===edit),v);else S.students.push({id,paid:false,...v});
+ if(first&&!S.pay.some(x=>x.s===id))S.pay.push({id:uid(),s:id,date:iso(v.date)||tIso(),amount:v.price,note:""});save();$("#dS").close();draw()};
+$("#sUndo").onclick=()=>{const l=S.pay.filter(x=>x.s===edit).sort((a,b)=>a.date<b.date?1:-1)[0];if(l&&confirm("Remove the payment of "+l.amount+" MAD dated "+fmt(tms(l.date))+"?")){S.pay=S.pay.filter(x=>x.id!==l.id);save();$("#dS").close();draw()}};
+let payId=null;const pHint=()=>{const t=tms($("#pD").value);$("#pH").textContent=t?"Next payment will be due on "+fmt(t+31*DAY)+" (31 days later).":""};
+function openP(id){payId=id;const s=S.students.find(x=>x.id===id);$("#pT").textContent="Record payment – "+s.name;$("#pD").value=tIso();$("#pA").value=s.price;$("#pN").value="";pHint();$("#dP").showModal()}
+$("#pD").oninput=pHint;$("#pX").onclick=()=>$("#dP").close();
+$("#pOk").onclick=()=>{if(!tms($("#pD").value)){$("#pD").focus();return}S.pay.push({id:uid(),s:payId,date:$("#pD").value,amount:parseFloat($("#pA").value)||0,note:$("#pN").value.trim()});save();$("#dP").close();draw()};
+
 $("#sX").onclick=()=>$("#dS").close();$("#bAdd").onclick=()=>openS(null);
 $("#bImp").onclick=()=>{$("#iG").innerHTML='<option value="">—</option>'+opts();$("#iN").value="";$("#iT").value="";$("#dI").showModal()};$("#iX").onclick=()=>$("#dI").close();
 $("#iOk").onclick=()=>{let cur=$("#iN").value.trim()||(S.groups.find(g=>g.id===$("#iG").value)||{}).name,buf=[],n=0,gs=new Set,bad=false;
@@ -143,19 +188,24 @@ $("#iF").onchange=async e=>{const f=e.target.files[0];if(!f)return;const ext=f.n
   const chosen=$("#iN").value.trim()||$("#iG").value;
   $("#iT").value=parts.length===1&&chosen?parts[0][1]:parts.map(([n,l])=>"# "+n+"\n"+l).join("\n\n")}
  catch(x){alert("Could not read this file. Try saving it as CSV and choosing that instead.")}finally{e.target.value=""}};
-$("#t-dash").onclick=()=>{tab="dash";draw()};$("#t-stu").onclick=()=>{tab="stu";draw()};
-$("#app").onclick=e=>{const t=e.target,p=t.dataset.p,ed=t.dataset.e,d=t.dataset.d,gr=t.dataset.gr,gm=t.dataset.gm;
+$("#t-dash").onclick=()=>{tab="dash";draw()};$("#t-stu").onclick=()=>{tab="stu";draw()};$("#t-mon").onclick=()=>{tab="mon";draw()};
+$("#app").onclick=e=>{const t=e.target,k=t.closest("[data-fs]"),p=t.dataset.p,ed=t.dataset.e,d=t.dataset.d,gr=t.dataset.gr,gm=t.dataset.gm;
+ if(k){F.st=k.dataset.fs;F.g="";F.q="";tab="stu";draw();return}
+ if(t.dataset.mn!==undefined){MO=t.dataset.mn==="0"?mkey(today()):MO+ +t.dataset.mn;draw();return}
+ if(t.dataset.pay){openP(t.dataset.pay);return}
  if(gr){const g=S.groups.find(x=>x.id===gr),v=prompt("New group name",g.name);if(v&&v.trim()){g.name=v.trim();save();draw()}return}
  if(gm){const o=S.groups.filter(x=>x.id!==gm),v=prompt("Merge into which group? Type its number:\n"+o.map((x,i)=>(i+1)+". "+x.name).join("\n")),to=o[parseInt(v)-1];
   if(to&&confirm("Move all students of this group into “"+to.name+"” and remove the empty group?")){S.students.forEach(s=>{if(s.g===gm)s.g=to.id});S.groups=S.groups.filter(x=>x.id!==gm);if(F.g===gm)F.g="";save();draw()}return}
- if(p){S.students.find(s=>s.id===p).paid=t.checked;save()}if(ed)openS(ed);if(d&&confirm("Delete this student?")){S.students=S.students.filter(s=>s.id!==d);save();draw()}};
+ if(p){S.students.find(s=>s.id===p).paid=t.checked;save()}if(ed)openS(ed);if(d&&confirm("Delete this student?")){S.pay=S.pay.filter(x=>x.s!==d);S.students=S.students.filter(s=>s.id!==d);save();draw()}};
 function dl(name,txt,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click()}
-$("#bCsv").onclick=()=>dl("students.csv","\ufeffGroup,Name,Phone,Start,Price,Paid\n"+S.students.map(s=>[gn(s.g),s.name,s.phone,s.date,s.price,s.paid?"OUI":""].map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(",")).join("\n"),"text/csv");
+$("#bCsv").onclick=()=>dl("students.csv","\ufeffGroup,Name,Phone,Start,Price,Last paid,Next due,Status\n"+S.students.map(s=>{const i=info(s);return[gn(s.g),s.name,s.phone,s.date,s.price,i.last!=null?fmt(i.last):"",i.due!=null?fmt(i.due):"",lab(i)].map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(",")}).join("\n"),"text/csv");
 $("#bBak").onclick=()=>dl("europass-backup-"+new Date().toISOString().slice(0,10)+".json",JSON.stringify(S),"application/json");
 $("#bRes").onclick=()=>$("#fRes").click();$("#fRes").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);if(!d.groups||!d.students)throw 0;
  if(!confirm("Add "+d.students.length+" students from this backup to the database? Existing data is kept."))return;const mp={};
  d.groups.forEach(g=>{let x=S.groups.find(y=>y.name===g.name);if(!x){x={id:uid(),name:g.name};S.groups.push(x)}mp[g.id]=x.id});
- d.students.forEach(s=>{if(mp[s.g])S.students.push({id:uid(),g:mp[s.g],name:s.name,phone:s.phone||"",date:s.date||"",price:+s.price||0,paid:!!s.paid,note:s.note||""})});save();draw()}catch(x){alert("This file is not a valid backup.")}})};
+ const im={};d.students.forEach(s=>{if(mp[s.g]){const n={id:uid(),g:mp[s.g],name:s.name,phone:s.phone||"",date:s.date||"",price:+s.price||0,paid:!!s.paid,note:s.note||""};im[s.id]=n.id;S.students.push(n)}});
+ (d.pay||[]).forEach(x=>{if(im[x.s])S.pay.push({id:uid(),s:im[x.s],date:x.date,amount:+x.amount||0,note:x.note||""})});
+ d.students.forEach(s=>{const n=im[s.id];if(n&&s.paid&&!S.pay.some(x=>x.s===n)&&iso(s.date))S.pay.push({id:uid(),s:n,date:iso(s.date),amount:+s.price||0,note:"From backup"})});save();draw()}catch(x){alert("This file is not a valid backup.")}})};
 boot();
 
 </script></body></html>
