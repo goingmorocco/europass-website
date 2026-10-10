@@ -56,8 +56,18 @@
 /* New Admin Analytics dashboard replacement */
 [data-tab-panel="analytics"] { width:100%; }
 [data-tab-panel="analytics"] > div { width:100%; }
+/* Analytics tab uses the full width of the content column (no centred max-width or side padding) */
+#admin-shell .container-ep:has(> [data-tab-panel="analytics"]:not(.hidden)){max-width:none!important;width:100%!important;margin:0!important;padding:0!important}
 @media (max-width: 1023px){
   [data-tab-panel="analytics"] iframe{height:calc(100vh - 6rem);min-height:700px;}
+}
+/* Compact admin menu: a slim icon rail that expands over the content on hover, so it never pushes the page */
+@media (min-width: 1024px){
+  #admin-shell > aside{width:4.25rem!important;padding-left:.5rem;padding-right:.5rem;overflow:hidden;position:relative;z-index:35;background:var(--bg-surface,#fff);transition:width .18s ease,margin .18s ease,padding .18s ease}
+  #admin-shell > aside button{font-size:0;justify-content:center;gap:0;padding-left:0;padding-right:0;white-space:nowrap}
+  #admin-shell > aside svg{flex-shrink:0}
+  #admin-shell > aside:hover,#admin-shell > aside:focus-within{width:15rem!important;margin-right:-10.75rem;padding-left:1rem;padding-right:1rem;box-shadow:6px 0 24px rgba(11,29,58,.12)}
+  #admin-shell > aside:hover button,#admin-shell > aside:focus-within button{font-size:.875rem;justify-content:flex-start;gap:.75rem;padding-left:1rem;padding-right:1rem}
 }
 </style></head>
 <body>
@@ -206,7 +216,7 @@
 </div>
 </div>
 </div>
-<div class="hidden" data-tab-panel="analytics"><div class="w-full" style="margin:-2rem 0 0 0;"><iframe loading="eager" src="europass-student-tracker.html" style="width:100%;height:calc(100vh - 8rem);min-height:760px;border:0;background:#eef2f1;display:block;" title="EuroPass Student Tracker Analytics Dashboard"></iframe></div></div>
+<div class="hidden" data-tab-panel="analytics"><div class="w-full" style="margin:0;"><iframe loading="eager" src="europass-student-tracker.html" style="width:100%;height:calc(100vh - 8rem);min-height:760px;border:0;background:#eef2f1;display:block;" title="EuroPass Student Tracker Analytics Dashboard"></iframe></div></div>
 <div class="hidden" data-tab-panel="blog">
 <div class="flex items-center justify-between mb-6">
 <h1 class="font-serif text-2xl font-bold" style="color:var(--navy-700)">Blog &amp; Content</h1>
